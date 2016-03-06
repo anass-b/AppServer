@@ -10,6 +10,7 @@
 #define appserver_InputSource_h
 
 #include <iostream>
+#include <memory>
 
 namespace appserver
 {

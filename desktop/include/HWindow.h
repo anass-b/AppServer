@@ -11,8 +11,16 @@
 
 #include <memory>
 
+#ifdef _WIN32
 #include <Window.h>
+#endif
+
+#ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
+#elif __linux__
+#include <GL/gl.h>
+#endif
+
 #include <HCompositor.h>
 
 namespace appserver

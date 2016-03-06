@@ -10,7 +10,6 @@
 #include <Server.h>
 #include <HWindow.h>
 #include <Geometry.h>
-#include <OpenGL/glu.h>
 
 using namespace appserver;
 

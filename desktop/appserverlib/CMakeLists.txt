@@ -11,5 +11,10 @@ set (HEADERS
 	include/Asl/Protocol.h
 	include/Asl/Utils.h
 	)
-add_library (appserverlib ${SOURCES} ${HEADERS})
-set_property(TARGET appserverlib PROPERTY CXX_STANDARD 11)
+add_library (appserver SHARED ${SOURCES} ${HEADERS})
+
+if ("${CMAKE_SYSTEM}" MATCHES "Linux")
+	target_link_libraries (appserver rt)
+endif()
+
+set_property(TARGET appserver PROPERTY CXX_STANDARD 11)

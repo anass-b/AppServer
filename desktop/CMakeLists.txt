@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.4)
+cmake_minimum_required (VERSION 3.2.2)
 project (DesktopClient)
 
 FIND_PACKAGE(OpenGL REQUIRED)
@@ -47,5 +47,12 @@ set (HEADERS
 	include/glfw/GlfwWorkspace.h
 	)
 add_executable(DesktopClient ${SOURCES} ${HEADERS})
-target_link_libraries (DesktopClient appserverlib glfw3 ${OPENGL_LIBRARY})
+
+if (APPLE)
+	set (EXTRA_LIBS glfw3)
+elseif (UNIX)
+	set (EXTRA_LIBS glfw pthread rt)
+endif()
+
+target_link_libraries (DesktopClient appserver ${EXTRA_LIBS} ${OPENGL_LIBRARY})
 set_property(TARGET DesktopClient PROPERTY CXX_STANDARD 11)
