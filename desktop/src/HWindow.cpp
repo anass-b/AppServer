@@ -10,6 +10,9 @@
 #include <Server.h>
 #include <HWindow.h>
 #include <Geometry.h>
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#endif
 
 using namespace appserver;
 
