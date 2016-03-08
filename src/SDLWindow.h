@@ -15,6 +15,13 @@
 
 namespace appserver
 {
+    enum SDLTexOperation {
+        kSDLTexOpNone,
+        kSDLTexOpCreate,
+        kSDLTexOpUpdatePixels,
+        kSDLTexOpResize
+    };
+    
     class SDLWindow : public Window
     {
     public:
@@ -33,6 +40,20 @@ namespace appserver
         void setRenderer(SDL_Renderer *renderer);
         
     private:
+        void draw();
+        void createTexture();
+        void resizeTexture();
+        void updateTexturePixels();
+        
+        Rect getCachedFrame() const;
+        
+    private:        
+        SDLTexOperation _glTexOperation;
+        Rect _cachedFrame;
+        void* _pixels;
+        bool _glOpBlocked;
+        bool _dataOpBlocked;
+        Rect _dirtyRect;
         SDL_Texture *_texture;
         SDL_Renderer *_renderer;
     };
