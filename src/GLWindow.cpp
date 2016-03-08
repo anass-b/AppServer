@@ -109,10 +109,10 @@ void GLWindow::glCreateTexture()
     glGenTextures(1, &_texId);
     glBindTexture(GL_TEXTURE_2D, _texId);
     
-    if (getRasterType() == AspWindowRasterBGRA) {
+    if (getRasterType() == AspWindowRasterARGB) {
         glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }
-    else if (getRasterType() == AspWindowRasterABGR) {
+    else if (getRasterType() == AspWindowRasterRGBA) {
         glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
     }
     
@@ -125,10 +125,10 @@ void GLWindow::glResizeTexture()
     Rect frame = getCachedFrame();
     
     glBindTexture(GL_TEXTURE_2D, _texId);
-    if (getRasterType() == AspWindowRasterBGRA) {
+    if (getRasterType() == AspWindowRasterARGB) {
         glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }
-    else if (getRasterType() == AspWindowRasterABGR) {
+    else if (getRasterType() == AspWindowRasterRGBA) {
         glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
     }
     
@@ -142,10 +142,10 @@ void GLWindow::glUpdateTexturePixels()
     
     glBindTexture(GL_TEXTURE_2D, _texId);
     
-    if (getRasterType() == AspWindowRasterBGRA) {
+    if (getRasterType() == AspWindowRasterARGB) {
         glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyRect.location.x, dirtyRect.location.y, dirtyRect.size.width, dirtyRect.size.height, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }
-    else if (getRasterType() == AspWindowRasterABGR) {
+    else if (getRasterType() == AspWindowRasterRGBA) {
         glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyRect.location.x, dirtyRect.location.y, dirtyRect.size.width, dirtyRect.size.height, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
     }
 }

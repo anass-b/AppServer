@@ -13,7 +13,7 @@ using namespace appserver;
 
 int main(int argc, char **argv)
 {
-    Server::getSingleton()->run();
+    Server::getSingleton()->run(kBackendModeGLFW);
     
     return 0;
 }

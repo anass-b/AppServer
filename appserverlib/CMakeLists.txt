@@ -1,3 +1,5 @@
+project(appserver)
+
 set (SOURCES
 	src/CApi.cpp
 	src/Connector.cpp

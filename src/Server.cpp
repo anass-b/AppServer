@@ -9,6 +9,8 @@
 #include <Server.h>
 #include <SDLWorkspace.h>
 #include <SDLCompositor.h>
+#include <GLCompositor.h>
+#include <GlfwWorkspace.h>
 #include <Asl/Logger.h>
 #include <Asl/Connector.h>
 #include <Asl/Utils.h>
@@ -95,8 +97,10 @@ void* Server::processMonitor(void *ptr)
     return nullptr;
 }
 
-void Server::run()
+void Server::run(BackendMode backendMode)
 {
+    _backendMode = backendMode;
+    
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
         throw runtime_error(strerror(errno));
     }
@@ -105,10 +109,17 @@ void Server::run()
         throw runtime_error(strerror(errno));
     }
     
-    _compositor = std::make_shared<SDLCompositor>();
     _windowManager = std::make_shared<WindowManager>();
     
-    std::shared_ptr<Workspace> mainWorkspace = make_shared<SDLWorkspace>(_compositor);
+    std::shared_ptr<Workspace> mainWorkspace;
+    if (backendMode == kBackendModeSDL) {
+        _compositor = std::make_shared<SDLCompositor>();
+        mainWorkspace = make_shared<SDLWorkspace>(_compositor);
+    }
+    else if (backendMode == kBackendModeGLFW) {
+        _compositor = std::make_shared<GLCompositor>();
+        mainWorkspace = make_shared<GlfwWorkspace>(_compositor);
+    }
     _workspaces.push_back(mainWorkspace);
     
     return mainWorkspace->run();
@@ -173,6 +184,11 @@ std::shared_ptr<Workspace> Server::getScreenAt(int index) const
 std::shared_ptr<Workspace> Server::getActiveScreen() const
 {
     return getScreenAt(0);
+}
+
+BackendMode Server::getBackendMode() const
+{
+    return _backendMode;
 }
 
 Server::~Server()

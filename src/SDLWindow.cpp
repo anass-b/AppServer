@@ -120,17 +120,18 @@ void SDLWindow::setRenderer(SDL_Renderer *renderer)
 
 void SDLWindow::createTexture()
 {
-    Uint32 pixelFormat = SDL_PIXELFORMAT_RGBA8888;
+    Uint32 pixelFormat = SDL_PIXELFORMAT_ARGB8888;
     
-    /*if (getRasterType() == AspWindowRasterBGRA) {
-     pixelFormat = SDL_PIXELFORMAT_BGRA8888;
-     }
-     else if (getRasterType() == AspWindowRasterABGR) {
-     pixelFormat = SDL_PIXELFORMAT_ABGR8888;
-     }*/
+    if (getRasterType() == AspWindowRasterRGBA) {
+        pixelFormat = SDL_PIXELFORMAT_RGBA8888;
+    }
+    else if (getRasterType() == AspWindowRasterARGB) {
+        pixelFormat = SDL_PIXELFORMAT_ARGB8888;
+    }
     
     Rect frame = getCachedFrame();
     _texture = SDL_CreateTexture(_renderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, frame.size.width, frame.size.height);
+    SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
     SDL_UpdateTexture(_texture, NULL, _pixels, 4*frame.size.width);
 }
 

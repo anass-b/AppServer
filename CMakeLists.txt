@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 3.2.2)
 project (DesktopClient)
 
+# add usr/local
+include_directories ("/usr/local/include")
+link_directories ("/usr/local/lib")
+
 find_package(OpenGL REQUIRED)
 if(OpenGL_FOUND)
 	link_directories(${OpenGL_LIBRARY_DIRS})
@@ -14,13 +18,14 @@ include_directories(${SDL2_INCLUDE_DIR})
 
 include_directories ("${PROJECT_SOURCE_DIR}/src")
 
-# add usr/local
-include_directories ("/usr/local/include")
-link_directories ("/usr/local/lib")
-
-# add appserverlib library
+# add appserver library
 include_directories ("${PROJECT_SOURCE_DIR}/appserverlib/include")
 add_subdirectory (appserverlib)
+
+# add nativecode library
+add_subdirectory (sdk/nativecode)
+#add_subdirectory (sdk/nativecode/tests/test1)
+#add_subdirectory (sdk/nativecode/tests/test2)
 
 set (SOURCES 
 	src/App.h

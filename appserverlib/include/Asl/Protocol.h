@@ -21,8 +21,8 @@
 /*
  * Window Raster Type
  */
-#define AspWindowRasterBGRA 1
-#define AspWindowRasterABGR 2
+#define AspWindowRasterRGBA 1
+#define AspWindowRasterARGB 2
 
 /*
  * Event IDs (Sent by server, received by client)

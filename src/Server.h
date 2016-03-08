@@ -21,11 +21,16 @@
 
 namespace appserver
 {
+    enum BackendMode {
+        kBackendModeSDL,
+        kBackendModeGLFW
+    };
+    
     class Server
     {
     public:
         virtual ~Server();
-        void run();
+        void run(BackendMode backendMode);
         std::shared_ptr<Workspace> getActiveScreen() const;
         std::shared_ptr<Workspace> getScreenAt(int index) const;
         void addApp(std::shared_ptr<App> app);
@@ -35,6 +40,7 @@ namespace appserver
         std::weak_ptr<WindowManager> getWindowManager() const;
         void dispatchMessage(Asp_Request req);
         std::weak_ptr<message_queue> getMessageQueue() const;
+        BackendMode getBackendMode() const;
         // Static methods:
         static Server* getSingleton();
         static void* requestListener(void *ptr);
@@ -51,6 +57,7 @@ namespace appserver
         pthread_t _messageDispatcher;
         pthread_t _processMonitor;
         int _sock;
+        BackendMode _backendMode;
     };
 }
 

@@ -88,7 +88,7 @@ void App::newWindow(Asp_Request req)
         Logger::log(msg, __func__);
         throw std::invalid_argument(msg);
     }
-    if (req.field5 != AspWindowRasterABGR && req.field5 != AspWindowRasterBGRA) {
+    if (req.field5 != AspWindowRasterARGB && req.field5 != AspWindowRasterRGBA) {
         string msg = "Invalid raster tyoe given by client app";
         Logger::log(msg, __func__);
         throw std::invalid_argument(msg);
@@ -120,14 +120,20 @@ void App::newWindow(Asp_Request req)
                                     static_cast<double>(req.field2),
                                     static_cast<double>(req.field3));
         
-        std::shared_ptr<Window> newWindow = make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
-        
         std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
         
-        // SDL specific
-        std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
-        std::shared_ptr<SDLWindow> sdlWindow = std::dynamic_pointer_cast<SDLWindow>(newWindow);
-        sdlWindow->setRenderer(sdlCompositor->getRenderer());
+        std::shared_ptr<Window> newWindow;
+        if (Server::getSingleton()->getBackendMode() == kBackendModeSDL) {
+            newWindow = make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+            
+            std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
+            std::shared_ptr<SDLWindow> sdlWindow = std::dynamic_pointer_cast<SDLWindow>(newWindow);
+            sdlWindow->setRenderer(sdlCompositor->getRenderer());
+        }
+        else if (Server::getSingleton()->getBackendMode() == kBackendModeGLFW) {
+            newWindow = make_shared<GLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+        }
+        
         
         newWindow->create(data, req.dataSize);
         compositor->addWindow(std::move(newWindow));
