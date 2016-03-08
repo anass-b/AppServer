@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_server_h
-#define appserver_server_h
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <memory>
 #include <vector>

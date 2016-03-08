@@ -7,8 +7,8 @@
 //
 
 #include <Server.h>
-#include <glfw/GlfwWorkspace.h>
-#include <HCompositor.h>
+#include <SDLWorkspace.h>
+#include <SDLCompositor.h>
 #include <Asl/Logger.h>
 #include <Asl/Connector.h>
 #include <Asl/Utils.h>
@@ -105,10 +105,10 @@ void Server::run()
         throw runtime_error(strerror(errno));
     }
     
-    _compositor = std::make_shared<HCompositor>();
+    _compositor = std::make_shared<SDLCompositor>();
     _windowManager = std::make_shared<WindowManager>();
     
-    std::shared_ptr<Workspace> mainWorkspace = make_shared<GlfwWorkspace>(_compositor);
+    std::shared_ptr<Workspace> mainWorkspace = make_shared<SDLWorkspace>(_compositor);
     _workspaces.push_back(mainWorkspace);
     
     return mainWorkspace->run();

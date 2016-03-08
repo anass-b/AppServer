@@ -6,17 +6,17 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <HCompositor.h>
+#include <GLCompositor.h>
 #include <GLFW/glfw3.h>
 #include <memory>
 
 using namespace appserver;
  
-HCompositor::HCompositor()
+GLCompositor::GLCompositor()
 {
 }
 
-void HCompositor::compose()
+void GLCompositor::compose()
 {
     int r = 65;
     int g = 105;
@@ -52,7 +52,7 @@ void HCompositor::compose()
     }
 }
 
-HCompositor::~HCompositor()
+GLCompositor::~GLCompositor()
 {
 }
 

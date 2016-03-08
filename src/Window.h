@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_Surface_h
-#define appserver_Surface_h
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <memory>
 

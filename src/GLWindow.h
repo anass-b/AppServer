@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_GLSurface_h
-#define appserver_GLSurface_h
+#ifndef GLWINDOW_H
+#define GLWINDOW_H
 
 #include <memory>
 
@@ -21,7 +21,7 @@
 #include <GL/gl.h>
 #endif
 
-#include <HCompositor.h>
+#include <GLCompositor.h>
 
 namespace appserver
 {
@@ -32,12 +32,12 @@ namespace appserver
         kTexOpResize
     };
     
-    class HWindow : public Window
+    class GLWindow : public Window
     {
     public:
-        HWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
-        HWindow(TWindowId id);
-        virtual ~HWindow();
+        GLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
+        GLWindow(TWindowId id);
+        virtual ~GLWindow();
         
         virtual void performOperationsAndDraw();
         virtual bool operationsFinished();

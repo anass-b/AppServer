@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_GLCompositor_h
-#define appserver_GLCompositor_h
+#ifndef GLCOMPOSITOR_H
+#define GLCOMPOSITOR_H
 
 #include <memory>
 
@@ -15,11 +15,11 @@
 
 namespace appserver
 {
-    class HCompositor : public Compositor
+    class GLCompositor : public Compositor
     {
     public:
-        HCompositor();
-        virtual ~HCompositor();
+        GLCompositor();
+        virtual ~GLCompositor();
         virtual void compose();
     };
 }

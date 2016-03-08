@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_WindowManager_h
-#define appserver_WindowManager_h
+#ifndef WINDOWMANAGER_H
+#define WINDOWMANAGER_H
 
 #include <iostream>
 #include <Geometry.h>

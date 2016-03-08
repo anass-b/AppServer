@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_GlfwInputSource_h
-#define appserver_GlfwInputSource_h
+#ifndef GLFWINPUTSOURCE_H
+#define GLFWINPUTSOURCE_H
 
 #include <memory>
 #include <GLFW/glfw3.h>
@@ -19,7 +19,7 @@ namespace appserver
     {
     public:
         GlfwInputSource(std::shared_ptr<Workspace> screen);
-        virtual void pollEvents();
+        virtual bool pollEvents();
         virtual void onMouseMoveEvent(double x, double y);
         virtual void onMouseButtonEvent(double x, double y, int button, int type);
         virtual void onKeyEvent(unsigned int charCode);

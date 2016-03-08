@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <Server.h>
-#include <HWindow.h>
+#include <GLWindow.h>
 #include <Geometry.h>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
@@ -16,18 +16,18 @@
 
 using namespace appserver;
 
-HWindow::HWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible)
+GLWindow::GLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible)
     : Window(app, id, frame, rasterType, visible), _texId(0), _glOpBlocked(false),
         _glTexOperation(kTexOpNone), _pixels(nullptr), _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0)), _dataOpBlocked(false), _cachedFrame(frame)
 {
 }
 
-void HWindow::move(Point location)
+void GLWindow::move(Point location)
 {
     _cachedFrame.location = location;
 }
 
-void HWindow::create(void *pixels, size_t bytes)
+void GLWindow::create(void *pixels, size_t bytes)
 {
     while (_dataOpBlocked);
     _glOpBlocked = true;
@@ -42,7 +42,7 @@ void HWindow::create(void *pixels, size_t bytes)
     _glOpBlocked = false;
 }
 
-void HWindow::resize(void *pixels, size_t bytes)
+void GLWindow::resize(void *pixels, size_t bytes)
 {
     while (_dataOpBlocked);
     _glOpBlocked = true;
@@ -58,7 +58,7 @@ void HWindow::resize(void *pixels, size_t bytes)
     _glOpBlocked = false;
 }
 
-void HWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
+void GLWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
 {
     while (_dataOpBlocked);
     _glOpBlocked = true;
@@ -75,7 +75,7 @@ void HWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
 }
 
 
-void HWindow::performOperationsAndDraw()
+void GLWindow::performOperationsAndDraw()
 {
     while (_glOpBlocked);
     _dataOpBlocked = true;
@@ -102,7 +102,7 @@ void HWindow::performOperationsAndDraw()
     glDraw();
 }
 
-void HWindow::glCreateTexture()
+void GLWindow::glCreateTexture()
 {
     Rect frame = getCachedFrame();
     
@@ -120,7 +120,7 @@ void HWindow::glCreateTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 }
 
-void HWindow::glResizeTexture()
+void GLWindow::glResizeTexture()
 {
     Rect frame = getCachedFrame();
     
@@ -136,7 +136,7 @@ void HWindow::glResizeTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 }
 
-void HWindow::glUpdateTexturePixels()
+void GLWindow::glUpdateTexturePixels()
 {
     Rect dirtyRect = _dirtyRect;
     
@@ -150,13 +150,13 @@ void HWindow::glUpdateTexturePixels()
     }
 }
 
-void HWindow::glDeleteTexture()
+void GLWindow::glDeleteTexture()
 {
     //GLuint uint = (GLuint)_texId;
     //glDeleteTextures(1, &uint);
 }
 
-void HWindow::glDraw()
+void GLWindow::glDraw()
 {
     Rect frame = getCachedFrame();
     
@@ -185,7 +185,7 @@ void HWindow::glDraw()
     glDisable(GL_TEXTURE_2D);
 }
 
-bool HWindow::operationsFinished()
+bool GLWindow::operationsFinished()
 {
     if (!_dataOpBlocked) {
         return true;
@@ -193,12 +193,12 @@ bool HWindow::operationsFinished()
     return false;
 }
 
-Rect HWindow::getCachedFrame() const
+Rect GLWindow::getCachedFrame() const
 {
     return _cachedFrame;
 }
 
-HWindow::~HWindow()
+GLWindow::~GLWindow()
 {
     glDeleteTexture();
 }

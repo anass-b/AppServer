@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <glfw/GlfwWorkspace.h>
-#include <glfw/GlfwInputSource.h>
+#include <GlfwWorkspace.h>
+#include <GlfwInputSource.h>
 #include <Asl/Utils.h>
 
 using namespace appserver;

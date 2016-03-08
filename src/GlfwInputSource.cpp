@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <glfw/GlfwInputSource.h>
-#include <glfw/GlfwWorkspace.h>
+#include <GlfwInputSource.h>
+#include <GlfwWorkspace.h>
 #include <Server.h>
 #include <Compositor.h>
 
@@ -30,9 +30,10 @@ GlfwInputSource::GlfwInputSource(std::shared_ptr<Workspace> screen) : InputSourc
     glfwSetMouseButtonCallback(workspace->_window, MouseButtonCallback);
 }
 
-void GlfwInputSource::pollEvents()
+bool GlfwInputSource::pollEvents()
 {
     glfwPollEvents();
+    return true;
 }
 
 void GlfwInputSource::onMouseMoveEvent(double x, double y)

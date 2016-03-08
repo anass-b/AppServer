@@ -8,7 +8,9 @@
 
 #include <App.h>
 #include <Server.h>
-#include <HWindow.h>
+#include <GLWindow.h>
+#include <SDLWindow.h>
+#include <SDLCompositor.h>
 #include <Geometry.h>
 #include <Asl/Logger.h>
 #include <Asl/Protocol.h>
@@ -118,9 +120,17 @@ void App::newWindow(Asp_Request req)
                                     static_cast<double>(req.field2),
                                     static_cast<double>(req.field3));
         
-        std::shared_ptr<Window> newWindow = make_shared<HWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+        std::shared_ptr<Window> newWindow = make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+        
+        std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+        
+        // SDL specific
+        std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
+        std::shared_ptr<SDLWindow> sdlWindow = std::dynamic_pointer_cast<SDLWindow>(newWindow);
+        sdlWindow->setRenderer(sdlCompositor->getRenderer());
+        
         newWindow->create(data, req.dataSize);
-        Server::getSingleton()->getCompositor().lock()->addWindow(std::move(newWindow));
+        compositor->addWindow(std::move(newWindow));
     }
     catch (std::exception e) {
         Logger::log(e.what(), __func__);

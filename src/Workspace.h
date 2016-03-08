@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_Screen_h
-#define appserver_Screen_h
+#ifndef WORKSPACE_H
+#define WORKSPACE_H
 
 #include <iostream>
 #include <memory>

@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_GlfwScreen_h
-#define appserver_GlfwScreen_h
+#ifndef GLFWWORKSPACE_H
+#define GLFWWORKSPACE_H
 
 #include <iostream>
 #include <GLFW/glfw3.h>

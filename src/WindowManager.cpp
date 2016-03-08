@@ -10,7 +10,6 @@
 #include <Server.h>
 #include <Compositor.h>
 #include <Window.h>
-#include <HWindow.h>
 #include <App.h>
 
 using namespace appserver;

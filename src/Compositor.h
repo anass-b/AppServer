@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_Compositor_h
-#define appserver_Compositor_h
+#ifndef COMPOSITOR_H
+#define COMPOSITOR_H
 
 #include <iostream>
 #include <memory>

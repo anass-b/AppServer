@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_InputSource_h
-#define appserver_InputSource_h
+#ifndef INPUTSOURCE_H
+#define INPUTSOURCE_H
 
 #include <iostream>
 #include <memory>
@@ -20,7 +20,7 @@ namespace appserver
     {
     public:
         InputSource(std::shared_ptr<Workspace> screen);
-        virtual void pollEvents() = 0;
+        virtual bool pollEvents() = 0;
         virtual void onMouseMoveEvent(double x, double y) = 0;
         virtual void onMouseButtonEvent(double x, double y, int button, int type) = 0;
         virtual void onKeyEvent(unsigned int charCode) = 0;
