@@ -1,6 +1,7 @@
 #include <iostream>
 #include <nativecode/nativecode.h>
 #include <time.h>
+#include <string.h>
 
 using namespace app;
 

@@ -31,4 +31,4 @@ endif()
 
 target_link_libraries (nativecode appserver cairo ${EXTRA_LIBS})
 
-set_property(TARGET appserver PROPERTY CXX_STANDARD 11)
+set_property(TARGET nativecode PROPERTY CXX_STANDARD 11)
