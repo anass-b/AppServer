@@ -110,10 +110,10 @@ void GLWindow::glCreateTexture()
     glBindTexture(GL_TEXTURE_2D, _texId);
     
     if (getRasterType() == AspWindowRasterARGB) {
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }
     else if (getRasterType() == AspWindowRasterRGBA) {
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
     }
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -126,10 +126,10 @@ void GLWindow::glResizeTexture()
     
     glBindTexture(GL_TEXTURE_2D, _texId);
     if (getRasterType() == AspWindowRasterARGB) {
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, frame.size.width, frame.size.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, _pixels);
     }
     else if (getRasterType() == AspWindowRasterRGBA) {
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, frame.size.width, frame.size.height, 0, GL_ABGR_EXT, GL_UNSIGNED_BYTE, _pixels);
     }
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST);
