@@ -54,7 +54,7 @@ public class TestAppListener implements App.AppListener {
             }
         }
 
-        /*try {
+        try {
             Window window = new Window("Nice window", 100.0, 100.0, 640.0, 480.0);
 
             final BufferedImage image = ImageIO.read(new File("img/image3.png"));
@@ -83,11 +83,11 @@ public class TestAppListener implements App.AppListener {
             window.show();
 
             // Uncomment to enable the fast window resizing test
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new RemindTask(window), new Date(), 15);
+            //timer = new Timer();
+            //timer.scheduleAtFixedRate(new RemindTask(window), new Date(), 15);
         }
         catch (Exception e) {
-        }*/
+        }
     }
 
     class RemindTask extends TimerTask {
