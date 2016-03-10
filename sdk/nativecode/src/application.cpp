@@ -86,6 +86,13 @@ namespace app
             }
         }
         
+        /*while (true) {
+            std::cout << "I'm here :)" << std::endl;
+            sleep(1);
+        }*/
+        
+        _server->unregisterClient();
+        
         return 0;
     }
     
@@ -96,8 +103,7 @@ namespace app
     
     int Application::quit()
     {
-        _runLoop = false;
-        _server->unregisterClient();
+        _runLoop = false;        
         return 0;
     }
 }

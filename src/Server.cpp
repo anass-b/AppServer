@@ -24,38 +24,40 @@ Server* Server::_sharedInst = nullptr;
 
 Server::Server()
 {
-    message_queue::remove(asl::Connector::serverMessageQueueName().c_str());
-    _msgq = make_shared<message_queue>(create_only, asl::Connector::serverMessageQueueName().c_str(), 1000000, sizeof(Asp_Request));
+    _context = std::make_shared<zmq::context_t>(1);
+    _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+    _socket->bind("tcp://*:5555");
+    
+    // Events socket
+    //_eventsContext = std::make_shared<zmq::context_t>(1);
+    _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _eventsSocket->connect ("tcp://192.168.1.3:6666");
 }
 
 void Server::dispatchMessage(Asp_Request req)
 {
     if (req.type == AspRequestRegister) {
         std::shared_ptr<App> app = nullptr;
-        try {
-            app = make_shared<App>(req.field0);
-            Asp_Event evt;
-            evt.field0 = app->getId();
-            app->getMessageQueue().lock()->send(&evt, sizeof(evt), 0);
-            addApp(app);
-        } catch (std::runtime_error e) {
-            std::string what(e.what());
-            asl::Logger::log("Cannot register client app: " + what);
-            removeAppById(app->getId());
-        }
+        app = make_shared<App>(req.field0);
+        Asp_Event evt;
+        evt.field0 = app->getId();
+        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+        zmq::message_t response(&evt, sizeof(Asp_Event));
+        socket->send(response);
+        addApp(app);
     }
     else {
         std::shared_ptr<App> app = findApp(req.clientId).lock();
         if (app != nullptr) {
             if (req.type == AspRequestUnregister) {
-                removeAppById(app->getId());
+                removeAppById(app->getId());                
             }
             else {
                 app->processMessage(req);
             }
         }
         else {
-            asl::Logger::log("Reuqested app not found");
+            asl::Logger::log("Requested app not found");
         }
     }
 }
@@ -63,18 +65,17 @@ void Server::dispatchMessage(Asp_Request req)
 void* Server::requestListener(void *ptr)
 {
     Server* server = Server::getSingleton();
-    std::shared_ptr<message_queue> msgq = server->getMessageQueue().lock();
+    std::shared_ptr<zmq::socket_t> socket = server->getSocket().lock();
     for (;;) {
         try {
-            Asp_Request req;
-            unsigned int priority;
-            message_queue::size_type receivedSize;
-            msgq->receive(&req, sizeof(Asp_Request), receivedSize, priority);
+            Asp_Request req;        
+            size_t receivedSize = socket->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
                 server->dispatchMessage(req);
             }
-        } catch (exception e) {
-            cout << e.what() << endl;
+        }
+        catch (zmq::error_t e) {
+            asl::Logger::log(e.what(), __func__);
         }
     }
     return nullptr;
@@ -166,6 +167,16 @@ std::weak_ptr<WindowManager> Server::getWindowManager() const
 std::weak_ptr<message_queue> Server::getMessageQueue() const
 {
     return _msgq;
+}
+
+std::weak_ptr<zmq::socket_t> Server::getSocket() const
+{
+    return _socket;
+}
+
+std::weak_ptr<zmq::socket_t> Server::getEventsSocket() const
+{
+    return _eventsSocket;
 }
 
 Server* Server::getSingleton()

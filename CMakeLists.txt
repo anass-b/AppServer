@@ -70,5 +70,7 @@ elseif (UNIX)
 	set (EXTRA_LIBS glfw pthread rt)
 endif()
 
-target_link_libraries (DesktopClient appserver ${EXTRA_LIBS} ${OPENGL_LIBRARY} ${SDL2_LIBRARY})
+target_link_libraries (DesktopClient appserver zmq ${EXTRA_LIBS} ${OPENGL_LIBRARY} ${SDL2_LIBRARY})
 set_property(TARGET DesktopClient PROPERTY CXX_STANDARD 11)
+
+

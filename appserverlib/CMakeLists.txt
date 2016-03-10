@@ -16,7 +16,8 @@ set (HEADERS
 add_library (appserver SHARED ${SOURCES} ${HEADERS})
 
 if ("${CMAKE_SYSTEM}" MATCHES "Linux")
-	target_link_libraries (appserver rt)
+    set (EXTRA_LIBS rt)
 endif()
+target_link_libraries (appserver zmq ${EXTRA_LIBS})
 
 set_property(TARGET appserver PROPERTY CXX_STANDARD 11)

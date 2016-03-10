@@ -298,30 +298,16 @@ const int Connector::kMsgType = 1;
  */
 Connector::Connector()
 {
-    try {
-        int pid = getpid();
-        
-        ostringstream existingMsgqFilename;
-        existingMsgqFilename << "/tmp/boost_interprocess/appmq_";
-        existingMsgqFilename << pid;
-        
-        struct stat buffer;
-        if (stat (existingMsgqFilename.str().c_str(), &buffer) == 0) {
-            std::cout << "Removing existing msgq file" << std::endl;
-            remove(existingMsgqFilename.str().c_str());
-        }
-        
-        _srvQueue = std::make_shared<message_queue>(open_only, serverMessageQueueName().c_str());
-        
-        _sock = asl::Connector::listen(asl::Connector::sockPathFromPid(pid).c_str());
-        
-        _msgQueueName = messageQueueNameFromPid(pid);
-        message_queue::remove(_msgQueueName.c_str());
-        _msgQueue = make_shared<message_queue>(create_only, _msgQueueName.c_str(), 1000000, sizeof(Asp_Event));
-    }
-    catch (interprocess_exception e) {
-        Logger::log(__func__, e.what());
-    }
+    int pid = getpid();
+  
+    _context = std::make_shared<zmq::context_t>(1);
+    _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _socket->connect ("tcp://192.168.1.3:5555");
+    
+    // Events socket
+    //_eventsContext = std::make_shared<zmq::context_t>(1);
+    _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+    _eventsSocket->bind("tcp://*:6666");
 }
 
 #define OS_MacOSX 1
@@ -479,21 +465,21 @@ std::string Connector::sockPathFromPid(TProcId pid)
  */
 void Connector::subscribe()
 {
-    try {
-        Asp_Request subscribeRequest;
-        subscribeRequest.type = AspRequestRegister;
-        subscribeRequest.field0 = getpid();
-        _srvQueue->send(&subscribeRequest, sizeof(subscribeRequest), 0);
-        
-        size_t receivedSize;
-        unsigned int priority;
-        Asp_Event evt;
-        _msgQueue->receive(&evt, sizeof(evt), receivedSize, priority);
-        
+    Asp_Request subscribeRequest;
+    subscribeRequest.type = AspRequestRegister;
+    subscribeRequest.field0 = getpid();
+    
+    zmq::message_t request(&subscribeRequest, sizeof(subscribeRequest));
+    _socket->send(request);
+    
+    Asp_Event evt;
+    size_t receivedSize = _socket->recv(&evt, sizeof(evt));
+    if (receivedSize > 0) {  
         _clientId = evt.field0;
+        std::cout << "Received client ID: " << _clientId << std::endl;
     }
-    catch (interprocess_exception e) {
-        Logger::log(__func__, e.what());
+    else {
+        exit(1);
     }
 }
 
@@ -522,20 +508,34 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
         createWindowReq.field4 = (bool)visible;
         createWindowReq.field5 = (int)rasterType;
         createWindowReq.dataSize = dataSize;
-        _srvQueue->send(&createWindowReq, sizeof(createWindowReq), 0);
         
-        int remoteSock = asl::Connector::accept(_sock);
-        sendAll(remoteSock, data, dataSize, 0);
-        asl::Connector::closeSocket(remoteSock);
+        // Send request
+        zmq::message_t request(&createWindowReq, sizeof(Asp_Request));
+        _socket->send(request);
+        
+        // ACK
+        int ack = 0;
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return -1;
+        }
+        std::cout << "newWindow: got ACK for newWindow" << std::endl;
+        
+        // Send raster data
+        const void* castedData = (const void*)data;
+        zmq::message_t dataRequest(castedData, (size_t)dataSize);
+        _socket->send(dataRequest);
+        
+        std::cout << "newWindow: data sent" << std::endl;
         
         Asp_Event evt;
         evt.winId = 0;
-        size_t receivedSize;
         unsigned int priority;
         bool foundExistingId = false;
         
         do  {
-            _msgQueue->receive(&evt, sizeof(evt), receivedSize, priority);
+            size_t receivedSize = _socket->recv(&evt, sizeof(evt));
+            if (receivedSize <= 0) return -1;
             
             foundExistingId = false;
             for (int i = 0; i < _windowIds.size(); i++) {
@@ -554,15 +554,16 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
             }
         } while (foundExistingId || evt.winId == 0);
         
+        std::cout << "got window ID: " << evt.winId << std::endl;
         _windowIds.push_back(evt.winId);
         
         return evt.winId;
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
+        return -1;
     }
-    
-    return 0;
+    return -1;
 }
 
 /*
@@ -586,13 +587,31 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         req.field3 = width;
         req.field4 = height;
         req.dataSize = dataSize;
-        _srvQueue->send(&req, sizeof(req), 0);
         
-        int remoteSock = asl::Connector::accept(_sock);
-        sendAll(remoteSock, data, dataSize, 0);
-        asl::Connector::closeSocket(remoteSock);
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
+        
+        // ACK
+        int ack = 0;
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
+        
+        // Send raster data
+        const void* castedData = (const void*)data;
+        zmq::message_t dataRequest(castedData, (size_t)dataSize);
+        _socket->send(dataRequest);
+        
+        // ACK
+        ack = 0;
+        receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
     }
-    catch (interprocess_exception e) {
+    catch (exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -613,13 +632,31 @@ void Connector::resizeWindow(TWindowId id, unsigned char *data, unsigned long da
         req.field1 = width;
         req.field2 = height;
         req.dataSize = dataSize;
-        _srvQueue->send(&req, sizeof(req), 0);
         
-        int remoteSock = asl::Connector::accept(_sock);
-        sendAll(remoteSock, data, dataSize, 0);
-        asl::Connector::closeSocket(remoteSock);    
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
+        
+        // ACK
+        int ack = 0;
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
+        
+        // Send raster data
+        const void* castedData = (const void*)data;
+        zmq::message_t dataRequest(castedData, (size_t)dataSize);
+        _socket->send(dataRequest);
+        
+        // ACK
+        ack = 0;
+        receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -637,9 +674,12 @@ void Connector::changeWindowVisiblity(TWindowId id, bool visible)
         req.clientId = _clientId;
         req.winId = id;
         req.field1 = visible;
-        _srvQueue->send(&req, sizeof(req), 0);
+        
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -654,9 +694,12 @@ void Connector::bringWindowToFront(TWindowId id)
         req.type = AspRequestBringWindowToFront;
         req.clientId = _clientId;
         req.winId = id;
-        _srvQueue->send(&req, sizeof(req), 0);
+        
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -676,9 +719,12 @@ void Connector::moveWindow(TWindowId id, double x, double y)
         req.winId = id;
         req.field1 = x;
         req.field2 = y;
-        _srvQueue->send(&req, sizeof(req), 0);
+        
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -693,9 +739,12 @@ void Connector::destroyWindow(TWindowId id)
         req.type = AspRequestDestroyWindow;
         req.clientId = _clientId;
         req.winId = id;
-        _srvQueue->send(&req, sizeof(req), 0);
+        
+        // Send request
+        zmq::message_t request(&req, sizeof(Asp_Request));
+        _socket->send(request);
     }
-    catch (interprocess_exception e) {
+    catch (std::exception e) {
         Logger::log(__func__, e.what());
     }
 }
@@ -709,9 +758,11 @@ std::shared_ptr<Event> Connector::waitEvent()
 {
     try {
         Asp_Event req;
-        size_t receivedSize;
-        unsigned int priority;
-        _msgQueue->receive(&req, sizeof(req), receivedSize, priority);
+        size_t receivedSize = _eventsSocket->recv(&req, sizeof(Asp_Event));
+        
+        int ack = 1;
+        zmq::message_t ackResponse(&ack, sizeof(int));
+        _eventsSocket->send(ackResponse);
         
         if (req.type == AspEventMouseInput) {
             return make_shared<MouseEvent>(req);
@@ -723,7 +774,7 @@ std::shared_ptr<Event> Connector::waitEvent()
             return make_shared<WindowLocationChangedEvent>(req);
         }
     }
-    catch (interprocess_exception e) {
+    catch (zmq::error_t e) {
         Logger::log(__func__, e.what());
     }
     
@@ -732,25 +783,26 @@ std::shared_ptr<Event> Connector::waitEvent()
 
 void Connector::unsubscribe()
 {
-    try {
-        Asp_Request unsubscribeReq;
-        unsubscribeReq.type = AspRequestUnregister;
-        unsubscribeReq.clientId = _clientId;
-        _srvQueue->send(&unsubscribeReq, sizeof(unsubscribeReq), 0);
-    }
-    catch (interprocess_exception e) {
-        Logger::log(__func__, e.what());
-    }
+    /*Asp_Request unsubscribeReq;
+    unsubscribeReq.type = AspRequestUnregister;
+    unsubscribeReq.clientId = _clientId;
+    zmq::message_t request(&unsubscribeReq, sizeof(unsubscribeReq));
+    _socket->send(request);*/
+    
+    _socket->close();
 }
 
 Connector::~Connector()
 {
-    try {
+    //_socket->close();
+    //std::cout << "~Connector()" << std::endl;
+    
+    /*try {
         unsubscribe();
         _msgQueue->remove(_msgQueueName.c_str());
     }
     catch (interprocess_exception e) {
         Logger::log(__func__, e.what());
-    }
+    }*/
 }
 

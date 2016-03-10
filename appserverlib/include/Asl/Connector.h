@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <Asl/Protocol.h>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <zmq.hpp>
 
 using namespace boost::interprocess;
 
@@ -177,6 +178,11 @@ namespace asl
         static const int kMsgType;
         int _sock;
         std::vector<TWindowId> _windowIds;
+        // zmq
+        std::shared_ptr<zmq::context_t> _context;
+        std::shared_ptr<zmq::socket_t> _socket;
+        std::shared_ptr<zmq::context_t> _eventsContext;
+        std::shared_ptr<zmq::socket_t> _eventsSocket;
     };
 }
 

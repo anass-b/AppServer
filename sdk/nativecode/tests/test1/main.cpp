@@ -35,13 +35,13 @@ public:
     
     virtual void mouseEventOccured(MouseEvent *e)
     {
-        if (e == nullptr) return;
+        /*if (e == nullptr) return;
         if (e->type == kMouseEventTypePress) {
             // Handle mouse press event...
         }
         else if (e->type == kMouseEventTypeMove) {
             // Handle mouse move event...
-        }
+        }*/
     }
     
     virtual void keyEventOccured(KeyEvent *e)
