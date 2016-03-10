@@ -26,8 +26,20 @@ using namespace asl;
 unsigned long App::_counter = 1;
 
 App::App(TProcId pid) : _id(++_counter), _pid(pid), _busy(false)
+{    
+}
+
+void App::createAndConnectSocket()
 {
-    //_msgq = std::make_shared<message_queue>(open_only, Connector::messageQueueNameFromPid(pid).c_str());
+    std::shared_ptr<zmq::context_t> context = Server::getSingleton()->getSocketContext().lock();
+    _socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
+    
+    std::stringstream address;
+    address << "tcp://192.168.1.3:";
+    int port = 10000 + _id;
+    address << port;
+    _socket->connect(address.str());
+    std::cout << "Connect to events socket in port " << port << std::endl;
 }
 
 void App::processMessage(Asp_Request req)
@@ -295,7 +307,6 @@ void App::destroyWindow(Asp_Request req)
 void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY)
 {
     try {
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getEventsSocket().lock();
         Asp_Event req;
         if (type == -1) {            
             req.winId = windowId;
@@ -314,10 +325,10 @@ void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, d
         }
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        socket->send(eventRequest);
+        _socket->send(eventRequest);
             
         int ack = 0;
-        size_t receivedSize = socket->recv(&ack, sizeof(int));
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
@@ -339,12 +350,11 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
         req.field4 = type;
         req.field5 = button;
         
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getEventsSocket().lock();
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        socket->send(eventRequest);
+        _socket->send(eventRequest);
         
         int ack = 0;
-        size_t receivedSize = socket->recv(&ack, sizeof(int));
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
@@ -361,9 +371,14 @@ void App::sendKeyEvent(TWindowId windowId, int charCode)
         req.type = AspEventKeyInput;
         req.field0 = charCode;
         
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getEventsSocket().lock();
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        socket->send(eventRequest);
+        _socket->send(eventRequest);
+        
+        int ack = 0;
+        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
     } catch (exception e) {
         Logger::log(e.what(), __func__);
     }
@@ -384,10 +399,14 @@ std::weak_ptr<message_queue> App::getMessageQueue() const
     return _msgq;
 }
 
+std::weak_ptr<zmq::socket_t> App::getSocket() const
+{
+    return _socket;
+}
+
 App::~App()
 {
     Server::getSingleton()->getCompositor().lock()->removeWindows(_id);
-    //message_queue::remove(Connector::messageQueueNameFromPid(_pid).c_str());
 }
 
 

@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <zmq.hpp>
 #include <Window.h>
 
 using namespace boost::interprocess;
@@ -31,6 +32,7 @@ namespace appserver
         friend class Window;
         App(TProcId pid);
         virtual ~App();
+        void createAndConnectSocket();
         void sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY);
         void sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY);
         void sendKeyEvent(TWindowId windowId, int charCode);
@@ -38,6 +40,7 @@ namespace appserver
         TAppId getId() const;
         void processMessage(Asp_Request msg);
         std::weak_ptr<message_queue> getMessageQueue() const;
+        std::weak_ptr<zmq::socket_t> getSocket() const;
     protected:
         void newWindow(Asp_Request msg);
         void updateWindow(Asp_Request msg);
@@ -52,6 +55,8 @@ namespace appserver
         static unsigned long _counter;
         bool _busy;
         std::shared_ptr<message_queue> _msgq;
+        // zmq
+        std::shared_ptr<zmq::socket_t> _socket; 
     };
 }
 

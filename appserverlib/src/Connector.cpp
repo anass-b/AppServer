@@ -301,13 +301,10 @@ Connector::Connector()
     int pid = getpid();
   
     _context = std::make_shared<zmq::context_t>(1);
+    
+    // Request socket
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
     _socket->connect ("tcp://192.168.1.3:5555");
-    
-    // Events socket
-    //_eventsContext = std::make_shared<zmq::context_t>(1);
-    _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
-    _eventsSocket->bind("tcp://*:6666");
 }
 
 #define OS_MacOSX 1
@@ -477,6 +474,15 @@ void Connector::subscribe()
     if (receivedSize > 0) {  
         _clientId = evt.field0;
         std::cout << "Received client ID: " << _clientId << std::endl;
+
+        // Events socket
+        int port = 10000 + _clientId;
+        _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+        std::stringstream address;
+        address << "tcp://*:";
+        address << port;
+        _eventsSocket->bind(address.str());
+        std::cout << "Events socket server started in port " << port << std::endl;
     }
     else {
         exit(1);

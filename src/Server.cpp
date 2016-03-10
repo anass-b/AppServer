@@ -27,11 +27,6 @@ Server::Server()
     _context = std::make_shared<zmq::context_t>(1);
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
     _socket->bind("tcp://*:5555");
-    
-    // Events socket
-    //_eventsContext = std::make_shared<zmq::context_t>(1);
-    _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _eventsSocket->connect ("tcp://192.168.1.3:6666");
 }
 
 void Server::dispatchMessage(Asp_Request req)
@@ -39,11 +34,16 @@ void Server::dispatchMessage(Asp_Request req)
     if (req.type == AspRequestRegister) {
         std::shared_ptr<App> app = nullptr;
         app = make_shared<App>(req.field0);
+        
+        // Send the client ID back to the app
         Asp_Event evt;
         evt.field0 = app->getId();
         std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
         zmq::message_t response(&evt, sizeof(Asp_Event));
         socket->send(response);
+        
+        app->createAndConnectSocket();
+
         addApp(app);
     }
     else {
@@ -169,14 +169,14 @@ std::weak_ptr<message_queue> Server::getMessageQueue() const
     return _msgq;
 }
 
+std::weak_ptr<zmq::context_t> Server::getSocketContext() const
+{
+    return _context;
+}
+
 std::weak_ptr<zmq::socket_t> Server::getSocket() const
 {
     return _socket;
-}
-
-std::weak_ptr<zmq::socket_t> Server::getEventsSocket() const
-{
-    return _eventsSocket;
 }
 
 Server* Server::getSingleton()

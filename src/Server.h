@@ -41,8 +41,8 @@ namespace appserver
         std::weak_ptr<WindowManager> getWindowManager() const;
         void dispatchMessage(Asp_Request req);
         std::weak_ptr<message_queue> getMessageQueue() const;
+        std::weak_ptr<zmq::context_t> getSocketContext() const;
         std::weak_ptr<zmq::socket_t> getSocket() const;
-        std::weak_ptr<zmq::socket_t> getEventsSocket() const;
         BackendMode getBackendMode() const;
         // Static methods:
         static Server* getSingleton();
@@ -64,8 +64,6 @@ namespace appserver
         // zmq
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;
-        std::shared_ptr<zmq::context_t> _eventsContext;
-        std::shared_ptr<zmq::socket_t> _eventsSocket;
     };
 }
 
