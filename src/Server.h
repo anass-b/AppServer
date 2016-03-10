@@ -36,6 +36,7 @@ namespace appserver
         std::shared_ptr<Workspace> getScreenAt(int index) const;
         void addApp(std::shared_ptr<App> app);
         void removeAppById(TAppId id);
+        void removeAppByPid(TProcId pid);
         std::weak_ptr<App> findApp(TAppId id) const;
         std::weak_ptr<Compositor> getCompositor() const;
         std::weak_ptr<WindowManager> getWindowManager() const;

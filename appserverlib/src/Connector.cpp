@@ -304,7 +304,11 @@ Connector::Connector()
     
     // Request socket
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _socket->connect ("tcp://192.168.1.3:5555");
+    _socket->connect("tcp://192.168.1.3:9000");
+
+    // Process Monitor socket
+    _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _processMonitorSocket->connect("tcp://192.168.1.3:9001");
 }
 
 #define OS_MacOSX 1
@@ -462,15 +466,30 @@ std::string Connector::sockPathFromPid(TProcId pid)
  */
 void Connector::subscribe()
 {
+    TProcId pid = getpid();
+
+    // Notify the process monitor
+    zmq::message_t processMonitorRequest(&pid, sizeof(TProcId));
+    _processMonitorSocket->send(processMonitorRequest);
+
+    // ACK
+    int ack = 0;
+    size_t receivedSize = _processMonitorSocket->recv(&ack, sizeof(int));
+    if (receivedSize <= 0 || ack != 1) {
+        exit(1);
+    }
+
+    std::cout << "Notified process manager" << std::endl;
+
+    // Subscribe to appserver
     Asp_Request subscribeRequest;
     subscribeRequest.type = AspRequestRegister;
-    subscribeRequest.field0 = getpid();
-    
+    subscribeRequest.field0 = pid;
     zmq::message_t request(&subscribeRequest, sizeof(subscribeRequest));
     _socket->send(request);
     
     Asp_Event evt;
-    size_t receivedSize = _socket->recv(&evt, sizeof(evt));
+    receivedSize = _socket->recv(&evt, sizeof(evt));
     if (receivedSize > 0) {  
         _clientId = evt.field0;
         std::cout << "Received client ID: " << _clientId << std::endl;

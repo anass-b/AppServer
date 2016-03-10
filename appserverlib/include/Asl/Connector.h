@@ -181,6 +181,7 @@ namespace asl
         // zmq
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;
+        std::shared_ptr<zmq::socket_t> _processMonitorSocket;
         std::shared_ptr<zmq::socket_t> _eventsSocket;
     };
 }

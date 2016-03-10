@@ -39,7 +39,7 @@ void App::createAndConnectSocket()
     int port = 10000 + _id;
     address << port;
     _socket->connect(address.str());
-    std::cout << "Connect to events socket in port " << port << std::endl;
+    std::cout << "Connected to events socket in port " << port << std::endl;
 }
 
 void App::processMessage(Asp_Request req)

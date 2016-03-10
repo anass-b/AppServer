@@ -24,8 +24,9 @@ add_subdirectory (appserverlib)
 
 # add nativecode library
 add_subdirectory (sdk/nativecode)
-#add_subdirectory (sdk/nativecode/tests/test1)
-#add_subdirectory (sdk/nativecode/tests/test2)
+
+# add processmonitor
+add_subdirectory (processmonitor)
 
 set (SOURCES 
 	src/App.h

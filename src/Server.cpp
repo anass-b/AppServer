@@ -26,19 +26,20 @@ Server::Server()
 {
     _context = std::make_shared<zmq::context_t>(1);
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
-    _socket->bind("tcp://*:5555");
+    _socket->bind("tcp://*:9000");
 }
 
 void Server::dispatchMessage(Asp_Request req)
 {
+    std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+    
     if (req.type == AspRequestRegister) {
         std::shared_ptr<App> app = nullptr;
         app = make_shared<App>(req.field0);
         
         // Send the client ID back to the app
         Asp_Event evt;
-        evt.field0 = app->getId();
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+        evt.field0 = app->getId();                
         zmq::message_t response(&evt, sizeof(Asp_Event));
         socket->send(response);
         
@@ -46,15 +47,20 @@ void Server::dispatchMessage(Asp_Request req)
 
         addApp(app);
     }
+    else if (req.type == AspRequestUnregister) {
+        removeAppByPid(req.field0);
+
+        // ACK
+        int ack = 1;
+        zmq::message_t ackResponse(&ack, sizeof(int));
+        socket->send(ackResponse);
+
+        std::cout << "Removed app with pid " << req.field0 << std::endl;
+    }
     else {
         std::shared_ptr<App> app = findApp(req.clientId).lock();
         if (app != nullptr) {
-            if (req.type == AspRequestUnregister) {
-                removeAppById(app->getId());                
-            }
-            else {
-                app->processMessage(req);
-            }
+            app->processMessage(req);
         }
         else {
             asl::Logger::log("Requested app not found");
@@ -81,32 +87,11 @@ void* Server::requestListener(void *ptr)
     return nullptr;
 }
 
-void* Server::processMonitor(void *ptr)
-{
-    Server* server = Server::getSingleton();
-    
-    while (true) {
-        asl::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
-        std::vector<std::shared_ptr<App>> apps = server->_apps;
-        for (int i = 0; i < apps.size(); i++) {
-            std::shared_ptr<App> app = apps.at(i);
-            if (kill(app->getPid(), 0) == -1) {
-                server->removeAppById(app->getId());
-            }
-        }
-    }
-    return nullptr;
-}
-
 void Server::run(BackendMode backendMode)
 {
     _backendMode = backendMode;
     
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
-        throw runtime_error(strerror(errno));
-    }
-    
-    if (pthread_create(&_processMonitor, NULL, Server::processMonitor, NULL)) {
         throw runtime_error(strerror(errno));
     }
     
@@ -137,6 +122,18 @@ void Server::removeAppById(TAppId id)
         std::shared_ptr<App> a = *iter;
         if (a->getId() == id) {
             _compositor->removeWindows(id);
+            _apps.erase(iter);
+            return;
+        }
+    }
+}
+
+void Server::removeAppByPid(TProcId pid)
+{
+    for (auto iter = _apps.begin(); iter != _apps.end(); ++iter) {
+        std::shared_ptr<App> a = *iter;
+        if (a->getPid() == pid) {
+            _compositor->removeWindows(a->getId());
             _apps.erase(iter);
             return;
         }
