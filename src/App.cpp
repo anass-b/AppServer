@@ -14,7 +14,6 @@
 #include <Geometry.h>
 #include <Asl/Logger.h>
 #include <Asl/Protocol.h>
-#include <Asl/Connector.h>
 
 #include <sstream>
 #include <string.h>
@@ -35,7 +34,9 @@ void App::createAndConnectSocket()
     _socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
     
     std::stringstream address;
-    address << "tcp://192.168.1.3:";
+    address << "tcp://";
+    address << Server::getSingleton()->getAppsHost();
+    address << ":";
     int port = 10000 + _id;
     address << port;
     _socket->connect(address.str());

@@ -30,6 +30,7 @@ namespace appserver
     class Server
     {
     public:
+        static Server* getSingleton();
         virtual ~Server();
         void run(BackendMode backendMode);
         std::shared_ptr<Workspace> getActiveScreen() const;
@@ -45,12 +46,12 @@ namespace appserver
         std::weak_ptr<zmq::context_t> getSocketContext() const;
         std::weak_ptr<zmq::socket_t> getSocket() const;
         BackendMode getBackendMode() const;
-        // Static methods:
-        static Server* getSingleton();
+        void setAppsHost(std::string host);
+        std::string getAppsHost() const;
+    private:
+        Server();    
         static void* requestListener(void *ptr);
         static void* processMonitor(void *ptr);
-    private:
-        Server();
     private:
         std::vector<std::shared_ptr<Workspace>> _workspaces;
         std::vector<std::shared_ptr<App>> _apps;
@@ -62,6 +63,7 @@ namespace appserver
         pthread_t _processMonitor;
         int _sock;
         BackendMode _backendMode;
+        std::string _appsHost;
         // zmq
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;

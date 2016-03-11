@@ -12,7 +12,6 @@
 #include <GLCompositor.h>
 #include <GlfwWorkspace.h>
 #include <Asl/Logger.h>
-#include <Asl/Connector.h>
 #include <Asl/Utils.h>
 
 #include <pthread.h>
@@ -199,9 +198,17 @@ BackendMode Server::getBackendMode() const
     return _backendMode;
 }
 
+void Server::setAppsHost(std::string host)
+{
+    _appsHost = host;
+}
+
+std::string Server::getAppsHost() const
+{
+    return _appsHost;
+}
+
 Server::~Server()
 {
-    asl::Connector::closeSocket(_sock);
-    message_queue::remove(asl::Connector::serverMessageQueueName().c_str());
 }
 

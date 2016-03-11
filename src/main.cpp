@@ -7,12 +7,16 @@
 //
 
 #include <iostream>
+#include <string>
 #include <Server.h>
 
 using namespace appserver;
 
 int main(int argc, char **argv)
 {
+    std::string appsHost = argc > 1 ? argv[1] : "localhost";
+    
+    Server::getSingleton()->setAppsHost(appsHost);
     Server::getSingleton()->run(kBackendModeSDL);
     
     return 0;
