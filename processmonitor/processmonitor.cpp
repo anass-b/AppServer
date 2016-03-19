@@ -23,7 +23,7 @@ void removePid(TProcId pid)
 void* processMonitor(void *ptr)
 {
 	std::shared_ptr<zmq::socket_t> appServerSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
-    appServerSocket->connect("tcp://192.168.1.3:9000");
+    appServerSocket->connect("tcp://localhost:9000");
     
     while (true) {
         asl::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);

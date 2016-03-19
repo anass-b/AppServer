@@ -304,11 +304,11 @@ Connector::Connector()
     
     // Request socket
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _socket->connect("tcp://192.168.1.3:9000");
+    _socket->connect("tcp://localhost:9000");
 
     // Process Monitor socket
     _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _processMonitorSocket->connect("tcp://192.168.1.3:9001");
+    _processMonitorSocket->connect("tcp://localhost:9001");
 }
 
 #define OS_MacOSX 1

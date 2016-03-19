@@ -2,3 +2,4 @@ sdk/coffeecode/.idea
 sdk/coffeecode/out
 .kdev4/
 *.kdev4
+build/
