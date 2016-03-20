@@ -11,7 +11,7 @@ std::vector<TProcId> pidList;
 
 #define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
-void avoidBusyWait(const long nsec)
+void avoidBusyWait(const long nsec = INTERVAL_MS)
 {
     timespec tim;
     tim.tv_sec  = 0;
@@ -35,7 +35,7 @@ void* processMonitor(void *ptr)
     appServerSocket->connect("tcp://localhost:9000");
     
     while (true) {
-        avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
+        avoidBusyWait();
         for (int i = 0; i < pidList.size(); i++) {
             TProcId pid = pidList.at(i);
             if (kill(pid, 0) == -1) {
