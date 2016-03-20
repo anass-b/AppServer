@@ -123,9 +123,12 @@ int main(int argc, char *argv[])
     
     RenderHandler* renderHandler = new RenderHandler(); 
     
-    CefWindowInfo window_info;    
-    std::size_t windowHandle = 0;
-    window_info.SetAsWindowless(windowHandle, false);
+    CefWindowInfo window_info;
+#ifdef __APPLE__
+    window_info.SetAsWindowless(nullptr, false);
+#else
+    window_info.SetAsWindowless(0, false);
+#endif
     
     CefBrowserSettings browserSettings;
     CefRefPtr<BrowserClient> browserClient = new BrowserClient(renderHandler);    
