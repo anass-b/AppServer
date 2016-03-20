@@ -1,6 +1,14 @@
 #include <cef_app.h>
 #include <cef_client.h>
 #include <cef_render_handler.h>
+#include <Asl/CApi.h>
+#include <iostream>
+#include <pthread.h>
+#include <protocol.h>
+
+long gWindowId = -1;
+const int kWindowWidth = 1280;
+const int kWIndowHeight = 800;
 
 class RenderHandler : public CefRenderHandler
 {
@@ -9,30 +17,33 @@ public:
     {
     }
     
-    // CefRenderHandler interface
 public:
     bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) OVERRIDE
     {
+        rect = CefRect(0, 0, kWindowWidth, kWIndowHeight);
         return true;
     }
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList &dirtyRects, const void *buffer, int width, int height) OVERRIDE
     {
+        if (gWindowId == -1) {
+            gWindowId = aslNewWindow((unsigned char*)buffer, width*height*4, 100, 100, kWindowWidth, kWIndowHeight, AspWindowRasterARGB, true);
+        }
+        else {
+            aslUpdateWindowSurface(gWindowId, (unsigned char*)buffer, width*height*4, 100, 100, kWindowWidth, kWIndowHeight);
+        }
     }
     
-    // CefBase interface
 public:
     IMPLEMENT_REFCOUNTING(RenderHandler);
     
 };
 
-
-// for manual render handler
 class BrowserClient : public CefClient
 {
 public:
-    BrowserClient(RenderHandler *renderHandler)
-    : m_renderHandler(renderHandler)
-    {;}
+    BrowserClient(RenderHandler *renderHandler) : m_renderHandler(renderHandler)
+    {      
+    }
     
     virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE {
         return m_renderHandler;
@@ -43,42 +54,89 @@ public:
     IMPLEMENT_REFCOUNTING(BrowserClient);
 };
 
+void* eventThread(void *ptr)
+{
+    CefBrowser *browser = (CefBrowser*)ptr;       
+    AslEvent event;
+    while (true) {        
+        event = aslWaitEvent();
+        
+        if (event.type == AspEventMouseInput) {       
+            if (event.inputEvent.mouseEvent.type == AspMouseEventPress) {
+                CefMouseEvent mouseEvent;
+                mouseEvent.x = event.inputEvent.mouseEvent.x;
+                mouseEvent.y = event.inputEvent.mouseEvent.y;
+                browser->GetHost()->SendMouseClickEvent(mouseEvent, MBT_LEFT, false, 1);
+            }
+            else if (event.inputEvent.mouseEvent.type == AspMouseEventRelease) {
+                CefMouseEvent mouseEvent;
+                mouseEvent.x = event.inputEvent.mouseEvent.x;
+                mouseEvent.y = event.inputEvent.mouseEvent.y;
+                browser->GetHost()->SendMouseClickEvent(mouseEvent, MBT_LEFT, true, 1);
+            }
+            else if (event.inputEvent.mouseEvent.type == AspMouseEventMove) {
+                CefMouseEvent mouseEvent;
+                mouseEvent.x = event.inputEvent.mouseEvent.x;
+                mouseEvent.y = event.inputEvent.mouseEvent.y;
+                browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+            }
+            
+        }
+    }
+    return nullptr;
+}
+
 int main(int argc, char *argv[])
 {
+    std::string url;
+    
     CefMainArgs args(argc, argv);
     
     int result = CefExecuteProcess(args, nullptr, nullptr);
-    // checkout CefApp, derive it and set it as second parameter, for more control on
-    // command args and resources.
-    if (result >= 0) // child proccess has endend, so exit.
+    if (result >= 0)
     {
+        // the child proccess terminated, we exit.
         return result;
     }
     if (result == -1)
     {
-        // we are here in the father proccess.
+        // Parent proccess.
+        aslInit();
+        aslSubscribe();
+    
+        if (argc == 2) {
+            url = argv[1];
+        }
+        else {
+            url = "http://www.google.com";
+        }
     }
 
     CefSettings settings;
-    
-    // checkout detailed settings options http://magpcss.org/ceforum/apidocs/projects/%28default%29/_cef_settings_t.html
-    // nearly all the settings can be set via args too.
-    // settings.multi_threaded_message_loop = true; // not supported, except windows
-    // CefString(&settings.browser_subprocess_path).FromASCII("sub_proccess path, by default uses and starts this executeable as child");
-    // CefString(&settings.cache_path).FromASCII("");
-    // CefString(&settings.log_file).FromASCII("");
-    // settings.log_severity = LOGSEVERITY_DEFAULT;
-    // CefString(&settings.resources_dir_path).FromASCII("");
-    // CefString(&settings.locales_dir_path).FromASCII("");
+    settings.windowless_rendering_enabled = true;
     
     bool res = CefInitialize(args, settings, nullptr, nullptr);
-    // CefInitialize creates a sub-proccess and executes the same executeable, as calling CefInitialize, if not set different in settings.browser_subprocess_path
-    // if you create an extra program just for the childproccess you only have to call CefExecuteProcess(...) in it.
     if (!res)
     {
-        // handle error
         return -1;
     }
+    
+    RenderHandler* renderHandler = new RenderHandler(); 
+    
+    CefWindowInfo window_info;    
+    std::size_t windowHandle = 0;
+    window_info.SetAsWindowless(windowHandle, false);
+    
+    CefBrowserSettings browserSettings;
+    CefRefPtr<BrowserClient> browserClient = new BrowserClient(renderHandler);    
+    CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(window_info, browserClient.get(), url, browserSettings, nullptr);
+    
+    pthread_t thread;
+    if (pthread_create(&thread, NULL, eventThread, browser.get())) {
+        exit(1);
+    }
+    
+    CefRunMessageLoop();
     
     CefShutdown();
     
