@@ -12,10 +12,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <protocol.h>
-#include <boost/interprocess/ipc/message_queue.hpp>
 #include <zmq.hpp>
-
-using namespace boost::interprocess;
 
 namespace asl
 {

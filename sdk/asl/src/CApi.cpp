@@ -89,13 +89,13 @@ AslEvent aslWaitEvent()
     std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
 
     if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeInput) {
-        std::shared_ptr<asl::InputEvent> aslInputEvent = dynamic_pointer_cast<asl::InputEvent>(aslEvent);
+        std::shared_ptr<asl::InputEvent> aslInputEvent = std::dynamic_pointer_cast<asl::InputEvent>(aslEvent);
         if (aslInputEvent != nullptr) {
             event.type = aslInputEvent->getEventType();
             event.windowId = aslInputEvent->getWindowId();
             
             if (aslInputEvent->getInputEventType() == asl::kInputEventTypeMouse) {
-                std::shared_ptr<asl::MouseEvent> aslMouseEvent = dynamic_pointer_cast<asl::MouseEvent>(aslInputEvent);
+                std::shared_ptr<asl::MouseEvent> aslMouseEvent = std::dynamic_pointer_cast<asl::MouseEvent>(aslInputEvent);
                 
                 event.inputEvent.type = kInputEventTypeMouse;
                 
@@ -107,7 +107,7 @@ AslEvent aslWaitEvent()
                 event.inputEvent.mouseEvent.absY = aslMouseEvent->getAbsY();
             }
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
-                std::shared_ptr<asl::KeyEvent> aslKeyEvent = dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
+                std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
                 
                 event.inputEvent.type = (int)kInputEventTypeKey;
                 
@@ -117,7 +117,7 @@ AslEvent aslWaitEvent()
         }
     }
     else if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeWindowLocationChanged) {
-        std::shared_ptr<asl::WindowLocationChangedEvent> aslWindowLocationChangedEvent = dynamic_pointer_cast<asl::WindowLocationChangedEvent>(aslEvent);
+        std::shared_ptr<asl::WindowLocationChangedEvent> aslWindowLocationChangedEvent = std::dynamic_pointer_cast<asl::WindowLocationChangedEvent>(aslEvent);
         if (aslWindowLocationChangedEvent != nullptr) {
             event.type = aslWindowLocationChangedEvent->getEventType();
             event.windowId = aslEvent->getWindowId();

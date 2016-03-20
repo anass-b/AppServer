@@ -73,14 +73,14 @@ InputEvent* Server::waitInputEvent()
     std::shared_ptr<asl::Event> aslEvent(std::move(mConnector->waitEvent()));
     InputEvent *inputEvent = new InputEvent;
     if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeInput) {
-        std::shared_ptr<asl::InputEvent> aslInputEvent = dynamic_pointer_cast<asl::InputEvent>(aslEvent);
+        std::shared_ptr<asl::InputEvent> aslInputEvent = std::dynamic_pointer_cast<asl::InputEvent>(aslEvent);
         
         if (aslInputEvent != nullptr) {
             //inputEvent->type = (InputEventType)aslInputEvent->getEventType();
             inputEvent->winId = (unsigned int)aslInputEvent->getWindowId();
             
             if (aslInputEvent->getInputEventType() == asl::kInputEventTypeMouse) {
-                std::shared_ptr<asl::MouseEvent> aslMouseEvent = dynamic_pointer_cast<asl::MouseEvent>(aslInputEvent);
+                std::shared_ptr<asl::MouseEvent> aslMouseEvent = std::dynamic_pointer_cast<asl::MouseEvent>(aslInputEvent);
                 
                 inputEvent->type = kInputEventTypeMouse;
                 inputEvent->keyEvent = nullptr;
@@ -99,7 +99,7 @@ InputEvent* Server::waitInputEvent()
                 inputEvent->mouseEvent = mouseEvent;
             }
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
-                std::shared_ptr<asl::KeyEvent> aslKeyEvent = dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
+                std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
                 
                 inputEvent->type = kInputEventTypeKey;
                 inputEvent->mouseEvent = nullptr;

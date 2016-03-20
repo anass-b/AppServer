@@ -17,7 +17,6 @@
 #include <Compositor.h>
 #include <WindowManager.h>
 #include <protocol.h>
-#include <boost/interprocess/ipc/message_queue.hpp>
 #include <zmq.hpp>
 
 namespace appserver
@@ -42,7 +41,6 @@ namespace appserver
         std::weak_ptr<Compositor> getCompositor() const;
         std::weak_ptr<WindowManager> getWindowManager() const;
         void dispatchMessage(Asp_Request req);
-        std::weak_ptr<message_queue> getMessageQueue() const;
         std::weak_ptr<zmq::context_t> getSocketContext() const;
         std::weak_ptr<zmq::socket_t> getSocket() const;
         BackendMode getBackendMode() const;
@@ -57,7 +55,6 @@ namespace appserver
         std::vector<std::shared_ptr<App>> _apps;
         std::shared_ptr<Compositor> _compositor;
         std::shared_ptr<WindowManager> _windowManager;
-        std::shared_ptr<message_queue> _msgq;
         static Server* _sharedInst;
         pthread_t _messageDispatcher;
         pthread_t _processMonitor;

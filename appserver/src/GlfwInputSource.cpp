@@ -21,7 +21,7 @@ GlfwInputSource::GlfwInputSource(std::shared_ptr<Workspace> screen) : InputSourc
 {
     glfwSetErrorCallback(GlfwInputSource::ErrorCallback);
     
-    std::shared_ptr<GlfwWorkspace> workspace = dynamic_pointer_cast<GlfwWorkspace>(_workspace);
+    std::shared_ptr<GlfwWorkspace> workspace = std::dynamic_pointer_cast<GlfwWorkspace>(_workspace);
     
     glfwSetWindowUserPointer(workspace->_window, this);
     glfwSetKeyCallback(workspace->_window, KeyCallback);

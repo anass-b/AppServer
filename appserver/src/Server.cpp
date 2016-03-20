@@ -158,11 +158,6 @@ std::weak_ptr<WindowManager> Server::getWindowManager() const
     return _windowManager;
 }
 
-std::weak_ptr<message_queue> Server::getMessageQueue() const
-{
-    return _msgq;
-}
-
 std::weak_ptr<zmq::context_t> Server::getSocketContext() const
 {
     return _context;

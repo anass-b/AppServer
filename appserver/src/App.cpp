@@ -365,11 +365,6 @@ TAppId App::getId() const
     return _id;
 }
 
-std::weak_ptr<message_queue> App::getMessageQueue() const
-{
-    return _msgq;
-}
-
 std::weak_ptr<zmq::socket_t> App::getSocket() const
 {
     return _socket;
