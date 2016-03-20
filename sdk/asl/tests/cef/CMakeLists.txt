@@ -351,7 +351,7 @@ if(OS_MACOSX)
   endforeach()
 
   # Target SDK.
-  set(CEF_TARGET_SDK               "10.6")
+  set(CEF_TARGET_SDK               "10.7")
   set(CEF_COMPILER_FLAGS           "${CEF_COMPILER_FLAGS} -mmacosx-version-min=${CEF_TARGET_SDK}")
   set(CMAKE_OSX_DEPLOYMENT_TARGET  ${CEF_TARGET_SDK})
 
