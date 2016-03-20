@@ -53,7 +53,7 @@ public:
 //        _secondWindow->setWindowManagementEnabled(false);
         //_secondWindow->addKeyEventDelegate(this);
         //_secondWindow->addMouseEventDelegate(this);
-        _imageView2 = createLandscapeImageView(_secondWindow, "img/space.png");
+        _imageView2 = createLandscapeImageView(_secondWindow, "img/nature.png");
         
         /*_thirdWindow =  new Window(makeRect(400.0, 400.0, 400, 300), kWindowVisibilityVisible);
         _thirdWindow->addMouseEventDelegate(this);

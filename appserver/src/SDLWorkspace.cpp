@@ -9,7 +9,6 @@
 #include <SDLWorkspace.h>
 #include <SDLInputSource.h>
 #include <SDLCompositor.h>
-#include <Asl/Utils.h>
 
 using namespace appserver;
  
@@ -46,7 +45,7 @@ void SDLWorkspace::run()
             return;
         }
         
-        asl::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
+        Workspace::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
     }
 }
 

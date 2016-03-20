@@ -8,7 +8,6 @@
  */
 
 #include <Asl/Connector.h>
-#include <Asl/Logger.h>
 #include <sstream>
 #include <unistd.h>
 
@@ -288,8 +287,6 @@ KeyEvent::~KeyEvent()
 
 // ------------------------------------ Connector
 
-const int Connector::kMsgType = 1;
-
 /*
  * Initiates a socket connection with the server.
  *
@@ -309,155 +306,6 @@ Connector::Connector()
     // Process Monitor socket
     _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
     _processMonitorSocket->connect("tcp://localhost:9001");
-}
-
-#define OS_MacOSX 1
-
-int Connector::listen(const char *sockPath)
-{
-    int sock = ::socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock == -1) {
-        throw runtime_error(strerror(errno));
-    }
-    
-    struct sockaddr_un localAddr;
-    localAddr.sun_family = AF_UNIX;
-    ::strcpy(localAddr.sun_path, sockPath);
-    ::unlink(localAddr.sun_path);
-    
-#ifdef OS_MacOSX
-    if (::bind(sock, (struct sockaddr*)&localAddr, (socklen_t)SUN_LEN(&localAddr)) == -1)
-#else
-        socklen_t sockLen = (socklen_t)strlen(localAddr.sun_path) + (socklen_t)sizeof(localAddr.sun_family);
-    if (::bind(_sock, (struct sockaddr*)&localAddr, sockLen) == -1)
-#endif
-    {
-        ::close(sock);
-        throw runtime_error(strerror(errno));
-    }
-    
-    if (::listen(sock, 256) == -1)
-    {
-        ::close(sock);
-        throw runtime_error(strerror(errno));
-    }
-    
-    return sock;
-}
-
-int Connector::accept(int sock)
-{
-    int remoteSock;
-    socklen_t len = sizeof(remoteSock);
-    if ((remoteSock = ::accept(sock, (struct sockaddr*)&remoteSock, &len)) == -1) {
-        throw runtime_error(strerror(errno));
-    }
-    return remoteSock;
-}
-
-int Connector::connect(const char *sockPath)
-{
-    int sock;
-    if ((sock = ::socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-        perror("socket1");
-    }
-    
-    struct sockaddr_un remoteAddr;
-    remoteAddr.sun_family = AF_UNIX;
-    strcpy(remoteAddr.sun_path, sockPath);
-#ifdef OS_X
-    if (::connect(sock, (struct sockaddr *)&remoteAddr, (socklen_t)SUN_LEN(&remoteAddr)) == -1)
-#else
-    socklen_t len = (socklen_t)strlen(remoteAddr.sun_path) + (socklen_t)sizeof(cl->remoteAddr.sun_family);
-    if (::connect(sock, (struct sockaddr *)&remote_addr, len) == -1)
-#endif
-    {
-        perror("connect1");
-        exit(1);
-    }
-    
-    return sock;
-}
-
-size_t Connector::sendAll(int socket, unsigned char *buffer, size_t length, int flags)
-{
-    size_t readSum = 0;
-    ssize_t n = -1;
-    unsigned char *p = buffer;
-    while (length > 0) {
-        n = send(socket, p, length, flags);
-        if (n == -1) {
-            printf("sendAll: %s\n", strerror(errno));
-            return readSum;
-        }
-        p += n;
-        length -= n;
-        readSum += n;
-    }
-    return readSum;
-}
-
-size_t Connector::receiveAll(int sockfd, void *buf, size_t len, int flags)
-{
-    size_t toread = len;
-    unsigned char  *bufptr = (unsigned char*) buf;
-    size_t read_sum = 0;
-    
-    while (toread > 0)
-    {
-        ssize_t rsz = recv(sockfd, bufptr, toread, flags);
-        if (rsz == -1) {
-            perror("recv");
-            return read_sum;
-        }
-        else if (rsz == 0) {
-            return read_sum;
-        }
-        
-        // Read less next time
-        toread -= rsz;
-        // Next buffer position to read into
-        bufptr += rsz;
-        read_sum += rsz;
-    }
-    
-    return read_sum;
-}
-
-void Connector::closeSocket(int sock)
-{
-    ::close(sock);
-}
-
-void Connector::shutdownSocket(int sock)
-{
-    ::shutdown(sock, SHUT_RDWR);
-}
-
-std::string Connector::serverSocketPath()
-{
-    return "/tmp/appsrv_sock";
-}
-
-std::string Connector::serverMessageQueueName()
-{
-    return "appsrvmq";
-}
-
-std::string Connector::messageQueueNameFromPid(TProcId pid)
-{
-    ostringstream name;
-    name << "appmq_" << pid;
-    
-    return name.str();
-}
-
-std::string Connector::sockPathFromPid(TProcId pid)
-{
-    ostringstream name;
-    name << "/tmp/appsock_" << pid;
-    
-    return name.str();
 }
 
 /*
@@ -572,10 +420,10 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
             }
             
             if (foundExistingId) {
-                Logger::log(__func__, "Got the same window_id like previous time. Iterating again...");
+                std::cout << __func__ << ": " << "Got the same window_id like previous time. Iterating again..." << std::endl;
             }
             else if (evt.winId == 0) {
-                Logger::log(__func__, "Window_id equals 0. Iterating again...");
+                std::cout << __func__ << ": " << "Window_id equals 0. Iterating again..." << std::endl;
             }
         } while (foundExistingId || evt.winId == 0);
         
@@ -585,7 +433,7 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
         return evt.winId;
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
         return -1;
     }
     return -1;
@@ -636,8 +484,8 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
             return;
         }
     }
-    catch (exception e) {
-        Logger::log(__func__, e.what());
+    catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -682,7 +530,7 @@ void Connector::resizeWindow(TWindowId id, unsigned char *data, unsigned long da
         }
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -705,7 +553,7 @@ void Connector::changeWindowVisiblity(TWindowId id, bool visible)
         _socket->send(request);
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -725,7 +573,7 @@ void Connector::bringWindowToFront(TWindowId id)
         _socket->send(request);
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -750,7 +598,7 @@ void Connector::moveWindow(TWindowId id, double x, double y)
         _socket->send(request);
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -770,7 +618,7 @@ void Connector::destroyWindow(TWindowId id)
         _socket->send(request);
     }
     catch (std::exception e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -790,44 +638,28 @@ std::shared_ptr<Event> Connector::waitEvent()
         _eventsSocket->send(ackResponse);
         
         if (req.type == AspEventMouseInput) {
-            return make_shared<MouseEvent>(req);
+            return std::make_shared<MouseEvent>(req);
         }
         else if (req.type == AspEventKeyInput) {
-            return make_shared<KeyEvent>(req);
+            return std::make_shared<KeyEvent>(req);
         }
         else if (req.type == AspEventWindowLocationChanged) {
-            return make_shared<WindowLocationChangedEvent>(req);
+            return std::make_shared<WindowLocationChangedEvent>(req);
         }
     }
     catch (zmq::error_t e) {
-        Logger::log(__func__, e.what());
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
     
     return nullptr;
 }
 
 void Connector::unsubscribe()
-{
-    /*Asp_Request unsubscribeReq;
-    unsubscribeReq.type = AspRequestUnregister;
-    unsubscribeReq.clientId = _clientId;
-    zmq::message_t request(&unsubscribeReq, sizeof(unsubscribeReq));
-    _socket->send(request);*/
-    
+{    
     _socket->close();
 }
 
 Connector::~Connector()
 {
-    //_socket->close();
-    //std::cout << "~Connector()" << std::endl;
-    
-    /*try {
-        unsubscribe();
-        _msgQueue->remove(_msgQueueName.c_str());
-    }
-    catch (interprocess_exception e) {
-        Logger::log(__func__, e.what());
-    }*/
 }
 

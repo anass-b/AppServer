@@ -4,11 +4,20 @@
 #include <iostream>
 #include <pthread.h>
 #include <signal.h>
-#include <Asl/Utils.h>
-#include <Asl/Protocol.h>
+#include <protocol.h>
 
 std::shared_ptr<zmq::context_t> context;
 std::vector<TProcId> pidList;
+
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
+const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
+void avoidBusyWait(const long nsec)
+{
+    timespec tim;
+    tim.tv_sec  = 0;
+    tim.tv_nsec = nsec;
+    nanosleep(&tim, NULL);
+}
 
 void removePid(TProcId pid)
 {
@@ -26,7 +35,7 @@ void* processMonitor(void *ptr)
     appServerSocket->connect("tcp://localhost:9000");
     
     while (true) {
-        asl::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
+        avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
         for (int i = 0; i < pidList.size(); i++) {
             TProcId pid = pidList.at(i);
             if (kill(pid, 0) == -1) {

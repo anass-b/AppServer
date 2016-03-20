@@ -11,7 +11,7 @@ import java.util.List;
 
 interface Asl extends Library {
 
-    Asl INSTANCE = (Asl) Native.loadLibrary(("appserver"), Asl.class);
+    Asl INSTANCE = (Asl) Native.loadLibrary(("asl"), Asl.class);
 
     public static final int MOUSE_EVENT_TYPE_UNDEFINED = 0;
     public static final int MOUSE_EVENT_TYPE_PRESS = 1;

@@ -29,7 +29,7 @@ public:
         _mainWindow->addView(imageView2);
         
         _secondWindow = new Window(makeRect(200.0, 200.0, 640.0, 480.0), kWindowVisibilityVisible);
-        ImageView *imageView1 = new ImageView(makeRect(70.0, 70.0, 350.0, 382.0), "img/space.png");
+        ImageView *imageView1 = new ImageView(makeRect(70.0, 70.0, 350.0, 382.0), "img/nature.png");
         _secondWindow->addView(imageView1);
     }
     

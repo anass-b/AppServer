@@ -15,8 +15,12 @@
 #include <InputSource.h>
 #include <Compositor.h>
 
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
+
 namespace appserver
 {
+    const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
+    
     class Workspace
     {
     public:
@@ -25,6 +29,7 @@ namespace appserver
         virtual void run() = 0;
         std::shared_ptr<InputSource> getInputSource() const;
         void setInputSource(std::shared_ptr<InputSource> inputSource);
+        static void avoidBusyWait(const long nsec = INTERVAL_MS);
     protected:
         std::shared_ptr<InputSource> _inputSource;
         std::shared_ptr<Compositor> _compositor;

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <Asl/Protocol.h>
+#include <protocol.h>
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <zmq.hpp>
 
@@ -155,30 +155,10 @@ namespace asl
         void bringWindowToFront(TWindowId id);
         void moveWindow(TWindowId id, double x, double y);
         void destroyWindow(TWindowId id);
-        std::shared_ptr<Event> waitEvent();
-        // Static methods:
-        static std::string serverMessageQueueName();
-        static std::string messageQueueNameFromPid(TProcId pid);
-        static std::string serverSocketPath();
-        static std::string sockPathFromPid(TProcId pid);
-        // Socket API
-        static int listen(const char *sockPath);
-        static int accept(int sock);
-        static int connect(const char *sockPath);
-        static size_t sendAll(int socket, unsigned char *buffer, size_t length, int flags);
-        static size_t receiveAll(int sockfd, void *buf, size_t len, int flags);
-        static void closeSocket(int sock);
-        static void shutdownSocket(int sock);
-        
+        std::shared_ptr<Event> waitEvent();        
     private:
         TAppId _clientId;
-        std::string _msgQueueName;
-        std::shared_ptr<message_queue> _msgQueue;
-        std::shared_ptr<message_queue> _srvQueue;
-        static const int kMsgType;
-        int _sock;
         std::vector<TWindowId> _windowIds;
-        // zmq
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;
         std::shared_ptr<zmq::socket_t> _processMonitorSocket;

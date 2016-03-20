@@ -12,15 +12,13 @@
 #include <SDLWindow.h>
 #include <SDLCompositor.h>
 #include <Geometry.h>
-#include <Asl/Logger.h>
-#include <Asl/Protocol.h>
+#include <protocol.h>
 
 #include <sstream>
 #include <string.h>
 #include <pthread.h>
 
 using namespace appserver;
-using namespace asl;
 
 unsigned long App::_counter = 1;
 
@@ -67,10 +65,8 @@ void App::processMessage(Asp_Request req)
         else if (req.type == AspRequestDestroyWindow) {
             destroyWindow(req);
         }
-    } catch (exception e) {
-        Logger::log(e.what(), __func__);
-        string what(e.what());
-        Logger::log("An exception occured while excecuting request: " + what);
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -87,24 +83,16 @@ void App::processMessage(Asp_Request req)
 void App::newWindow(Asp_Request req)
 {
     if (req.field3 < 0 || req.field3 > Window::kMaxWidth) {
-        string msg = "Invalid window width given by client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalid window width given by client app" << std::endl;
     }
     if (req.field4 < 0 || req.field4 > Window::kMaxHeight) {
-        string msg = "Invalid window height given by client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalid window height given by client app" << std::endl;
     }
     if (req.dataSize > Window::kMaxDataSize) {
-        string msg = "Invalid raster data size given by client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalid raster data size given by client app" << std::endl;
     }
     if (req.field5 != AspWindowRasterARGB && req.field5 != AspWindowRasterRGBA) {
-        string msg = "Invalid raster tyoe given by client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalid raster tyoe given by client app" << std::endl;
     }
     
     try {
@@ -121,11 +109,9 @@ void App::newWindow(Asp_Request req)
         
         TWindowId id = Window::newWindowId();
         
-        if (Logger::isEnabled()) {
-            ostringstream msg;
-            msg << "Window ID=" << id << " created";
-            Logger::log(__func__, msg.str());
-        }
+        std::ostringstream msg;
+        msg << "Window ID=" << id << " created";
+        std::cout << __func__ << ": " << msg.str() << std::endl;
         
         Asp_Event evt;
         evt.winId = id;
@@ -141,24 +127,22 @@ void App::newWindow(Asp_Request req)
         
         std::shared_ptr<Window> newWindow;
         if (Server::getSingleton()->getBackendMode() == kBackendModeSDL) {
-            newWindow = make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+            newWindow = std::make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
             
             std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
             std::shared_ptr<SDLWindow> sdlWindow = std::dynamic_pointer_cast<SDLWindow>(newWindow);
             sdlWindow->setRenderer(sdlCompositor->getRenderer());
         }
         else if (Server::getSingleton()->getBackendMode() == kBackendModeGLFW) {
-            newWindow = make_shared<GLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
+            newWindow = std::make_shared<GLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
         }
         
         
         newWindow->create(data, req.dataSize);
         compositor->addWindow(std::move(newWindow));
     }
-    catch (std::exception e) {
-        Logger::log("App::newWindow");
-        Logger::log(e.what(), __func__);
-        throw std::runtime_error(__func__);
+    catch (std::exception e) {        
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -174,9 +158,7 @@ void App::updateWindow(Asp_Request req)
 {
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(req.winId);
     if (window == nullptr) {
-        string msg = "Invalide Window ID given by client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument("Invalide window ID");
+        std::cout << __func__ << ": " << "Invalide Window ID given by client app" << std::endl;
     }
     
     try {        
@@ -197,9 +179,8 @@ void App::updateWindow(Asp_Request req)
         socket->send(ackResponse2);
         
         window->updatePixels(data, req.dataSize, makeRect(req.field1, req.field2, req.field3, req.field4));
-    } catch (exception e) {
-        Logger::log(e.what(), __func__);
-        throw runtime_error(__func__);
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -213,9 +194,7 @@ void App::resizeWindow(Asp_Request req)
 {
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(req.winId);
     if (window == nullptr) {
-        string msg = "Invalide window ID given client app";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalide window ID given client app" << std::endl;
     }
     
     try {
@@ -237,9 +216,8 @@ void App::resizeWindow(Asp_Request req)
         
         window->setSize(makeSize(req.field1, req.field2));
         window->resize(data, req.dataSize);
-    } catch (exception e) {
-        Logger::log(e.what(), __func__);
-        throw runtime_error(__func__);
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -252,9 +230,7 @@ void App::setWindowVisibility(Asp_Request req)
 {
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(req.winId);
     if (window == nullptr) {
-        string msg = "Invalide window ID";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
     window->setVisible(req.field1);
@@ -270,9 +246,7 @@ void App::moveWindow(Asp_Request req)
 {
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(req.winId);
     if (window == nullptr) {
-        string msg = "Invalide window ID";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
     Point newLocation = makePoint(req.field1, req.field2);
@@ -284,9 +258,7 @@ void App::bringWindowToFront(Asp_Request req)
 {
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(req.winId);
     if (window == nullptr) {
-        string msg = "Invalide window ID";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
     Server::getSingleton()->getCompositor().lock()->bringWindowToFront(window);
@@ -297,9 +269,7 @@ void App::destroyWindow(Asp_Request req)
     TWindowId windowId = req.winId;
     std::shared_ptr<Window> window = Server::getSingleton()->getCompositor().lock()->findWindow(windowId);
     if (window == nullptr) {
-        string msg = "Invalide window ID";
-        Logger::log(msg, __func__);
-        throw std::invalid_argument(msg);
+        std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
     Server::getSingleton()->getCompositor().lock()->removeWindow(windowId);
@@ -334,7 +304,7 @@ void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, d
             return;
         }
     } catch (zmq::error_t e) {
-        Logger::log(e.what(), __func__);
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -359,8 +329,8 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
-    } catch (exception e) {
-        Logger::log(e.what(), __func__);
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 
@@ -380,8 +350,8 @@ void App::sendKeyEvent(TWindowId windowId, int charCode)
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
-    } catch (exception e) {
-        Logger::log(e.what(), __func__);
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
     }
 }
 

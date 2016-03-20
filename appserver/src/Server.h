@@ -16,7 +16,7 @@
 #include <App.h>
 #include <Compositor.h>
 #include <WindowManager.h>
-#include <Asl/Protocol.h>
+#include <protocol.h>
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <zmq.hpp>
 

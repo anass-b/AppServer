@@ -11,8 +11,6 @@
 #include <SDLCompositor.h>
 #include <GLCompositor.h>
 #include <GlfwWorkspace.h>
-#include <Asl/Logger.h>
-#include <Asl/Utils.h>
 
 #include <pthread.h>
 #include <signal.h>
@@ -34,7 +32,7 @@ void Server::dispatchMessage(Asp_Request req)
     
     if (req.type == AspRequestRegister) {
         std::shared_ptr<App> app = nullptr;
-        app = make_shared<App>(req.field0);
+        app = std::make_shared<App>(req.field0);
         
         // Send the client ID back to the app
         Asp_Event evt;
@@ -62,7 +60,7 @@ void Server::dispatchMessage(Asp_Request req)
             app->processMessage(req);
         }
         else {
-            asl::Logger::log("Requested app not found");
+            std::cout << "Requested app not found" << std::endl;
         }
     }
 }
@@ -80,7 +78,7 @@ void* Server::requestListener(void *ptr)
             }
         }
         catch (zmq::error_t e) {
-            asl::Logger::log(e.what(), __func__);
+            std::cout << __func__ << ": " << e.what() << std::endl;
         }
     }
     return nullptr;
@@ -91,7 +89,7 @@ void Server::run(BackendMode backendMode)
     _backendMode = backendMode;
     
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
-        throw runtime_error(strerror(errno));
+        throw std::runtime_error(strerror(errno));
     }
     
     _windowManager = std::make_shared<WindowManager>();
@@ -99,11 +97,11 @@ void Server::run(BackendMode backendMode)
     std::shared_ptr<Workspace> mainWorkspace;
     if (backendMode == kBackendModeSDL) {
         _compositor = std::make_shared<SDLCompositor>();
-        mainWorkspace = make_shared<SDLWorkspace>(_compositor);
+        mainWorkspace = std::make_shared<SDLWorkspace>(_compositor);
     }
     else if (backendMode == kBackendModeGLFW) {
         _compositor = std::make_shared<GLCompositor>();
-        mainWorkspace = make_shared<GlfwWorkspace>(_compositor);
+        mainWorkspace = std::make_shared<GlfwWorkspace>(_compositor);
     }
     _workspaces.push_back(mainWorkspace);
     

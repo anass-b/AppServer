@@ -5,8 +5,12 @@
 #include <vector>
 #include <nativecode/window.h>
 
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
+
 namespace app
 {
+    const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
+    
     class Server;
     
     class ApplicationDelegate
@@ -28,7 +32,7 @@ namespace app
         std::vector<Window*> getWindows();
         Server *getServer();
     private:
-        void avoidBusyWait();
+        static void avoidBusyWait(const long nsec = INTERVAL_MS);
         static void* viewUpdateWatcher(void *ptr);
     public:
         bool _runLoop = true;

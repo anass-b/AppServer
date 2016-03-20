@@ -8,7 +8,6 @@
 
 #include <GlfwWorkspace.h>
 #include <GlfwInputSource.h>
-#include <Asl/Utils.h>
 
 using namespace appserver;
  
@@ -52,7 +51,7 @@ void GlfwWorkspace::run()
         
         glfwInputSrc->pollEvents();
         
-        asl::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
+        Workspace::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
     }
 }
 

@@ -25,6 +25,14 @@ void Workspace::setInputSource(std::shared_ptr<InputSource> inputSource)
     _inputSource = inputSource;
 }
 
+void Workspace::avoidBusyWait(const long int nsec)
+{
+    timespec tim;
+    tim.tv_sec  = 0;
+    tim.tv_nsec = nsec;
+    nanosleep(&tim, NULL);
+}
+
 Workspace::~Workspace()
 {
 }

@@ -2,9 +2,6 @@
 #include <private/server.h>
 #include <pthread.h>
 #include <signal.h>
-#include <Asl/Utils.h>
-
-using namespace asl;
 
 namespace app
 {
@@ -41,13 +38,21 @@ namespace app
         return _windows;
     }
     
+    void Application::avoidBusyWait(const long nsec)
+    {   
+        timespec tim;
+        tim.tv_sec  = 0;
+        tim.tv_nsec = nsec;
+        nanosleep(&tim, NULL);
+    }
+    
     void* Application::viewUpdateWatcher(void *ptr)
     {
         Application *app = Application::getSingleton();
         
         while (app->_runLoop) {
             
-            asl::avoidBusyWait();
+            Application::avoidBusyWait();
             
             for (int i = 0; i < app->_windows.size(); i++) {
                 Window *window = app->_windows.at(i);
