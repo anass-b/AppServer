@@ -323,10 +323,9 @@ if(OS_MACOSX)
   # -fno-threadsafe-statics         = Don't generate thread-safe statics
   # -fobjc-call-cxx-cdtors          = Call the constructor/destructor of C++ instance variables in ObjC objects
   # -fvisibility-inlines-hidden     = Give hidden visibility to inlined class member functions
-  # -std=gnu++11                    = Use the C++11 language standard including GNU extensions
   # -Wno-narrowing                  = Don't warn about type narrowing
   # -Wsign-compare                  = Warn about mixed signed/unsigned type comparisons
-  set(CEF_CXX_COMPILER_FLAGS      "-fno-exceptions -fno-rtti -fno-threadsafe-statics -fobjc-call-cxx-cdtors -fvisibility-inlines-hidden -std=gnu++11 -Wno-narrowing -Wsign-compare")
+  set(CEF_CXX_COMPILER_FLAGS      "-fno-exceptions -fno-rtti -fno-threadsafe-statics -fobjc-call-cxx-cdtors -fvisibility-inlines-hidden -Wno-narrowing -Wsign-compare")
   # -O0                             = Disable optimizations
   # -g                              = Generate debug information
   set(CEF_COMPILER_FLAGS_DEBUG    "-O0 -g")
