@@ -3,3 +3,5 @@ sdk/coffeecode/out
 .kdev4/
 *.kdev4
 build/
+sdk/asl/tests/cef/Debug/
+sdk/asl/tests/cef/Release/
