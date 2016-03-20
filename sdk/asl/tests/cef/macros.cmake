@@ -134,7 +134,6 @@ if(OS_MACOSX)
 function(SET_XCODE_TARGET_PROPERTIES target)
   set_target_properties(${target} PROPERTIES
     XCODE_ATTRIBUTE_ALWAYS_SEARCH_USER_PATHS                    NO
-    XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD                 "gnu++11"   # -std=gnu++11
     XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME                     NO          # -fno-objc-link-runtime
     XCODE_ATTRIBUTE_CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS  YES         # -Wobjc-missing-property-synthesis
     XCODE_ATTRIBUTE_COPY_PHASE_STRIP                            NO
