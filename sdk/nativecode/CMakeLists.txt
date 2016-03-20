@@ -10,11 +10,11 @@ set (SOURCES
     src/geometry.cpp
     src/graphics.cpp
     src/server.cpp
-    src/server.cpp
     src/view.cpp
     src/window.cpp
     )
 set (HEADERS
+    include/private/server.h
     include/nativecode/application.h
     include/nativecode/geometry.h
     include/nativecode/graphics.h
