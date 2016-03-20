@@ -294,9 +294,7 @@ KeyEvent::~KeyEvent()
  * return: Negative number if it fails
  */
 Connector::Connector()
-{
-    int pid = getpid();
-  
+{  
     _context = std::make_shared<zmq::context_t>(1);
     
     // Request socket
