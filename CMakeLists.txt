@@ -1,9 +1,6 @@
 cmake_minimum_required (VERSION 3.2.2)
 project (workspace)
 
-# Necessary for sdk/asl/tests/cef project
-set(CMAKE_OSX_DEPLOYMENT_TARGET  "10.7")
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 # add usr/local

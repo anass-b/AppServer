@@ -19,5 +19,4 @@ target_link_libraries (asl zmq ${EXTRA_LIBS})
 
 set_property(TARGET asl PROPERTY CXX_STANDARD 11)
 
-#add_subdirectory (tests/cef-test)
-add_subdirectory (tests/cef)
+add_subdirectory (tests/test1)
