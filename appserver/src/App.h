@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <pthread.h>
 #include <zmq.hpp>
 #include <Window.h>
 
@@ -29,14 +30,14 @@ namespace appserver
         friend class Window;
         App(TProcId pid);
         virtual ~App();
-        void createAndConnectSocket();
         void sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY);
         void sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY);
         void sendKeyEvent(TWindowId windowId, int charCode);
         TProcId getPid() const;
-        TAppId getId() const;
-        void processMessage(Asp_Request msg);
+        TAppId getId() const;        
         std::weak_ptr<zmq::socket_t> getSocket() const;
+        std::weak_ptr<zmq::socket_t> getEventSocket() const;
+        void startRequestListener();
     protected:
         void newWindow(Asp_Request msg);
         void updateWindow(Asp_Request msg);
@@ -46,11 +47,16 @@ namespace appserver
         void bringWindowToFront(Asp_Request msg);
         void destroyWindow(Asp_Request msg);
     private:
+        static void* requestListener(void* arg);
+        void processMessage(Asp_Request msg);
+    private:
         TAppId _id;
         TProcId _pid;
         static unsigned long _counter;
         bool _busy;
-        std::shared_ptr<zmq::socket_t> _socket; 
+        pthread_t _requestListener;
+        std::shared_ptr<zmq::socket_t> _eventSocket;
+        std::shared_ptr<zmq::socket_t> _socket;
     };
 }
 

@@ -26,45 +26,6 @@ Server::Server()
     _socket->bind("tcp://*:9000");
 }
 
-void Server::dispatchMessage(Asp_Request req)
-{
-    std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
-    
-    if (req.type == AspRequestRegister) {
-        std::shared_ptr<App> app = nullptr;
-        app = std::make_shared<App>(req.field0);
-        
-        // Send the client ID back to the app
-        Asp_Event evt;
-        evt.field0 = app->getId();                
-        zmq::message_t response(&evt, sizeof(Asp_Event));
-        socket->send(response);
-        
-        app->createAndConnectSocket();
-
-        addApp(app);
-    }
-    else if (req.type == AspRequestUnregister) {
-        removeAppByPid(req.field0);
-
-        // ACK
-        int ack = 1;
-        zmq::message_t ackResponse(&ack, sizeof(int));
-        socket->send(ackResponse);
-
-        std::cout << "Removed app with pid " << req.field0 << std::endl;
-    }
-    else {
-        std::shared_ptr<App> app = findApp(req.clientId).lock();
-        if (app != nullptr) {
-            app->processMessage(req);
-        }
-        else {
-            std::cout << "Requested app not found" << std::endl;
-        }
-    }
-}
-
 void* Server::requestListener(void *ptr)
 {
     Server* server = Server::getSingleton();
@@ -74,7 +35,31 @@ void* Server::requestListener(void *ptr)
             Asp_Request req;        
             size_t receivedSize = socket->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
-                server->dispatchMessage(req);
+                std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+
+                if (req.type == AspRequestRegister) {
+                    std::shared_ptr<App> app = nullptr;
+                    app = std::make_shared<App>(req.field0);
+                    app->startRequestListener();
+
+                    // Send the client ID back to the app
+                    Asp_Event evt;
+                    evt.field0 = app->getId();
+                    zmq::message_t response(&evt, sizeof(Asp_Event));
+                    socket->send(response);
+
+                    server->addApp(app);
+                }
+                else if (req.type == AspRequestUnregister) {
+                    server->removeAppByPid(req.field0);
+
+                    // ACK
+                    int ack = 1;
+                    zmq::message_t ackResponse(&ack, sizeof(int));
+                    socket->send(ackResponse);
+
+                    std::cout << "Removed app with pid " << req.field0 << std::endl;
+                }
             }
         }
         catch (zmq::error_t e) {

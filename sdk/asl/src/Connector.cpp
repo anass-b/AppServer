@@ -297,9 +297,9 @@ Connector::Connector()
 {  
     _context = std::make_shared<zmq::context_t>(1);
     
-    // Request socket
-    _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _socket->connect("tcp://localhost:9000");
+    // Registration socket
+    _regSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _regSocket->connect("tcp://localhost:9000");
 
     // Process Monitor socket
     _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
@@ -332,13 +332,22 @@ void Connector::subscribe()
     subscribeRequest.type = AspRequestRegister;
     subscribeRequest.field0 = pid;
     zmq::message_t request(&subscribeRequest, sizeof(subscribeRequest));
-    _socket->send(request);
+    _regSocket->send(request);
     
     Asp_Event evt;
-    receivedSize = _socket->recv(&evt, sizeof(evt));
+    receivedSize = _regSocket->recv(&evt, sizeof(evt));
     if (receivedSize > 0) {  
         _clientId = evt.field0;
         std::cout << "Received client ID: " << _clientId << std::endl;
+
+        // Request socket
+        _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+        std::stringstream reqSocketAddress;
+        reqSocketAddress << "tcp://localhost:";
+        int reqSocketPort = 20000 + _clientId;
+        reqSocketAddress << reqSocketPort;
+        _socket->connect(reqSocketAddress.str());
+        std::cout << "Connected to request socket in port " << reqSocketPort << std::endl;
 
         // Events socket
         int port = 10000 + _clientId;

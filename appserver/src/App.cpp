@@ -26,19 +26,53 @@ App::App(TProcId pid) : _id(++_counter), _pid(pid), _busy(false)
 {    
 }
 
-void App::createAndConnectSocket()
+void App::startRequestListener()
 {
     std::shared_ptr<zmq::context_t> context = Server::getSingleton()->getSocketContext().lock();
-    _socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
-    
-    std::stringstream address;
-    address << "tcp://";
-    address << Server::getSingleton()->getAppsHost();
-    address << ":";
-    int port = 10000 + _id;
-    address << port;
-    _socket->connect(address.str());
-    std::cout << "Connected to events socket in port " << port << std::endl;
+
+    // Requests socket
+    _socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REP);
+    std::stringstream socketAddress;
+    socketAddress << "tcp://*:";
+    int socketPort = 20000 + _id;
+    socketAddress << socketPort;
+    _socket->bind(socketAddress.str());
+    std::cout << "Started requests socket in port " << socketPort << std::endl;
+
+    // Event socket
+    _eventSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
+    std::stringstream eventSocketAddress;
+    eventSocketAddress << "tcp://";
+    eventSocketAddress << Server::getSingleton()->getAppsHost();
+    eventSocketAddress << ":";
+    int eventSocketPort = 10000 + _id;
+    eventSocketAddress << eventSocketPort;
+    _eventSocket->connect(eventSocketAddress.str());
+    std::cout << "Connected to events socket in port " << eventSocketPort << std::endl;
+
+    if (pthread_create(&_requestListener, NULL, App::requestListener, this)) {
+        throw std::runtime_error(strerror(errno));
+    }
+}
+
+void* App::requestListener(void* arg)
+{
+    App* app = (App*)arg;
+
+    try {
+        for (;;) {
+            Asp_Request req;
+            size_t receivedSize = app->getSocket().lock()->recv(&req, sizeof(Asp_Request));
+            if (receivedSize > 0) {
+                app->processMessage(req);
+            }
+        }
+    }
+    catch (zmq::error_t e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
+    }
+
+    return nullptr;
 }
 
 void App::processMessage(Asp_Request req)
@@ -96,7 +130,7 @@ void App::newWindow(Asp_Request req)
     }
     
     try {
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+        std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
         
         // ACK
         int ack = 1;
@@ -162,7 +196,7 @@ void App::updateWindow(Asp_Request req)
     }
     
     try {        
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+        std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
         
         // ACK
         int ack = 1;
@@ -198,7 +232,7 @@ void App::resizeWindow(Asp_Request req)
     }
     
     try {
-        std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
+        std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
         
         // ACK
         int ack = 1;
@@ -296,10 +330,10 @@ void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, d
         }
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        _socket->send(eventRequest);
+        _eventSocket->send(eventRequest);
             
         int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        size_t receivedSize = _eventSocket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
@@ -322,10 +356,10 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
         req.field5 = button;
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        _socket->send(eventRequest);
+        _eventSocket->send(eventRequest);
         
         int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        size_t receivedSize = _eventSocket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
@@ -343,10 +377,10 @@ void App::sendKeyEvent(TWindowId windowId, int charCode)
         req.field0 = charCode;
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
-        _socket->send(eventRequest);
+        _eventSocket->send(eventRequest);
         
         int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
+        size_t receivedSize = _eventSocket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
@@ -368,6 +402,12 @@ TAppId App::getId() const
 std::weak_ptr<zmq::socket_t> App::getSocket() const
 {
     return _socket;
+}
+
+
+std::weak_ptr<zmq::socket_t> App::getEventSocket() const
+{
+    return _eventSocket;
 }
 
 App::~App()

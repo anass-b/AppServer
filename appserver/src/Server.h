@@ -40,7 +40,6 @@ namespace appserver
         std::weak_ptr<App> findApp(TAppId id) const;
         std::weak_ptr<Compositor> getCompositor() const;
         std::weak_ptr<WindowManager> getWindowManager() const;
-        void dispatchMessage(Asp_Request req);
         std::weak_ptr<zmq::context_t> getSocketContext() const;
         std::weak_ptr<zmq::socket_t> getSocket() const;
         BackendMode getBackendMode() const;
@@ -57,11 +56,9 @@ namespace appserver
         std::shared_ptr<WindowManager> _windowManager;
         static Server* _sharedInst;
         pthread_t _messageDispatcher;
-        pthread_t _processMonitor;
         int _sock;
         BackendMode _backendMode;
         std::string _appsHost;
-        // zmq
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;
     };
