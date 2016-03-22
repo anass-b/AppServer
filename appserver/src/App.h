@@ -38,6 +38,7 @@ namespace appserver
         std::weak_ptr<zmq::socket_t> getSocket() const;
         std::weak_ptr<zmq::socket_t> getEventSocket() const;
         void startRequestListener();
+        void stopRequestListener();
     protected:
         void newWindow(Asp_Request msg);
         void updateWindow(Asp_Request msg);
@@ -55,8 +56,10 @@ namespace appserver
         static unsigned long _counter;
         bool _busy;
         pthread_t _requestListener;
+        std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _eventSocket;
         std::shared_ptr<zmq::socket_t> _socket;
+        bool _runRequestListener = true;
     };
 }
 

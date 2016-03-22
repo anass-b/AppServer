@@ -28,10 +28,10 @@ App::App(TProcId pid) : _id(++_counter), _pid(pid), _busy(false)
 
 void App::startRequestListener()
 {
-    std::shared_ptr<zmq::context_t> context = Server::getSingleton()->getSocketContext().lock();
+    _context = std::make_shared<zmq::context_t>(1);
 
     // Requests socket
-    _socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REP);
+    _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
     std::stringstream socketAddress;
     socketAddress << "tcp://*:";
     int socketPort = 20000 + _id;
@@ -40,7 +40,7 @@ void App::startRequestListener()
     std::cout << "Started requests socket in port " << socketPort << std::endl;
 
     // Event socket
-    _eventSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
+    _eventSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
     std::stringstream eventSocketAddress;
     eventSocketAddress << "tcp://";
     eventSocketAddress << Server::getSingleton()->getAppsHost();
@@ -55,12 +55,18 @@ void App::startRequestListener()
     }
 }
 
+void App::stopRequestListener()
+{
+    _runRequestListener = false;
+    _context->close();
+}
+
 void* App::requestListener(void* arg)
 {
     App* app = (App*)arg;
 
     try {
-        for (;;) {
+        while (app->_runRequestListener) {
             Asp_Request req;
             size_t receivedSize = app->getSocket().lock()->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
@@ -71,6 +77,8 @@ void* App::requestListener(void* arg)
     catch (zmq::error_t e) {
         std::cout << __func__ << ": " << e.what() << std::endl;
     }
+    
+    std::cout << "Request thread terminated." << std::endl;
 
     return nullptr;
 }
