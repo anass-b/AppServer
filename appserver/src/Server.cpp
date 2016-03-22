@@ -103,9 +103,9 @@ void Server::removeAppById(TAppId id)
     for (auto iter = _apps.begin(); iter != _apps.end(); ++iter) {
         std::shared_ptr<App> a = *iter;
         if (a->getId() == id) {
-            a->stopRequestListener();
             _compositor->removeWindows(id);
             _apps.erase(iter);
+            a->stopRequestListener();
             return;
         }
     }
@@ -116,9 +116,9 @@ void Server::removeAppByPid(TProcId pid)
     for (auto iter = _apps.begin(); iter != _apps.end(); ++iter) {
         std::shared_ptr<App> a = *iter;
         if (a->getPid() == pid) {
-            a->stopRequestListener();
             _compositor->removeWindows(a->getId());
             _apps.erase(iter);
+            a->stopRequestListener();
             return;
         }
     }
