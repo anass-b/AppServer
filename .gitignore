@@ -5,3 +5,4 @@ sdk/coffeecode/out
 build/
 sdk/asl/tests/cef/Debug/
 sdk/asl/tests/cef/Release/
+CMakeLists.txt.user
