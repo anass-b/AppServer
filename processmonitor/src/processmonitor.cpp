@@ -1,13 +1,20 @@
 #include <zmq.hpp>
 #include <memory>
 #include <vector>
+#include <sstream>
 #include <iostream>
 #include <pthread.h>
 #include <signal.h>
 #include <protocol.h>
 
+struct App
+{
+    TProcId pid;
+    TAppId id;
+};
+
 std::shared_ptr<zmq::context_t> context;
-std::vector<TProcId> pidList;
+std::vector<App> appList;
 
 #define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
@@ -21,9 +28,10 @@ void avoidBusyWait(const long nsec = INTERVAL_MS)
 
 void removePid(TProcId pid)
 {
-    for (auto iter = pidList.begin(); iter != pidList.end(); ++iter) {
-        if (pid == *iter) {
-            pidList.erase(iter);
+    for (auto iter = appList.begin(); iter != appList.end(); ++iter) {
+        App app = *iter;
+        if (app.pid == pid) {
+            appList.erase(iter);
             return;
         }
     }
@@ -36,19 +44,20 @@ void* processMonitor(void *ptr)
     
     while (true) {
         avoidBusyWait();
-        for (int i = 0; i < pidList.size(); i++) {
-            TProcId pid = pidList.at(i);
-            if (kill(pid, 0) == -1) {
+        for (int i = 0; i < appList.size(); i++) {
+            App app = appList.at(i);
+            if (kill(app.pid, 0) == -1) {
                 try {
-                    removePid(pid);
+                    removePid(app.pid);
                     
-                    std::cout << "Removed pid " << pid << std::endl;
+                    std::cout << "Removed app with pid " << app.pid << std::endl;
                     
-                    Asp_Request unsubscribeReq;
-                    unsubscribeReq.type = AspRequestUnregister;
-                    unsubscribeReq.field0 = pid;
-                    zmq::message_t request(&unsubscribeReq, sizeof(Asp_Request));
-                    appServerSocket->send(request);
+                    // Ask the appserver's to unregister the app
+                    Asp_Request unregisterReq1;
+                    unregisterReq1.type = AspRequestUnregister;
+                    unregisterReq1.field0 = app.pid;
+                    zmq::message_t zmqUnregisterReq1(&unregisterReq1, sizeof(Asp_Request));
+                    appServerSocket->send(zmqUnregisterReq1);
                     
                     // ACK
                     int ack = 0;
@@ -57,7 +66,21 @@ void* processMonitor(void *ptr)
                         exit(1);
                     }
                     
-                    std::cout << "Told appserver to remove pid " << pid << std::endl;
+                    std::cout << "Told appserver to remove the app with pid " << app.pid << std::endl;
+
+                    // Ask the appserver to stop the app's requester listener thread
+                    std::shared_ptr<zmq::socket_t> reqSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
+                    std::stringstream reqSocketAddress;
+                    reqSocketAddress << "tcp://localhost:";
+                    int reqSocketPort = AspReqListenerThreadPortValue + app.id;
+                    reqSocketAddress << reqSocketPort;
+                    reqSocket->connect(reqSocketAddress.str());
+
+                    Asp_Request unregisterReq2;
+                    unregisterReq2.type = AspRequestUnregister;
+                    zmq::message_t zmqUnregisterReq2(&unregisterReq2, sizeof(Asp_Request));
+                    reqSocket->send(zmqUnregisterReq2);
+                    std::cout << "Told server to stop the request listener thread of the app with pid " << app.pid << std::endl;
                 }
                 catch (zmq::error_t e) {
                     std::cout << __func__ << ": " << e.what() << std::endl;
@@ -81,18 +104,19 @@ int main(int argc, char **argv)
     
     while (true) {
         try {
-            TProcId pid = -1;
-            socket->recv(&pid, sizeof(TProcId));
+            Asp_SubscribeRequest subscribeReq;
+            socket->recv(&subscribeReq, sizeof(subscribeReq));
             
             // ACK
             int ack = 1;
             zmq::message_t ackResponse(&ack, sizeof(int));
             socket->send(ackResponse);
             
-            if (pid != -1) {
-                pidList.push_back(pid);
-                std::cout << "Registered new pid " << pid << std::endl;
-            }
+            App app;
+            app.pid = subscribeReq.pid;
+            app.id = subscribeReq.clientId;
+            appList.push_back(app);
+            std::cout << "Registered new app with pid:" << app.pid << " clientId:" << app.id << std::endl;
         }
         catch (zmq::error_t e) {
             std::cout << __func__ << ": " << e.what() << std::endl;

@@ -53,14 +53,25 @@
 #define AspKeyEventPress    1
 #define AspKeyEventRelease  2
 
+/*
+ * Port values
+ */
+#define AspReqListenerThreadPortValue 20000
+
 typedef unsigned long int TAppId;
 typedef pid_t TProcId;
 typedef unsigned long int TWindowId;
 typedef unsigned long int TWindowZ;
 
+struct Asp_SubscribeRequest
+{
+    TProcId pid;
+    TAppId clientId;
+};
+
 struct Asp_Request
 {
-    unsigned long int clientId;
+    TAppId clientId;
     unsigned int type;
     TWindowId winId;
     double field0;
@@ -85,5 +96,6 @@ struct Asp_Event {
 
 typedef struct Asp_Event Asp_Event;
 typedef struct Asp_Request Asp_Request;
+typedef struct Asp_SubscribeRequest Asp_SubscribeRequest;
 
 #endif

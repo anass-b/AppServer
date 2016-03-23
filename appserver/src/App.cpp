@@ -34,7 +34,7 @@ void App::startRequestListener()
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
     std::stringstream socketAddress;
     socketAddress << "tcp://*:";
-    int socketPort = 20000 + _id;
+    int socketPort = AspReqListenerThreadPortValue + _id;
     socketAddress << socketPort;
     _socket->bind(socketAddress.str());
     std::cout << "Started requests socket in port " << socketPort << std::endl;
@@ -53,12 +53,6 @@ void App::startRequestListener()
     if (pthread_create(&_requestListener, NULL, App::requestListener, this)) {
         throw std::runtime_error(strerror(errno));
     }
-}
-
-void App::stopRequestListener()
-{
-    _runRequestListener = false;
-    _context->close();
 }
 
 void* App::requestListener(void* arg)
@@ -106,6 +100,9 @@ void App::processMessage(Asp_Request req)
         }
         else if (req.type == AspRequestDestroyWindow) {
             destroyWindow(req);
+        }
+        else if (req.type == AspRequestUnregister) {
+            _runRequestListener = false;
         }
     } catch (std::exception e) {
         std::cout << __func__ << ": " << e.what() << std::endl;

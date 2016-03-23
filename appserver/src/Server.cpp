@@ -105,7 +105,6 @@ void Server::removeAppById(TAppId id)
         if (a->getId() == id) {
             _compositor->removeWindows(id);
             _apps.erase(iter);
-            a->stopRequestListener();
             return;
         }
     }
@@ -118,7 +117,6 @@ void Server::removeAppByPid(TProcId pid)
         if (a->getPid() == pid) {
             _compositor->removeWindows(a->getId());
             _apps.erase(iter);
-            a->stopRequestListener();
             return;
         }
     }
