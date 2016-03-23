@@ -34,7 +34,7 @@ void WindowManager::onMouseDragEvent(Point mouseLocation)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     
-    if (_windowMoveCandidate) {
+    /*if (_windowMoveCandidate) {
         // We move the window and send the update to it's owner (client app)
         Point newLocation = makePoint(mouseLocation.x - _mouseDragInitialLocation.x, mouseLocation.y - _mouseDragInitialLocation.y);
         _windowMoveCandidate->setLocation(newLocation);
@@ -45,7 +45,7 @@ void WindowManager::onMouseDragEvent(Point mouseLocation)
             app->sendMouseMoveEvent(_windowMoveCandidate->getId(), -1, newlocation.x, newlocation.y, -1, -1);
         }
     }
-    else if (_windowWhereMouseDragIsHappening) {
+    else */if (_windowWhereMouseDragIsHappening) {
         std::shared_ptr<App> app = _windowWhereMouseDragIsHappening->getApp().lock();
         Point locationInWindow = _windowWhereMouseDragIsHappening->getLocationInWindow(mouseLocation);
         app->sendMouseMoveEvent(_windowWhereMouseDragIsHappening->getId(), AspMouseEventDrag, locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
@@ -72,24 +72,35 @@ void WindowManager::onMouseButtonEvent(Point mouseLocation, int button, int type
             compositor->bringWindowToFront(window);
             if (window->pointIsInsideTitleBar(mouseLocation)) {
                 _mouseDragInitialLocation = makePoint(mouseLocation.x - window->getX(), mouseLocation.y - window->getY());
-                _windowMoveCandidate = window.get();
+                //_windowMoveCandidate = window.get();
             }
             else {
                 _windowWhereMouseDragIsHappening = window.get();
             }
+            
+            std::shared_ptr<App> app = window->getApp().lock();
+            Point windowLocation = window->getFrame().location;
+            app->sendMouseButtonEvent(window->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
         }
     }
     else if (type == AspMouseEventRelease) {
+        if (_windowWhereMouseDragIsHappening /*window where the mouse button press happened*/) {
+            std::shared_ptr<App> app = _windowWhereMouseDragIsHappening->getApp().lock();
+            Point windowLocation = _windowWhereMouseDragIsHappening->getFrame().location;
+            app->sendMouseButtonEvent(_windowWhereMouseDragIsHappening->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
+        }
+        else {
+            std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
+            if (window) {
+                std::shared_ptr<App> app = window->getApp().lock();
+                Point windowLocation = window->getFrame().location;
+                app->sendMouseButtonEvent(window->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
+            }            
+        }
+        
         _mouseDragInitialLocation = makePoint(0.0, 0.0);
-        _windowMoveCandidate = nullptr;
+        //_windowMoveCandidate = nullptr;
         _windowWhereMouseDragIsHappening = nullptr;
-    }
-    
-    std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
-    if (window != nullptr) {
-        std::shared_ptr<App> app = window->getApp().lock();
-        Point windowLocation = window->getFrame().location;
-        app->sendMouseButtonEvent(window->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
     }
 }
 

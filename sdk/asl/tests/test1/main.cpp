@@ -36,7 +36,10 @@ int main(int argc, char *argv[])
             }
             else if (event.inputEvent.mouseEvent.type == AspMouseEventMove) {
                 std::cout << "Mouse Move" << std::endl;
-            }            
+            }
+            else if (event.inputEvent.mouseEvent.type == AspMouseEventDrag) {
+                std::cout << "Mouse Drag" << std::endl;
+            }
         }
     }
 
