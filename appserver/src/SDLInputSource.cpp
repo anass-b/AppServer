@@ -24,45 +24,44 @@ SDLInputSource::SDLInputSource(std::shared_ptr<Workspace> screen) : InputSource(
 bool SDLInputSource::pollEvents()
 {
     SDL_Event e;
-    SDL_PollEvent(&e);
-    
-    std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
-    
-    if (e.type == SDL_QUIT) {
-        return false;
-    }
-    else if (e.type == SDL_MOUSEMOTION) {
-        this->onMouseMoveEvent(e.motion.x, e.motion.y);
-    }
-    else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-        int aspMouseButton = 0;
-        int aspMouseButtonEventType = 0;
-        
-        if (e.type == SDL_MOUSEBUTTONDOWN) {
-            aspMouseButtonEventType = AspMouseEventPress;
+    if (SDL_PollEvent(&e)) {
+        std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
+
+        if (e.type == SDL_QUIT) {
+            return false;
         }
-        else if (e.type == SDL_MOUSEBUTTONUP) {
-            aspMouseButtonEventType = AspMouseEventRelease;
+        else if (e.type == SDL_MOUSEMOTION) {
+            this->onMouseMoveEvent(e.motion.x, e.motion.y);
         }
-        
-        if (e.button.button == SDL_BUTTON_RIGHT) {
-            aspMouseButton = AspMouseButtonRight;
+        else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+            int aspMouseButton = 0;
+            int aspMouseButtonEventType = 0;
+
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                aspMouseButtonEventType = AspMouseEventPress;
+            }
+            else if (e.type == SDL_MOUSEBUTTONUP) {
+                aspMouseButtonEventType = AspMouseEventRelease;
+            }
+
+            if (e.button.button == SDL_BUTTON_RIGHT) {
+                aspMouseButton = AspMouseButtonRight;
+            }
+            else if (e.button.button == SDL_BUTTON_LEFT) {
+                aspMouseButton = AspMouseButtonLeft;
+            }
+            else if (e.button.button == SDL_BUTTON_MIDDLE) {
+                aspMouseButton = AspMouseButtonMiddle;
+            }
+            this->onMouseButtonEvent(e.motion.x, e.motion.y, aspMouseButton, aspMouseButtonEventType);
         }
-        else if (e.button.button == SDL_BUTTON_LEFT) {
-            aspMouseButton = AspMouseButtonLeft;
+        else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
         }
-        else if (e.button.button == SDL_BUTTON_MIDDLE) {
-            aspMouseButton = AspMouseButtonMiddle;
+        else if (e.type == SDL_TEXTINPUT) {
+            this->onTextEvent(e.text.text);
         }
-        this->onMouseButtonEvent(e.motion.x, e.motion.y, aspMouseButton, aspMouseButtonEventType);
     }
-    else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
-        
-    }
-    else if (e.type == SDL_TEXTINPUT) {
-        this->onTextEvent(e.text.text);
-    }
-    
+
     return true;
 }
 

@@ -35,16 +35,16 @@ SDLWorkspace::SDLWorkspace(std::shared_ptr<Compositor> compositor, unsigned int 
 void SDLWorkspace::run()
 {
     _inputSource = std::make_shared<SDLInputSource>(shared_from_this());
-    std::shared_ptr<SDLInputSource> glfwInputSrc = std::dynamic_pointer_cast<SDLInputSource>(_inputSource);
+    std::shared_ptr<SDLInputSource> inputSource = std::dynamic_pointer_cast<SDLInputSource>(_inputSource);
     
     while (true) {
         _compositor->compose();
-        
-        if(!glfwInputSrc->pollEvents()) {
+
+        if(!inputSource->pollEvents()) {
             SDL_Quit();
             return;
         }
-        
+
         Workspace::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
     }
 }

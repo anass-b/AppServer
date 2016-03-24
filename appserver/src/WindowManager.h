@@ -26,8 +26,6 @@ namespace appserver
         void onTextEvent(std::string text);
         
     private:
-        Point _mouseDragInitialLocation;
-        Window* _windowMoveCandidate;
         Window* _windowWhereMouseDragIsHappening;
     };
 }
