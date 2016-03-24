@@ -108,7 +108,8 @@ InputEvent* Server::waitInputEvent()
                 keyEvent->winId = (unsigned int)aslKeyEvent->getWindowId();
                 keyEvent->type = (KeyEventType)aslKeyEvent->getKeyEventType();
                 keyEvent->keyCode = 0;
-                keyEvent->charCode = aslKeyEvent->getCharCode();
+                char *text = (char*)aslKeyEvent->getText().c_str();
+                keyEvent->charCode = text[0];
                 keyEvent->viewId = -1;
                 keyEvent->viewTag = -1;
                 
