@@ -126,16 +126,15 @@ namespace asl
     {
     public:
         KeyEvent();
-        KeyEvent(const Asp_Event& aspEvent);
-        KeyEvent(TWindowId id, KeyEventType type, uint32_t charCode);
+        KeyEvent(const Asp_Event& aspEvent, std::string text);
         virtual ~KeyEvent();
         void setKeyEventType(KeyEventType type);
         KeyEventType getKeyEventType() const;
-        void setCharCode(uint32_t code);
-        uint32_t getCharCode() const;
+        void setText(std::string text);
+        std::string getText() const;
     private:
         KeyEventType _keyEventType;
-        uint32_t _charCode;
+        std::string _text;
     };
     
     class Connector

@@ -26,7 +26,8 @@ extern "C" {
     typedef struct
     {
         int type;
-        int charCode;
+        char *text;
+        size_t textSize;
     } AslKeyEvent;
         
     typedef struct

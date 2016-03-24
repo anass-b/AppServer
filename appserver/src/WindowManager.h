@@ -23,7 +23,7 @@ namespace appserver
         void onMouseMoveEvent(Point mouseLocation);
         void onMouseDragEvent(Point mouseLocation);
         void onMouseButtonEvent(Point mouseLocation, int button, int type);
-        void onKeyEvent(unsigned int charCode);
+        void onTextEvent(std::string text);
         
     private:
         Point _mouseDragInitialLocation;

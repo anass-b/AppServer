@@ -9,8 +9,6 @@
 #include <Server.h>
 #include <SDLWorkspace.h>
 #include <SDLCompositor.h>
-#include <GLCompositor.h>
-#include <GlfwWorkspace.h>
 
 #include <pthread.h>
 #include <signal.h>
@@ -83,10 +81,6 @@ void Server::run(BackendMode backendMode)
     if (backendMode == kBackendModeSDL) {
         _compositor = std::make_shared<SDLCompositor>();
         mainWorkspace = std::make_shared<SDLWorkspace>(_compositor);
-    }
-    else if (backendMode == kBackendModeGLFW) {
-        _compositor = std::make_shared<GLCompositor>();
-        mainWorkspace = std::make_shared<GlfwWorkspace>(_compositor);
     }
     _workspaces.push_back(mainWorkspace);
     

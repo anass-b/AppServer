@@ -29,8 +29,9 @@
  */
 #define AspEventMouseInput              1
 #define AspEventKeyInput                2
-#define AspEventWindowLocationChanged   3
-#define AspEventWindowResizeCompleted   4
+#define AspEventTextInput               3
+#define AspEventWindowLocationChanged   4
+#define AspEventWindowResizeCompleted   5
 
 /*
  * Mouse buttons

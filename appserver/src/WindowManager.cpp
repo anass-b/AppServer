@@ -105,14 +105,14 @@ void WindowManager::onMouseButtonEvent(Point mouseLocation, int button, int type
 }
 
 
-void WindowManager::onKeyEvent(unsigned int charCode)
+void WindowManager::onTextEvent(std::string text)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     std::shared_ptr<Window> topMostWindow = compositor->getTopMostWindow();
     if (topMostWindow != nullptr) {
         std::shared_ptr<App> app = topMostWindow->getApp().lock();
         if (app != nullptr) {
-            app->sendKeyEvent(topMostWindow->getId(), charCode);
+            app->sendTextEvent(topMostWindow->getId(), text);
         }
     }
 }

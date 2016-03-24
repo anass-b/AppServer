@@ -22,8 +22,7 @@
 namespace appserver
 {
     enum BackendMode {
-        kBackendModeSDL,
-        kBackendModeGLFW
+        kBackendModeSDL
     };
     
     class Server

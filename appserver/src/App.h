@@ -32,7 +32,7 @@ namespace appserver
         virtual ~App();
         void sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY);
         void sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY);
-        void sendKeyEvent(TWindowId windowId, int charCode);
+        void sendTextEvent(TWindowId windowId, std::string text);
         TProcId getPid() const;
         TAppId getId() const;        
         std::weak_ptr<zmq::socket_t> getSocket() const;

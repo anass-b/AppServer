@@ -7,7 +7,6 @@
 //
 
 #include <SDLCompositor.h>
-#include <GLFW/glfw3.h>
 #include <memory>
 
 using namespace appserver;

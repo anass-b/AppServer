@@ -56,8 +56,11 @@ bool SDLInputSource::pollEvents()
         }
         this->onMouseButtonEvent(e.motion.x, e.motion.y, aspMouseButton, aspMouseButtonEventType);
     }
+    else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+        
+    }
     else if (e.type == SDL_TEXTINPUT) {
-        this->onKeyEvent(0);
+        this->onTextEvent(e.text.text);
     }
     
     return true;
@@ -88,9 +91,9 @@ void SDLInputSource::onMouseButtonEvent(double x, double y, int button, int type
     wm->onMouseButtonEvent(makePoint(x, y), button, type);
 }
 
-void SDLInputSource::onKeyEvent(unsigned int charCode)
+void SDLInputSource::onTextEvent(std::string text)
 {
     std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
-    wm->onKeyEvent(charCode);
+    wm->onTextEvent(text);
 }
 

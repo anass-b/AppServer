@@ -249,16 +249,11 @@ KeyEvent::KeyEvent()
 {
 }
 
-KeyEvent::KeyEvent(TWindowId id, KeyEventType type, uint32_t charCode)
-    : InputEvent(id, kInputEventTypeKey), _keyEventType(type), _charCode(charCode)
-{
-}
-
-KeyEvent::KeyEvent(const Asp_Event& aspEvent)
+KeyEvent::KeyEvent(const Asp_Event& aspEvent, std::string text)
     : InputEvent(AspUndefinedWindowId, kInputEventTypeKey)
 {
     setWindowId(aspEvent.winId);
-    setCharCode(aspEvent.field0);
+    _text = text;
 }
 
 void KeyEvent::setKeyEventType(KeyEventType type)
@@ -271,14 +266,14 @@ KeyEventType KeyEvent::getKeyEventType() const
     return _keyEventType;
 }
 
-void KeyEvent::setCharCode(uint32_t code)
+void KeyEvent::setText(std::string text)
 {
-    _charCode = code;
+    _text = text;
 }
 
-uint32_t KeyEvent::getCharCode() const
+std::string KeyEvent::getText() const
 {
-    return _charCode;
+    return _text;
 }
 
 KeyEvent::~KeyEvent()
@@ -642,6 +637,9 @@ std::shared_ptr<Event> Connector::waitEvent()
     try {
         Asp_Event req;
         size_t receivedSize = _eventsSocket->recv(&req, sizeof(Asp_Event));
+        if (receivedSize == 0) {
+            exit(1);
+        }
         
         int ack = 1;
         zmq::message_t ackResponse(&ack, sizeof(int));
@@ -650,8 +648,18 @@ std::shared_ptr<Event> Connector::waitEvent()
         if (req.type == AspEventMouseInput) {
             return std::make_shared<MouseEvent>(req);
         }
-        else if (req.type == AspEventKeyInput) {
-            return std::make_shared<KeyEvent>(req);
+        else if (req.type == AspEventTextInput) {
+            char *text = (char*)malloc(req.field5);
+            receivedSize = _eventsSocket->recv(text, req.field5);
+            if (receivedSize == 0) {
+                exit(1);
+            }
+            
+            ack = 1;
+            zmq::message_t ackResponse2(&ack, sizeof(int));
+            _eventsSocket->send(ackResponse2);
+            
+            return std::make_shared<KeyEvent>(req, text);
         }
         else if (req.type == AspEventWindowLocationChanged) {
             return std::make_shared<WindowLocationChangedEvent>(req);

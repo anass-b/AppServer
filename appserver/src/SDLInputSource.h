@@ -22,7 +22,7 @@ namespace appserver
         virtual bool pollEvents();
         virtual void onMouseMoveEvent(double x, double y);
         virtual void onMouseButtonEvent(double x, double y, int button, int type);
-        virtual void onKeyEvent(unsigned int charCode);
+        virtual void onTextEvent(std::string text);
     private:
         static double MousePosX;
         static double MousePosY;

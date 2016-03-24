@@ -70,7 +70,7 @@ int Server::moveWindow(TWindowId wndId, double x, double y)
 
 InputEvent* Server::waitInputEvent()
 {
-    std::shared_ptr<asl::Event> aslEvent(std::move(mConnector->waitEvent()));
+    std::shared_ptr<asl::Event> aslEvent(mConnector->waitEvent());
     InputEvent *inputEvent = new InputEvent;
     if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeInput) {
         std::shared_ptr<asl::InputEvent> aslInputEvent = std::dynamic_pointer_cast<asl::InputEvent>(aslEvent);

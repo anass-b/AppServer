@@ -8,7 +8,6 @@
 
 #include <App.h>
 #include <Server.h>
-#include <GLWindow.h>
 #include <SDLWindow.h>
 #include <SDLCompositor.h>
 #include <Geometry.h>
@@ -172,10 +171,6 @@ void App::newWindow(Asp_Request req)
             std::shared_ptr<SDLWindow> sdlWindow = std::dynamic_pointer_cast<SDLWindow>(newWindow);
             sdlWindow->setRenderer(sdlCompositor->getRenderer());
         }
-        else if (Server::getSingleton()->getBackendMode() == kBackendModeGLFW) {
-            newWindow = std::make_shared<GLWindow>(shared_from_this(), id, windowFrame, (int)req.field5, (bool)req.field4);
-        }
-        
         
         newWindow->create(data, req.dataSize);
         compositor->addWindow(std::move(newWindow));
@@ -373,13 +368,13 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
     }
 }
 
-void App::sendKeyEvent(TWindowId windowId, int charCode)
+void App::sendTextEvent(TWindowId windowId, std::string text)
 {
     try {
         Asp_Event req;
         req.winId = windowId;
-        req.type = AspEventKeyInput;
-        req.field0 = charCode;
+        req.type = AspEventTextInput;
+        req.field5 = text.size();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -389,6 +384,16 @@ void App::sendKeyEvent(TWindowId windowId, int charCode)
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
+        
+        zmq::message_t textRequest(text.c_str(), text.size() + 1);
+        _eventSocket->send(textRequest);
+        
+        ack = 0;
+        receivedSize = _eventSocket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
+        
     } catch (std::exception e) {
         std::cout << __func__ << ": " << e.what() << std::endl;
     }

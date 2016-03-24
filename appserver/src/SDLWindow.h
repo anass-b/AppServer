@@ -10,7 +10,6 @@
 #define SDLWINDOW_H
 
 #include <memory>
-#include <GLCompositor.h>
 #include <SDL.h>
 
 namespace appserver

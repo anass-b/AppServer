@@ -78,7 +78,8 @@ AslEvent aslWaitEvent()
     event.windowId = -1;
     event.inputEvent.type = -1;
     event.inputEvent.keyEvent.type = -1;
-    event.inputEvent.keyEvent.charCode = -1;
+    event.inputEvent.keyEvent.text = NULL;
+    event.inputEvent.keyEvent.textSize = 0;
     event.inputEvent.mouseEvent.type = -1;
     event.inputEvent.mouseEvent.x = -1;
     event.inputEvent.mouseEvent.y = -1;
@@ -109,10 +110,13 @@ AslEvent aslWaitEvent()
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
                 std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
                 
-                event.inputEvent.type = (int)kInputEventTypeKey;
+                // TODO: fix
+                event.type = AspEventTextInput;
+                event.inputEvent.type = AspEventTextInput;
+                event.inputEvent.keyEvent.type = AspEventTextInput;
                 
-                event.inputEvent.keyEvent.type = kInputEventTypeKey;
-                event.inputEvent.keyEvent.charCode = aslKeyEvent->getCharCode();
+                event.inputEvent.keyEvent.text = (char*)aslKeyEvent->getText().c_str();
+                event.inputEvent.keyEvent.textSize = aslKeyEvent->getText().size() + 1;
             }
         }
     }

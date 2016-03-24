@@ -41,6 +41,9 @@ int main(int argc, char *argv[])
                 std::cout << "Mouse Drag" << std::endl;
             }
         }
+        else if (event.type == AspEventTextInput) {
+            printf("%s", event.inputEvent.keyEvent.text);
+        }
     }
 
     return 0;
