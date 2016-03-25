@@ -13,6 +13,15 @@ using namespace appserver;
  
 SDLCompositor::SDLCompositor()
 {
+    int width = 1920;
+    int height = 1080;
+    this->setSize(makeSize(width, height));
+    
+    if (SDL_Init(SDL_INIT_VIDEO) == 0) {
+        _window = SDL_CreateWindow("appserver", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+        _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+    }
 }
 
 void SDLCompositor::compose()
@@ -30,17 +39,13 @@ void SDLCompositor::compose()
     SDL_RenderPresent(_renderer);
 }
 
-void SDLCompositor::setRenderer(SDL_Renderer *renderer)
-{
-    _renderer = renderer;
-}
-
-SDL_Renderer* SDLCompositor::getRenderer()
+SDL_Renderer* SDLCompositor::getRenderer() const
 {
     return _renderer;
 }
 
 SDLCompositor::~SDLCompositor()
 {
+    SDL_Quit();
 }
 

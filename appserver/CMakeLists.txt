@@ -23,16 +23,12 @@ set (SOURCES
     src/Window.cpp
     src/WindowManager.h
     src/WindowManager.cpp
-    src/Workspace.h
-    src/Workspace.cpp
     src/SDLCompositor.h
     src/SDLCompositor.cpp
     src/SDLWindow.h
     src/SDLWindow.cpp
     src/SDLInputSource.h
     src/SDLInputSource.cpp
-    src/SDLWorkspace.h
-    src/SDLWorkspace.cpp
     )
 add_executable(appserver ${SOURCES})
 

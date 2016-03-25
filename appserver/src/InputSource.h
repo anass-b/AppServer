@@ -109,10 +109,8 @@ namespace appserver
     class InputSource
     {
     public:
-        InputSource(std::shared_ptr<Workspace> screen);
+        InputSource();
         virtual bool pollEvents() = 0;
-    protected:
-        std::shared_ptr<Workspace> _workspace;
     };
 }
 

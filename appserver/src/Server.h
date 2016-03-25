@@ -11,28 +11,25 @@
 
 #include <memory>
 #include <vector>
-
-#include <Workspace.h>
 #include <App.h>
 #include <Compositor.h>
 #include <WindowManager.h>
+#include <InputSource.h>
 #include <protocol.h>
 #include <zmq.hpp>
 
+#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
+
 namespace appserver
 {
-    enum BackendMode {
-        kBackendModeSDL
-    };
+    const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
     
     class Server
     {
     public:
         static Server* getSingleton();
         virtual ~Server();
-        void run(BackendMode backendMode);
-        std::shared_ptr<Workspace> getActiveScreen() const;
-        std::shared_ptr<Workspace> getScreenAt(int index) const;
+        void run();
         void addApp(std::shared_ptr<App> app);
         void removeAppById(TAppId id);
         void removeAppByPid(TProcId pid);
@@ -41,22 +38,21 @@ namespace appserver
         std::weak_ptr<WindowManager> getWindowManager() const;
         std::weak_ptr<zmq::context_t> getSocketContext() const;
         std::weak_ptr<zmq::socket_t> getSocket() const;
-        BackendMode getBackendMode() const;
         void setAppsHost(std::string host);
         std::string getAppsHost() const;
+        static void avoidBusyWait(const long nsec = INTERVAL_MS);
     private:
         Server();
         static void* requestListener(void *ptr);
         static void* processMonitor(void *ptr);
     private:
-        std::vector<std::shared_ptr<Workspace>> _workspaces;
         std::vector<std::shared_ptr<App>> _apps;
+        std::shared_ptr<InputSource> _inputSource;
         std::shared_ptr<Compositor> _compositor;
         std::shared_ptr<WindowManager> _windowManager;
         static Server* _sharedInst;
         pthread_t _messageDispatcher;
         int _sock;
-        BackendMode _backendMode;
         std::string _appsHost;
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _socket;

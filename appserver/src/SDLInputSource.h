@@ -10,7 +10,6 @@
 #define SDLINPUTSOURCE_H
 
 #include <memory>
-#include <GLFW/glfw3.h>
 #include <InputSource.h>
 
 namespace appserver
@@ -18,7 +17,7 @@ namespace appserver
     class SDLInputSource : public InputSource
     {
     public:
-        SDLInputSource(std::shared_ptr<Workspace> screen);
+        SDLInputSource();
         virtual bool pollEvents();
         void onMouseMoveEvent(const MouseMoveEvent &evt);
         void onMouseButtonEvent(const MouseButtonEvent &evt);

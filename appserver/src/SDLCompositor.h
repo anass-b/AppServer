@@ -22,9 +22,9 @@ namespace appserver
         SDLCompositor();
         virtual ~SDLCompositor();
         virtual void compose();
-        void setRenderer(SDL_Renderer *renderer);
-        SDL_Renderer* getRenderer();
+        SDL_Renderer* getRenderer() const;
     private:
+        SDL_Window *_window;
         SDL_Renderer *_renderer;
     };
 }

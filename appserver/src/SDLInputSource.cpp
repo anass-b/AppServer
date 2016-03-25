@@ -7,13 +7,13 @@
 //
 
 #include <SDLInputSource.h>
-#include <SDLWorkspace.h>
 #include <Server.h>
 #include <Compositor.h>
+#include <SDL.h>
 
 using namespace appserver;
 
-SDLInputSource::SDLInputSource(std::shared_ptr<Workspace> screen) : InputSource(screen)
+SDLInputSource::SDLInputSource()
 {
 }
 

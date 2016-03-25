@@ -6,12 +6,11 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <Server.h>
-#include <SDLWorkspace.h>
-#include <SDLCompositor.h>
-
 #include <pthread.h>
 #include <signal.h>
+#include <Server.h>
+#include <SDLCompositor.h>
+#include <SDLInputSource.h>
 
 using namespace appserver;
 
@@ -67,24 +66,34 @@ void* Server::requestListener(void *ptr)
     return nullptr;
 }
 
-void Server::run(BackendMode backendMode)
+void Server::run()
 {
-    _backendMode = backendMode;
-    
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
         throw std::runtime_error(strerror(errno));
     }
     
+    _compositor = std::make_shared<SDLCompositor>();
+    _inputSource = std::make_shared<SDLInputSource>();
     _windowManager = std::make_shared<WindowManager>();
     
-    std::shared_ptr<Workspace> mainWorkspace;
-    if (backendMode == kBackendModeSDL) {
-        _compositor = std::make_shared<SDLCompositor>();
-        mainWorkspace = std::make_shared<SDLWorkspace>(_compositor);
+    while (true) {
+        _compositor->compose();
+        
+        if(!_inputSource->pollEvents()) {
+            SDL_Quit();
+            return;
+        }
+        
+        Server::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
     }
-    _workspaces.push_back(mainWorkspace);
-    
-    return mainWorkspace->run();
+}
+
+void Server::avoidBusyWait(const long int nsec)
+{
+    timespec tim;
+    tim.tv_sec  = 0;
+    tim.tv_nsec = nsec;
+    nanosleep(&tim, NULL);
 }
 
 void Server::addApp(std::shared_ptr<App> app)
@@ -153,21 +162,6 @@ Server* Server::getSingleton()
         _sharedInst = new Server;
     }
     return _sharedInst;
-}
-
-std::shared_ptr<Workspace> Server::getScreenAt(int index) const
-{
-    return _workspaces[index];
-}
-
-std::shared_ptr<Workspace> Server::getActiveScreen() const
-{
-    return getScreenAt(0);
-}
-
-BackendMode Server::getBackendMode() const
-{
-    return _backendMode;
 }
 
 void Server::setAppsHost(std::string host)

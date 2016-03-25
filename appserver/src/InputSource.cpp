@@ -10,8 +10,7 @@
 
 using namespace appserver;
  
-InputSource::InputSource(std::shared_ptr<Workspace> workspace)
+InputSource::InputSource()
 {
-    _workspace = workspace;
 }
 
