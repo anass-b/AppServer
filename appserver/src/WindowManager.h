@@ -23,6 +23,7 @@ namespace appserver
         void onMouseMoveEvent(Point mouseLocation);
         void onMouseDragEvent(Point mouseLocation);
         void onMouseButtonEvent(Point mouseLocation, int button, int type);
+        void onMouseWheelEvent(Point mouseLocation, int scrollX, int scrollY, bool flipped);
         void onTextEvent(std::string text);
         
     private:

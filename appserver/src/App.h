@@ -32,6 +32,7 @@ namespace appserver
         virtual ~App();
         void sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY);
         void sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY);
+        void sendMouseWheelEvent(TWindowId windowId, double x, double y, int scrollX, int scrollY, bool flipped);
         void sendTextEvent(TWindowId windowId, std::string text);
         TProcId getPid() const;
         TAppId getId() const;        

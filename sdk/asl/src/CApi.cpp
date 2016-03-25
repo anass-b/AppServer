@@ -85,6 +85,8 @@ AslEvent aslWaitEvent()
     event.inputEvent.mouseEvent.y = -1;
     event.inputEvent.mouseEvent.absX = -1;
     event.inputEvent.mouseEvent.absY = -1;
+    event.inputEvent.mouseEvent.scrollX = -1;
+    event.inputEvent.mouseEvent.scrollY = -1;
     event.inputEvent.mouseEvent.button = -1;
     
     std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
@@ -106,6 +108,8 @@ AslEvent aslWaitEvent()
                 event.inputEvent.mouseEvent.y = aslMouseEvent->getY();
                 event.inputEvent.mouseEvent.absX = aslMouseEvent->getAbsX();
                 event.inputEvent.mouseEvent.absY = aslMouseEvent->getAbsY();
+                event.inputEvent.mouseEvent.scrollX = aslMouseEvent->getScrollX();
+                event.inputEvent.mouseEvent.scrollY = aslMouseEvent->getScrollY();
             }
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
                 std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);

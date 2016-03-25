@@ -22,6 +22,7 @@ namespace appserver
         virtual bool pollEvents();
         virtual void onMouseMoveEvent(double x, double y);
         virtual void onMouseButtonEvent(double x, double y, int button, int type);
+        virtual void onMouseWheelEvent(double x, double y, int scrollX, int scrollY, bool flipped);
         virtual void onTextEvent(std::string text);
     private:
         static double MousePosX;

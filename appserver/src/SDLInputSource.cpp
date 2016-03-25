@@ -31,6 +31,8 @@ bool SDLInputSource::pollEvents()
             return false;
         }
         else if (e.type == SDL_MOUSEMOTION) {
+            SDLInputSource::MousePosX = e.motion.x;
+            SDLInputSource::MousePosY = e.motion.y;
             this->onMouseMoveEvent(e.motion.x, e.motion.y);
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
@@ -54,6 +56,9 @@ bool SDLInputSource::pollEvents()
                 aspMouseButton = AspMouseButtonMiddle;
             }
             this->onMouseButtonEvent(e.motion.x, e.motion.y, aspMouseButton, aspMouseButtonEventType);
+        }
+        else if (e.type == SDL_MOUSEWHEEL) {
+            this->onMouseWheelEvent(SDLInputSource::MousePosX, SDLInputSource::MousePosY, e.wheel.x, e.wheel.y, false);
         }
         else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
         }
@@ -88,6 +93,12 @@ void SDLInputSource::onMouseButtonEvent(double x, double y, int button, int type
     }
     
     wm->onMouseButtonEvent(makePoint(x, y), button, type);
+}
+
+void SDLInputSource::onMouseWheelEvent(double x, double y, int scrollX, int scrollY, bool flipped)
+{
+    std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
+    wm->onMouseWheelEvent(makePoint(x, y), scrollX, scrollY, flipped);
 }
 
 void SDLInputSource::onTextEvent(std::string text)

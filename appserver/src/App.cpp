@@ -368,6 +368,31 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
     }
 }
 
+void App::sendMouseWheelEvent(TWindowId windowId, double x, double y, int scrollX, int scrollY, bool flipped)
+{
+    try {
+        Asp_Event req;
+        req.winId = windowId;
+        req.type = AspEventMouseInput;
+        req.field0 = x;
+        req.field1 = y;
+        req.field2 = scrollX;
+        req.field3 = scrollY;
+        req.field4 = AspMouseEventScroll;
+
+        zmq::message_t eventRequest(&req, sizeof(Asp_Event));
+        _eventSocket->send(eventRequest);
+
+        int ack = 0;
+        size_t receivedSize = _eventSocket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
+    }
+}
+
 void App::sendTextEvent(TWindowId windowId, std::string text)
 {
     try {

@@ -74,6 +74,15 @@ void WindowManager::onMouseButtonEvent(Point mouseLocation, int button, int type
     }
 }
 
+void WindowManager::onMouseWheelEvent(Point mouseLocation, int scrollX, int scrollY, bool flipped)
+{
+    std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+    std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
+    if (window) {
+        std::shared_ptr<App> app = window->getApp().lock();
+        app->sendMouseWheelEvent(window->getId(), mouseLocation.x, mouseLocation.y, scrollX, scrollY, flipped);
+    }
+}
 
 void WindowManager::onTextEvent(std::string text)
 {

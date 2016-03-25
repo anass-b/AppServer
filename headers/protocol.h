@@ -47,6 +47,7 @@
 #define AspMouseEventRelease    2
 #define AspMouseEventMove       3
 #define AspMouseEventDrag       4
+#define AspMouseEventScroll     5
 
 /*
  * Key events

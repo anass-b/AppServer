@@ -21,7 +21,8 @@ namespace asl
         kMouseEventTypePress,
         kMouseEventTypeRelease,
         kMouseEventTypeMove,
-        kMouseEventTypeDrag
+        kMouseEventTypeDrag,
+        kMouseEventTypeScroll
     } MouseEventType;
     
     typedef enum {
@@ -111,6 +112,10 @@ namespace asl
         double getAbsX() const;
         void setAbsY(double absY);
         double getAbsY() const;
+        void setScrollX(int x);
+        int getScrollX() const;
+        void setScrollY(int y);
+        int getScrollY() const;
     protected:
         MouseButton parseMouseButton(unsigned int aspMouseButton);
     protected:
@@ -120,6 +125,8 @@ namespace asl
         double _y;
         double _absX;
         double _absY;
+        int _scrollX;
+        int _scrollY;
     };
     
     class KeyEvent : public InputEvent

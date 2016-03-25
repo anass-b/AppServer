@@ -23,6 +23,7 @@ namespace appserver
         virtual bool pollEvents() = 0;
         virtual void onMouseMoveEvent(double x, double y) = 0;
         virtual void onMouseButtonEvent(double x, double y, int button, int type) = 0;
+        virtual void onMouseWheelEvent(double x, double y, int scrollX, int scrollY, bool flipped) = 0;
         virtual void onTextEvent(std::string text) = 0;
     protected:
         std::shared_ptr<Workspace> _workspace;

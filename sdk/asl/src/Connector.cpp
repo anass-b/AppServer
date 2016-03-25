@@ -140,6 +140,12 @@ MouseEvent::MouseEvent(const Asp_Event& aspEvent)
     : InputEvent(AspUndefinedWindowId, kInputEventTypeMouse)
 {
     setWindowId(aspEvent.winId);
+    setX(aspEvent.field0);
+    setY(aspEvent.field1);
+    if (aspEvent.field4 != AspMouseEventScroll) {
+        setAbsX(aspEvent.field2);
+        setAbsY(aspEvent.field3);
+    }
     
     if (aspEvent.field4 == AspMouseEventMove) {
         setMouseEventType(kMouseEventTypeMove);
@@ -157,11 +163,11 @@ MouseEvent::MouseEvent(const Asp_Event& aspEvent)
         setMouseEventType(kMouseEventTypeDrag);
         setMouseButton(parseMouseButton(aspEvent.field5));
     }
-    
-    setX(aspEvent.field0);
-    setY(aspEvent.field1);
-    setAbsX(aspEvent.field2);
-    setAbsY(aspEvent.field3);
+    else if (aspEvent.field4 == AspMouseEventScroll) {
+        setMouseEventType(kMouseEventTypeScroll);
+        setScrollX(aspEvent.field2);
+        setScrollY(aspEvent.field3);
+    }
 }
 
 MouseButton MouseEvent::parseMouseButton(unsigned int aspMouseButton)
@@ -237,6 +243,26 @@ void MouseEvent::setAbsY(double absY)
 double MouseEvent::getAbsY() const
 {
     return _absY;
+}
+
+void MouseEvent::setScrollX(int x)
+{
+    _scrollX = x;
+}
+
+int MouseEvent::getScrollX() const
+{
+    return _scrollX;
+}
+
+void MouseEvent::setScrollY(int y)
+{
+    _scrollY = y;
+}
+
+int MouseEvent::getScrollY() const
+{
+    return _scrollY;
 }
 
 MouseEvent::~MouseEvent()

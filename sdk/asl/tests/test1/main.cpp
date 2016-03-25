@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
             else if (event.inputEvent.mouseEvent.type == AspMouseEventDrag) {
                 std::cout << "Mouse Drag" << std::endl;
             }
+            else if (event.inputEvent.mouseEvent.type == AspMouseEventScroll) {
+                std::cout << "Mouse Scroll (" << event.inputEvent.mouseEvent.scrollX << "," << event.inputEvent.mouseEvent.scrollY << ")" << std::endl;
+            }
         }
         else if (event.type == AspEventTextInput) {
             printf("%s", event.inputEvent.keyEvent.text);

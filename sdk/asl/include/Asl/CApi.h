@@ -21,6 +21,8 @@ extern "C" {
         double y;
         double absX;
         double absY;
+        int scrollX;
+        int scrollY;
     } AslMouseEvent;
 
     typedef struct
