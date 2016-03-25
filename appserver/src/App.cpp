@@ -424,6 +424,27 @@ void App::sendTextEvent(TWindowId windowId, std::string text)
     }
 }
 
+void App::sendKeyEvent(TWindowId windowId, int key)
+{
+    try {
+        Asp_Event req;
+        req.winId = windowId;
+        req.type = AspEventKeyInput;
+        req.field0 = key;
+        
+        zmq::message_t eventRequest(&req, sizeof(Asp_Event));
+        _eventSocket->send(eventRequest);
+        
+        int ack = 0;
+        size_t receivedSize = _eventSocket->recv(&ack, sizeof(int));
+        if (receivedSize <= 0 || ack != 1) {
+            return;
+        }
+    } catch (std::exception e) {
+        std::cout << __func__ << ": " << e.what() << std::endl;
+    }
+}
+
 TProcId App::getPid() const
 {
     return _pid;

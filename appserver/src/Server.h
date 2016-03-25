@@ -45,7 +45,7 @@ namespace appserver
         void setAppsHost(std::string host);
         std::string getAppsHost() const;
     private:
-        Server();    
+        Server();
         static void* requestListener(void *ptr);
         static void* processMonitor(void *ptr);
     private:

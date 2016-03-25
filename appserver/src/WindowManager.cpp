@@ -96,6 +96,16 @@ void WindowManager::onTextEvent(std::string text)
     }
 }
 
-
+void WindowManager::onKeyEvent(int key)
+{
+    std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+    std::shared_ptr<Window> topMostWindow = compositor->getTopMostWindow();
+    if (topMostWindow != nullptr) {
+        std::shared_ptr<App> app = topMostWindow->getApp().lock();
+        if (app != nullptr) {
+            app->sendKeyEvent(topMostWindow->getId(), key);
+        }
+    }
+}
 
 

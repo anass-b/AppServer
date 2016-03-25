@@ -20,14 +20,15 @@ namespace appserver
     public:
         SDLInputSource(std::shared_ptr<Workspace> screen);
         virtual bool pollEvents();
-        virtual void onMouseMoveEvent(double x, double y);
-        virtual void onMouseButtonEvent(double x, double y, int button, int type);
-        virtual void onMouseWheelEvent(double x, double y, int scrollX, int scrollY, bool flipped);
-        virtual void onTextEvent(std::string text);
+        void onMouseMoveEvent(const MouseMoveEvent &evt);
+        void onMouseButtonEvent(const MouseButtonEvent &evt);
+        void onMouseWheelEvent(const MouseWheelEvent &evt);
+        void onTextEvent(const TextEvent &evt);
+        void onKeyEvent(const KeyEvent &evt);
     private:
-        static double MousePosX;
-        static double MousePosY;
-        static bool MouseHeld;
+        double _mousePosX = 0;
+        double _mousePosY = 0;
+        bool _mouseHeld = false;
     };
 }
 

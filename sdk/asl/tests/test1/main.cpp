@@ -45,7 +45,10 @@ int main(int argc, char *argv[])
             }
         }
         else if (event.type == AspEventTextInput) {
-            printf("%s", event.inputEvent.keyEvent.text);
+            printf("%s", event.inputEvent.textEvent.text);
+        }
+        else if (event.type == AspEventKeyInput) {
+            std::cout << "Key" << std::endl;
         }
     }
 

@@ -76,10 +76,7 @@ AslEvent aslWaitEvent()
     
     event.type = -1;
     event.windowId = -1;
-    event.inputEvent.type = -1;
-    event.inputEvent.keyEvent.type = -1;
-    event.inputEvent.keyEvent.text = NULL;
-    event.inputEvent.keyEvent.textSize = 0;
+    event.inputEvent.type = -1;    
     event.inputEvent.mouseEvent.type = -1;
     event.inputEvent.mouseEvent.x = -1;
     event.inputEvent.mouseEvent.y = -1;
@@ -88,6 +85,10 @@ AslEvent aslWaitEvent()
     event.inputEvent.mouseEvent.scrollX = -1;
     event.inputEvent.mouseEvent.scrollY = -1;
     event.inputEvent.mouseEvent.button = -1;
+    event.inputEvent.keyEvent.type = -1;
+    event.inputEvent.keyEvent.key = -1;
+    event.inputEvent.textEvent.text = nullptr;
+    event.inputEvent.textEvent.textSize = 0;
     
     std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
 
@@ -114,13 +115,16 @@ AslEvent aslWaitEvent()
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
                 std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
                 
-                // TODO: fix
-                event.type = AspEventTextInput;
-                event.inputEvent.type = AspEventTextInput;
-                event.inputEvent.keyEvent.type = AspEventTextInput;
+                event.inputEvent.type = AspEventKeyInput;
+                event.inputEvent.keyEvent.type = AspKeyEventPress;
+                event.inputEvent.keyEvent.key = aslKeyEvent->getKey();
+            }
+            else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeText) {
+                std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
                 
-                event.inputEvent.keyEvent.text = (char*)aslKeyEvent->getText().c_str();
-                event.inputEvent.keyEvent.textSize = aslKeyEvent->getText().size() + 1;
+                event.inputEvent.type = AspEventTextInput;
+                event.inputEvent.textEvent.text = (char*)aslKeyEvent->getText().c_str();
+                event.inputEvent.textEvent.textSize = aslKeyEvent->getText().size() + 1;
             }
         }
     }

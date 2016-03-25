@@ -25,6 +25,7 @@ namespace appserver
         void onMouseButtonEvent(Point mouseLocation, int button, int type);
         void onMouseWheelEvent(Point mouseLocation, int scrollX, int scrollY, bool flipped);
         void onTextEvent(std::string text);
+        void onKeyEvent(int key);
         
     private:
         Window* _windowWhereMouseDragIsHappening;

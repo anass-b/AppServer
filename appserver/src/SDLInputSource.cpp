@@ -13,97 +13,128 @@
 
 using namespace appserver;
 
-double SDLInputSource::MousePosX = 0;
-double SDLInputSource::MousePosY = 0;
-bool SDLInputSource::MouseHeld = false;
-
 SDLInputSource::SDLInputSource(std::shared_ptr<Workspace> screen) : InputSource(screen)
 {
 }
 
 bool SDLInputSource::pollEvents()
 {
-    SDL_Event e;
-    if (SDL_PollEvent(&e)) {
+    SDL_Event sdlEvent;
+    if (SDL_PollEvent(&sdlEvent)) {
         std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
 
-        if (e.type == SDL_QUIT) {
+        if (sdlEvent.type == SDL_QUIT) {
             return false;
         }
-        else if (e.type == SDL_MOUSEMOTION) {
-            SDLInputSource::MousePosX = e.motion.x;
-            SDLInputSource::MousePosY = e.motion.y;
-            this->onMouseMoveEvent(e.motion.x, e.motion.y);
+        else if (sdlEvent.type == SDL_MOUSEMOTION) {
+            _mousePosX = sdlEvent.motion.x;
+            _mousePosY = sdlEvent.motion.y;
+            
+            MouseMoveEvent evt;
+            evt.setX(sdlEvent.motion.x);
+            evt.setY(sdlEvent.motion.y);
+            
+            this->onMouseMoveEvent(evt);
         }
-        else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-            int aspMouseButton = 0;
-            int aspMouseButtonEventType = 0;
+        else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP) {
+            MouseButtonEvent evt;
+            evt.setX(sdlEvent.motion.x);
+            evt.setY(sdlEvent.motion.y);
 
-            if (e.type == SDL_MOUSEBUTTONDOWN) {
-                aspMouseButtonEventType = AspMouseEventPress;
+            if (sdlEvent.type == SDL_MOUSEBUTTONDOWN) {
+                evt.setType(AspMouseEventPress);
             }
-            else if (e.type == SDL_MOUSEBUTTONUP) {
-                aspMouseButtonEventType = AspMouseEventRelease;
+            else if (sdlEvent.type == SDL_MOUSEBUTTONUP) {
+                evt.setType(AspMouseEventRelease);
+            }
+            else {
+                evt.setType(0);
             }
 
-            if (e.button.button == SDL_BUTTON_RIGHT) {
-                aspMouseButton = AspMouseButtonRight;
+            if (sdlEvent.button.button == SDL_BUTTON_RIGHT) {
+                evt.setButton(AspMouseButtonRight);
             }
-            else if (e.button.button == SDL_BUTTON_LEFT) {
-                aspMouseButton = AspMouseButtonLeft;
+            else if (sdlEvent.button.button == SDL_BUTTON_LEFT) {
+                evt.setButton(AspMouseButtonLeft);
             }
-            else if (e.button.button == SDL_BUTTON_MIDDLE) {
-                aspMouseButton = AspMouseButtonMiddle;
+            else if (sdlEvent.button.button == SDL_BUTTON_MIDDLE) {
+                evt.setButton(AspMouseButtonMiddle);
             }
-            this->onMouseButtonEvent(e.motion.x, e.motion.y, aspMouseButton, aspMouseButtonEventType);
+            else {
+                evt.setButton(0);
+            }
+            this->onMouseButtonEvent(evt);
         }
-        else if (e.type == SDL_MOUSEWHEEL) {
-            this->onMouseWheelEvent(SDLInputSource::MousePosX, SDLInputSource::MousePosY, e.wheel.x, e.wheel.y, false);
+        else if (sdlEvent.type == SDL_MOUSEWHEEL) {
+            MouseWheelEvent evt;
+            evt.setX(_mousePosX);
+            evt.setY(_mousePosY);
+            evt.setScrollX(sdlEvent.wheel.x);
+            evt.setScrollY(sdlEvent.wheel.y);
+            evt.setFlipped(false);
+            
+            this->onMouseWheelEvent(evt);
         }
-        else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+        else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP) {
+            KeyEvent evt;
+            if (sdlEvent.key.keysym.sym == SDLK_RETURN) {
+                //this->onKeyEvent(AspKeyScancodeReturn);
+            }
+            else if (sdlEvent.key.keysym.sym == SDLK_BACKSPACE) {
+                //this->onKeyEvent(AspKeyScancodeBackspace);SDL_SCANCODE_BACKSPACE
+            }
         }
-        else if (e.type == SDL_TEXTINPUT) {
-            this->onTextEvent(e.text.text);
+        else if (sdlEvent.type == SDL_TEXTINPUT) {
+            TextEvent evt;
+            evt.setText(sdlEvent.text.text);
+            
+            this->onTextEvent(evt);
         }
     }
 
     return true;
 }
 
-void SDLInputSource::onMouseMoveEvent(double x, double y)
+void SDLInputSource::onMouseMoveEvent(const MouseMoveEvent &evt)
 {
     std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
-    if (MouseHeld) {
-        wm->onMouseDragEvent(makePoint(x, y));
+    if (_mouseHeld) {
+        wm->onMouseDragEvent(makePoint(evt.getX(), evt.getY()));
     }
     else {
-        wm->onMouseMoveEvent(makePoint(x, y));
+        wm->onMouseMoveEvent(makePoint(evt.getX(), evt.getY()));
     }
 }
 
-void SDLInputSource::onMouseButtonEvent(double x, double y, int button, int type)
+void SDLInputSource::onMouseButtonEvent(const MouseButtonEvent &evt)
 {
     std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
     
-    if (type == AspMouseEventPress) {
-        MouseHeld = true;
+    if (evt.getType() == AspMouseEventPress) {
+        _mouseHeld = true;
     }
-    else if (type == AspMouseEventRelease) {
-        MouseHeld = false;
+    else if (evt.getType() == AspMouseEventRelease) {
+        _mouseHeld = false;
     }
     
-    wm->onMouseButtonEvent(makePoint(x, y), button, type);
+    wm->onMouseButtonEvent(makePoint(evt.getX(), evt.getY()), evt.getButton(), evt.getType());
 }
 
-void SDLInputSource::onMouseWheelEvent(double x, double y, int scrollX, int scrollY, bool flipped)
+void SDLInputSource::onMouseWheelEvent(const MouseWheelEvent &evt)
 {
     std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
-    wm->onMouseWheelEvent(makePoint(x, y), scrollX, scrollY, flipped);
+    wm->onMouseWheelEvent(makePoint(evt.getX(), evt.getY()), evt.getScrollX(), evt.getScrollY(), evt.getFlipped());
 }
 
-void SDLInputSource::onTextEvent(std::string text)
+void SDLInputSource::onTextEvent(const TextEvent &evt)
 {
     std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
-    wm->onTextEvent(text);
+    wm->onTextEvent(evt.getText());
+}
+
+void SDLInputSource::onKeyEvent(const KeyEvent &evt)
+{
+    std::shared_ptr<WindowManager> wm = Server::getSingleton()->getWindowManager().lock();
+    wm->onKeyEvent(evt.getKeycode());
 }
 

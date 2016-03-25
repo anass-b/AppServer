@@ -28,14 +28,20 @@ extern "C" {
     typedef struct
     {
         int type;
+        int key;
+    } AslKeyEvent;
+    
+    typedef struct
+    {
         char *text;
         size_t textSize;
-    } AslKeyEvent;
+    } AslTextEvent;
         
     typedef struct
     {
         int type;
         AslKeyEvent keyEvent;
+        AslTextEvent textEvent;
         AslMouseEvent mouseEvent;
     } AslInputEvent;
     

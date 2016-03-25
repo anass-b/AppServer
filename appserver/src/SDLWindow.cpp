@@ -16,11 +16,11 @@ using namespace appserver;
 SDLWindow::SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible):
     Window(app, id, frame, rasterType, visible),
     _glTexOperation(kSDLTexOpNone),
+    _cachedFrame(frame),
     _pixels(nullptr),
-    _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0)),
-    _dataOpBlocked(false),
     _glOpBlocked(false),
-    _cachedFrame(frame)
+    _dataOpBlocked(false),
+    _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0))    
 {
 }
 

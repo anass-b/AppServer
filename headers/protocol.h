@@ -56,6 +56,12 @@
 #define AspKeyEventRelease  2
 
 /*
+ * Key Values
+ */
+#define AspKeyScancodeReturn        1
+#define AspKeyScancodeBackspace     2
+
+/*
  * Port values
  */
 #define AspReqListenerThreadPortValue 20000

@@ -22,9 +22,6 @@ SDLWorkspace::SDLWorkspace(std::shared_ptr<Compositor> compositor, unsigned int 
         _window = SDL_CreateWindow("appserver", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-        //SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_ADD);
-        //SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_MOD);
-        //SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_NONE);
         
         _compositor->setSize(makeSize(width, height));
         std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(_compositor);

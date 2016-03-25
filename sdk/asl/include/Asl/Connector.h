@@ -41,7 +41,8 @@ namespace asl
     typedef enum {
         kInputEventTypeUndefined,
         kInputEventTypeMouse,
-        kInputEventTypeKey
+        kInputEventTypeKey,
+        kInputEventTypeText
     } InputEventType;
     
     typedef enum {
@@ -133,15 +134,19 @@ namespace asl
     {
     public:
         KeyEvent();
+        KeyEvent(const Asp_Event& aspEvent);
         KeyEvent(const Asp_Event& aspEvent, std::string text);
         virtual ~KeyEvent();
         void setKeyEventType(KeyEventType type);
         KeyEventType getKeyEventType() const;
         void setText(std::string text);
         std::string getText() const;
+        void setKey(int key);
+        int getKey() const;
     private:
         KeyEventType _keyEventType;
         std::string _text;
+        int _key;
     };
     
     class Connector

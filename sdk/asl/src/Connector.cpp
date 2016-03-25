@@ -275,8 +275,15 @@ KeyEvent::KeyEvent()
 {
 }
 
+KeyEvent::KeyEvent(const Asp_Event& aspEvent)
+: InputEvent(AspUndefinedWindowId, kInputEventTypeKey)
+{
+    setWindowId(aspEvent.winId);
+    setKey(aspEvent.field0);
+}
+
 KeyEvent::KeyEvent(const Asp_Event& aspEvent, std::string text)
-    : InputEvent(AspUndefinedWindowId, kInputEventTypeKey)
+    : InputEvent(AspUndefinedWindowId, kInputEventTypeText)
 {
     setWindowId(aspEvent.winId);
     _text = text;
@@ -300,6 +307,16 @@ void KeyEvent::setText(std::string text)
 std::string KeyEvent::getText() const
 {
     return _text;
+}
+
+void KeyEvent::setKey(int key)
+{
+    _key = key;
+}
+
+int KeyEvent::getKey() const
+{
+    return _key;
 }
 
 KeyEvent::~KeyEvent()
@@ -673,6 +690,9 @@ std::shared_ptr<Event> Connector::waitEvent()
         
         if (req.type == AspEventMouseInput) {
             return std::make_shared<MouseEvent>(req);
+        }
+        else if (req.type == AspEventKeyInput) {
+            return std::make_shared<KeyEvent>(req);
         }
         else if (req.type == AspEventTextInput) {
             char *text = (char*)malloc(req.field5);
