@@ -10,7 +10,6 @@
 #define SDLINPUTSOURCE_H
 
 #include <memory>
-#include <GLFW/glfw3.h>
 #include <InputSource.h>
 
 namespace appserver

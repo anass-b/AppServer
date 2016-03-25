@@ -36,10 +36,8 @@ set (SOURCES
     )
 add_executable(appserver ${SOURCES})
 
-if (APPLE)
-    set (EXTRA_LIBS glfw3)
-elseif (UNIX)
-    set (EXTRA_LIBS glfw pthread rt)
+if (UNIX)
+    set (EXTRA_LIBS pthread rt)
 endif()
 
 target_link_libraries (appserver zmq ${EXTRA_LIBS} ${SDL2_LIBRARY})
