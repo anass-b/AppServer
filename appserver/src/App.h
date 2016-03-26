@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include <zmq.hpp>
 #include <Window.h>
-#include <Events.h>
+#include <events.h>
 
 namespace appserver
 {

@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-#include <Geometry.h>
+#include <geometry.h>
 #include <Window.h>
 
 namespace appserver

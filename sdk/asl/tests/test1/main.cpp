@@ -1,6 +1,6 @@
 #include <iostream>
 #include <pthread.h>
-#include <Asl/CApi.h>
+#include <asl/asl.h>
 #include <protocol.h>
 #include <unistd.h>
 #include <cairo/cairo.h>
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
     unsigned long windowId = aslNewWindow(data, dataSize, 100, 100, 800, 600, AspWindowRasterARGB, true);
 
-    AslEvent event;
+    /*AslEvent event;
     while (true) {        
         event = aslWaitEvent();
         
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         else if (event.type == AspEventKeyInput) {
             std::cout << "Key" << std::endl;
         }
-    }
+    }*/
 
     return 0;
 }

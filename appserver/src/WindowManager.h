@@ -11,8 +11,8 @@
 
 #include <iostream>
 #include <Window.h>
-#include <Geometry.h>
-#include <Events.h>
+#include <geometry.h>
+#include <events.h>
 
 namespace appserver
 {

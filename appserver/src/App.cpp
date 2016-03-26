@@ -10,7 +10,7 @@
 #include <Server.h>
 #include <SDLWindow.h>
 #include <SDLCompositor.h>
-#include <Geometry.h>
+#include <geometry.h>
 #include <protocol.h>
 
 #include <sstream>

@@ -9,7 +9,7 @@
 #include <iostream>
 #include <Server.h>
 #include <SDLWindow.h>
-#include <Geometry.h>
+#include <geometry.h>
 
 using namespace appserver;
 
