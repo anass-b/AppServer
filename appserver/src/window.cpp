@@ -8,9 +8,9 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <Window.h>
-#include <App.h>
-#include <Server.h>
+#include <window.h>
+#include <app.h>
+#include <server.h>
 
 using namespace appserver;
 

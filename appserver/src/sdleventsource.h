@@ -10,7 +10,7 @@
 #define SDLINPUTSOURCE_H
 
 #include <memory>
-#include <EventSource.h>
+#include <eventsource.h>
 
 namespace appserver
 {

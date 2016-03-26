@@ -19,7 +19,7 @@
 #include <sys/un.h>
 #include <pthread.h>
 #include <zmq.hpp>
-#include <Window.h>
+#include <window.h>
 #include <events.h>
 
 namespace appserver

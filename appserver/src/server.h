@@ -11,10 +11,10 @@
 
 #include <memory>
 #include <vector>
-#include <App.h>
-#include <Compositor.h>
-#include <WindowManager.h>
-#include <EventSource.h>
+#include <app.h>
+#include <compositor.h>
+#include <windowmanager.h>
+#include <eventsource.h>
 #include <protocol.h>
 #include <zmq.hpp>
 

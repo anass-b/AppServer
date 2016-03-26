@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <SDLEventSource.h>
-#include <Server.h>
-#include <Compositor.h>
+#include <sdleventsource.h>
+#include <server.h>
+#include <compositor.h>
 #include <SDL.h>
 
 using namespace appserver;

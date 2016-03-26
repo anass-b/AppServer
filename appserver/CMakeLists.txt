@@ -10,23 +10,23 @@ include_directories ("${PROJECT_SOURCE_DIR}/src")
 set (SOURCES
     shared/events.h
     shared/protocol.h
-    src/App.h
-    src/App.cpp
-    src/Compositor.h
-    src/Compositor.cpp   
-    src/Server.h
-    src/Server.cpp    
-    src/WindowManager.h
-    src/WindowManager.cpp
-    src/SDLCompositor.h
-    src/SDLCompositor.cpp
-    src/Window.h
-    src/Window.cpp
-    src/SDLWindow.h
-    src/SDLWindow.cpp
-    src/EventSource.h
-    src/SDLEventSource.h
-    src/SDLEventSource.cpp
+    src/app.h
+    src/app.cpp
+    src/compositor.h
+    src/compositor.cpp   
+    src/server.h
+    src/server.cpp    
+    src/windowmanager.h
+    src/windowmanager.cpp
+    src/sdlcompositor.h
+    src/sdlcompositor.cpp
+    src/window.h
+    src/window.cpp
+    src/sdlwindow.h
+    src/sdlwindow.cpp
+    src/eventsource.h
+    src/sdleventsource.h
+    src/sdleventsource.cpp
     src/main.cpp
     )
 add_executable(appserver ${SOURCES})

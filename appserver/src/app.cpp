@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <App.h>
-#include <Server.h>
-#include <SDLWindow.h>
-#include <SDLCompositor.h>
+#include <app.h>
+#include <server.h>
+#include <sdlwindow.h>
+#include <sdlcompositor.h>
 #include <geometry.h>
 #include <protocol.h>
 

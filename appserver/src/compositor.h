@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <geometry.h>
-#include <Window.h>
+#include <window.h>
 
 namespace appserver
 {

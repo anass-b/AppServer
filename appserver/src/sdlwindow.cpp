@@ -7,8 +7,8 @@
 //
 
 #include <iostream>
-#include <Server.h>
-#include <SDLWindow.h>
+#include <server.h>
+#include <sdlwindow.h>
 #include <geometry.h>
 
 using namespace appserver;

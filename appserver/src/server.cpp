@@ -8,9 +8,9 @@
 
 #include <pthread.h>
 #include <signal.h>
-#include <Server.h>
-#include <SDLCompositor.h>
-#include <SDLEventSource.h>
+#include <server.h>
+#include <sdlcompositor.h>
+#include <sdleventsource.h>
 
 using namespace appserver;
 

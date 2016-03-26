@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <WindowManager.h>
-#include <Server.h>
-#include <Compositor.h>
-#include <Window.h>
-#include <App.h>
+#include <windowmanager.h>
+#include <server.h>
+#include <compositor.h>
+#include <window.h>
+#include <app.h>
 
 using namespace appserver;
 

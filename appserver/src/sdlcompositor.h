@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include <Compositor.h>
+#include <compositor.h>
 #include <SDL.h>
 
 namespace appserver

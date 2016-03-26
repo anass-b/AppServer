@@ -10,7 +10,7 @@
 #define WINDOWMANAGER_H
 
 #include <iostream>
-#include <Window.h>
+#include <window.h>
 #include <geometry.h>
 #include <events.h>
 

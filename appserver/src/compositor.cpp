@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <Compositor.h>
+#include <compositor.h>
 #include <iostream>
 #include <algorithm>
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <SDLCompositor.h>
+#include <sdlcompositor.h>
 #include <memory>
 
 using namespace appserver;
