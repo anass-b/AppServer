@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 include_directories ("/usr/local/include")
 link_directories ("/usr/local/lib")
 
-include_directories ("${PROJECT_SOURCE_DIR}/headers")
+include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 include_directories ("${PROJECT_SOURCE_DIR}/vendor")
 
 add_subdirectory (sdk)

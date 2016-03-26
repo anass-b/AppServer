@@ -7,7 +7,9 @@ include_directories(${SDL2_INCLUDE_DIR})
 
 include_directories ("${PROJECT_SOURCE_DIR}/src")
 
-set (SOURCES 
+set (SOURCES
+    shared/events.h
+    shared/protocol.h
     src/App.h
     src/App.cpp
     src/Compositor.h
