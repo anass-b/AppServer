@@ -14,7 +14,7 @@
 #include <App.h>
 #include <Compositor.h>
 #include <WindowManager.h>
-#include <InputSource.h>
+#include <EventSource.h>
 #include <protocol.h>
 #include <zmq.hpp>
 
@@ -47,7 +47,7 @@ namespace appserver
         static void* processMonitor(void *ptr);
     private:
         std::vector<std::shared_ptr<App>> _apps;
-        std::shared_ptr<InputSource> _inputSource;
+        std::shared_ptr<EventSource> _inputSource;
         std::shared_ptr<Compositor> _compositor;
         std::shared_ptr<WindowManager> _windowManager;
         static Server* _sharedInst;

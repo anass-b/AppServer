@@ -10,7 +10,7 @@
 #include <signal.h>
 #include <Server.h>
 #include <SDLCompositor.h>
-#include <SDLInputSource.h>
+#include <SDLEventSource.h>
 
 using namespace appserver;
 
@@ -73,15 +73,21 @@ void Server::run()
     }
     
     _compositor = std::make_shared<SDLCompositor>();
-    _inputSource = std::make_shared<SDLInputSource>();
+    _inputSource = std::make_shared<SDLEventSource>();
     _windowManager = std::make_shared<WindowManager>();
     
     while (true) {
         _compositor->compose();
         
-        if(!_inputSource->pollEvents()) {
-            SDL_Quit();
-            return;
+        std::shared_ptr<Event> evt = _inputSource->pollEvent();
+        if (evt != nullptr) {
+            EventType eventType = evt->getType();
+            if(eventType == kEventTypeQuit) {
+                break;
+            }
+            else {
+                _windowManager->sendEvent(evt);
+            }
         }
         
         Server::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);

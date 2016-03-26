@@ -14,98 +14,103 @@
 
 using namespace appserver;
 
-WindowManager::WindowManager() : _windowWhereMouseDragIsHappening(nullptr)
+WindowManager::WindowManager()
 {
 }
 
-void WindowManager::onMouseMoveEvent(Point mouseLocation)
+bool WindowManager::sendEvent(std::shared_ptr<Event> evt)
+{
+    EventType eventType = evt->getType();
+    
+    if (eventType == kEventTypeKey) {
+        std::shared_ptr<KeyEvent> keyEvent = std::dynamic_pointer_cast<KeyEvent>(evt);
+        return this->sendKeyEvent(keyEvent);
+    }
+    else if (eventType == kEventTypeText) {
+        std::shared_ptr<TextEvent> textEvent = std::dynamic_pointer_cast<TextEvent>(evt);
+        return this->sendTextEvent(textEvent);
+    }
+    else if (eventType == kEventTypeMouseScroll) {
+        std::shared_ptr<MouseScrollEvent> mouseScrollEvent = std::dynamic_pointer_cast<MouseScrollEvent>(evt);
+        return this->sendMouseScrollEvent(mouseScrollEvent);
+    }
+    else if (eventType == kEventTypeMouseButton) {
+        std::shared_ptr<MouseButtonEvent> mouseButtonEvent = std::dynamic_pointer_cast<MouseButtonEvent>(evt);
+        return this->sendMouseButtonEvent(mouseButtonEvent);
+    }
+    else if (eventType == kEventTypeMouseMove) {
+        std::shared_ptr<MouseMoveEvent> mouseMoveEvent = std::dynamic_pointer_cast<MouseMoveEvent>(evt);
+        return this->sendMouseMoveEvent(mouseMoveEvent);
+    }
+    return false;
+}
+
+bool WindowManager::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
-    
+    Point mouseLocation = makePoint(evt->getX(), evt->getY());
     std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
     if (window != nullptr) {
         std::shared_ptr<App> app = window->getApp().lock();
         Point locationInWindow = window->getLocationInWindow(mouseLocation);
         app->sendMouseMoveEvent(window->getId(), AspMouseEventMove, locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
+        return true;
     }
-}
-
-void WindowManager::onMouseDragEvent(Point mouseLocation)
-{
-    std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     
-    if (_windowWhereMouseDragIsHappening) {
-        std::shared_ptr<App> app = _windowWhereMouseDragIsHappening->getApp().lock();
-        Point locationInWindow = _windowWhereMouseDragIsHappening->getLocationInWindow(mouseLocation);
-        app->sendMouseMoveEvent(_windowWhereMouseDragIsHappening->getId(), AspMouseEventDrag, locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
-    }
+    return false;
 }
 
-void WindowManager::onMouseButtonEvent(Point mouseLocation, int button, int type)
+bool WindowManager::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+    Point mouseLocation = makePoint(evt->getX(), evt->getY());
+    std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
+    if (window != nullptr) {
+        compositor->bringWindowToFront(window);
+        std::shared_ptr<App> app = window->getApp().lock();
+        Point locationInWindow = window->getLocationInWindow(mouseLocation);
+        app->sendMouseButtonEvent(window->getId(), evt->getButtonEventType(), evt->getButton(), locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
+    }
     
-    if (type == AspMouseEventPress) {
-        std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
-        if (window != nullptr) {
-            compositor->bringWindowToFront(window);
-            _windowWhereMouseDragIsHappening = window.get();
-            std::shared_ptr<App> app = window->getApp().lock();
-            Point windowLocation = window->getFrame().location;
-            app->sendMouseButtonEvent(window->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
-        }
-    }
-    else if (type == AspMouseEventRelease) {
-        if (_windowWhereMouseDragIsHappening /*window where the mouse button press happened*/) {
-            std::shared_ptr<App> app = _windowWhereMouseDragIsHappening->getApp().lock();
-            Point windowLocation = _windowWhereMouseDragIsHappening->getFrame().location;
-            app->sendMouseButtonEvent(_windowWhereMouseDragIsHappening->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
-        }
-        else {
-            std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
-            if (window) {
-                std::shared_ptr<App> app = window->getApp().lock();
-                Point windowLocation = window->getFrame().location;
-                app->sendMouseButtonEvent(window->getId(), type, button, mouseLocation.x - windowLocation.x, mouseLocation.y - windowLocation.y, mouseLocation.x, mouseLocation.y);
-            }            
-        }
-        
-        _windowWhereMouseDragIsHappening = nullptr;
-    }
+    return false;
 }
 
-void WindowManager::onMouseWheelEvent(Point mouseLocation, int scrollX, int scrollY, bool flipped)
+bool WindowManager::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+    Point mouseLocation = makePoint(evt->getX(), evt->getY());
     std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
     if (window) {
         std::shared_ptr<App> app = window->getApp().lock();
-        app->sendMouseWheelEvent(window->getId(), mouseLocation.x, mouseLocation.y, scrollX, scrollY, flipped);
+        app->sendMouseWheelEvent(window->getId(), mouseLocation.x, mouseLocation.y, evt->getScrollX(), evt->getScrollY(), evt->getFlipped());
     }
+    return false;
 }
 
-void WindowManager::onTextEvent(std::string text)
+bool WindowManager::sendTextEvent(std::shared_ptr<TextEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     std::shared_ptr<Window> topMostWindow = compositor->getTopMostWindow();
     if (topMostWindow != nullptr) {
         std::shared_ptr<App> app = topMostWindow->getApp().lock();
         if (app != nullptr) {
-            app->sendTextEvent(topMostWindow->getId(), text);
+            app->sendTextEvent(topMostWindow->getId(), evt->getText());
         }
     }
+    return false;
 }
 
-void WindowManager::onKeyEvent(int key)
+bool WindowManager::sendKeyEvent(std::shared_ptr<KeyEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     std::shared_ptr<Window> topMostWindow = compositor->getTopMostWindow();
     if (topMostWindow != nullptr) {
         std::shared_ptr<App> app = topMostWindow->getApp().lock();
         if (app != nullptr) {
-            app->sendKeyEvent(topMostWindow->getId(), key);
+            app->sendKeyEvent(topMostWindow->getId(), evt->getKeycode());
         }
     }
+    return false;
 }
 
 

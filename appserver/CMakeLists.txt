@@ -13,26 +13,26 @@ set (SOURCES
     src/Compositor.h
     src/Compositor.cpp
     src/Geometry.h
-    src/Geometry.cpp	
-    src/InputSource.h
-    src/InputSource.cpp
-    src/main.cpp
+    src/Geometry.cpp    
     src/Server.h
-    src/Server.cpp
-    src/Window.h
-    src/Window.cpp
+    src/Server.cpp    
     src/WindowManager.h
     src/WindowManager.cpp
     src/SDLCompositor.h
     src/SDLCompositor.cpp
+    src/Window.h
+    src/Window.cpp
     src/SDLWindow.h
     src/SDLWindow.cpp
-    src/SDLInputSource.h
-    src/SDLInputSource.cpp
+    src/Events.h
+    src/EventSource.h
+    src/SDLEventSource.h
+    src/SDLEventSource.cpp
+    src/main.cpp
     )
 add_executable(appserver ${SOURCES})
 
-if (UNIX)
+if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS pthread rt)
 endif()
 

@@ -10,7 +10,9 @@
 #define WINDOWMANAGER_H
 
 #include <iostream>
+#include <Window.h>
 #include <Geometry.h>
+#include <Events.h>
 
 namespace appserver
 {
@@ -20,15 +22,13 @@ namespace appserver
     {
     public:
         WindowManager();
-        void onMouseMoveEvent(Point mouseLocation);
-        void onMouseDragEvent(Point mouseLocation);
-        void onMouseButtonEvent(Point mouseLocation, int button, int type);
-        void onMouseWheelEvent(Point mouseLocation, int scrollX, int scrollY, bool flipped);
-        void onTextEvent(std::string text);
-        void onKeyEvent(int key);
-        
+        bool sendEvent(std::shared_ptr<Event> evt);
     private:
-        Window* _windowWhereMouseDragIsHappening;
+        bool sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt);
+        bool sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt);
+        bool sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt);
+        bool sendTextEvent(std::shared_ptr<TextEvent> evt);
+        bool sendKeyEvent(std::shared_ptr<KeyEvent> evt);    
     };
 }
 
