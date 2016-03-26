@@ -20,25 +20,25 @@ WindowManager::WindowManager()
 
 bool WindowManager::sendEvent(std::shared_ptr<Event> evt)
 {
-    EventType eventType = evt->getType();
+    uint8_t eventType = evt->getType();
     
-    if (eventType == kEventTypeKey) {
+    if (eventType == AspEventTypeKey) {
         std::shared_ptr<KeyEvent> keyEvent = std::dynamic_pointer_cast<KeyEvent>(evt);
         return this->sendKeyEvent(keyEvent);
     }
-    else if (eventType == kEventTypeText) {
+    else if (eventType == AspEventTypeText) {
         std::shared_ptr<TextEvent> textEvent = std::dynamic_pointer_cast<TextEvent>(evt);
         return this->sendTextEvent(textEvent);
     }
-    else if (eventType == kEventTypeMouseScroll) {
+    else if (eventType == AspEventTypeMouseScroll) {
         std::shared_ptr<MouseScrollEvent> mouseScrollEvent = std::dynamic_pointer_cast<MouseScrollEvent>(evt);
         return this->sendMouseScrollEvent(mouseScrollEvent);
     }
-    else if (eventType == kEventTypeMouseButton) {
+    else if (eventType == AspEventTypeMouseButton) {
         std::shared_ptr<MouseButtonEvent> mouseButtonEvent = std::dynamic_pointer_cast<MouseButtonEvent>(evt);
         return this->sendMouseButtonEvent(mouseButtonEvent);
     }
-    else if (eventType == kEventTypeMouseMove) {
+    else if (eventType == AspEventTypeMouseMove) {
         std::shared_ptr<MouseMoveEvent> mouseMoveEvent = std::dynamic_pointer_cast<MouseMoveEvent>(evt);
         return this->sendMouseMoveEvent(mouseMoveEvent);
     }
@@ -52,8 +52,7 @@ bool WindowManager::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt)
     std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
     if (window != nullptr) {
         std::shared_ptr<App> app = window->getApp().lock();
-        Point locationInWindow = window->getLocationInWindow(mouseLocation);
-        app->sendMouseMoveEvent(window->getId(), AspMouseEventMove, locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
+        app->sendMouseMoveEvent(evt, window);
         return true;
     }
     
@@ -68,8 +67,7 @@ bool WindowManager::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt)
     if (window != nullptr) {
         compositor->bringWindowToFront(window);
         std::shared_ptr<App> app = window->getApp().lock();
-        Point locationInWindow = window->getLocationInWindow(mouseLocation);
-        app->sendMouseButtonEvent(window->getId(), evt->getButtonEventType(), evt->getButton(), locationInWindow.x, locationInWindow.y, mouseLocation.x, mouseLocation.y);
+        app->sendMouseButtonEvent(evt, window);
     }
     
     return false;
@@ -82,7 +80,7 @@ bool WindowManager::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt)
     std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
     if (window) {
         std::shared_ptr<App> app = window->getApp().lock();
-        app->sendMouseWheelEvent(window->getId(), mouseLocation.x, mouseLocation.y, evt->getScrollX(), evt->getScrollY(), evt->getFlipped());
+        app->sendMouseScrollEvent(evt, window);
     }
     return false;
 }
@@ -94,7 +92,7 @@ bool WindowManager::sendTextEvent(std::shared_ptr<TextEvent> evt)
     if (topMostWindow != nullptr) {
         std::shared_ptr<App> app = topMostWindow->getApp().lock();
         if (app != nullptr) {
-            app->sendTextEvent(topMostWindow->getId(), evt->getText());
+            app->sendTextEvent(evt, topMostWindow);
         }
     }
     return false;
@@ -107,7 +105,7 @@ bool WindowManager::sendKeyEvent(std::shared_ptr<KeyEvent> evt)
     if (topMostWindow != nullptr) {
         std::shared_ptr<App> app = topMostWindow->getApp().lock();
         if (app != nullptr) {
-            app->sendKeyEvent(topMostWindow->getId(), evt->getKeycode());
+            app->sendKeyEvent(evt, topMostWindow);
         }
     }
     return false;

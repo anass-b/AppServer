@@ -3,12 +3,14 @@ project(asl)
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
 set (SOURCES
-    src/CApi.cpp
-    src/Connector.cpp
+    src/asl.cpp
+    src/connector.cpp
     )
 set (HEADERS
-    include/Asl/CApi.h
-    include/Asl/Connector.h
+    include/asl/asl.h
+    include/asl/keycode.h
+    include/asl/scancode.h
+    include/private/connector.h 
     )
 add_library (asl SHARED ${SOURCES} ${HEADERS})
 

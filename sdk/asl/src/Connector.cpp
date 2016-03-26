@@ -7,7 +7,7 @@
  *
  */
 
-#include <Asl/Connector.h>
+#include <private/connector.h>
 #include <sstream>
 #include <unistd.h>
 
@@ -19,311 +19,6 @@ int errno;
 typedef struct Asp_Event Asp_Event;
 
 using namespace asl;
-
-// ------------------------------------ Event
-
-Event::Event()
-    : _windowId(AspUndefinedWindowId), _eventType(kEventTypeUndefined)
-{
-}
-
-Event::Event(TWindowId id, EventType type)
-    : _windowId(id), _eventType(type)
-{
-}
-
-void Event::setWindowId(TWindowId id)
-{
-    _windowId = id;
-}
-
-TWindowId Event::getWindowId() const
-{
-    return _windowId;
-}
-
-void Event::setEventType(EventType type)
-{
-    _eventType = type;
-}
-
-EventType Event::getEventType() const
-{
-    return _eventType;
-}
-
-Event::~Event()
-{
-}
-
-// ------------------------------------ InputEvent
-
-InputEvent::InputEvent()
-    : Event(), _inputEventType(kInputEventTypeUndefined)
-{
-}
-
-InputEvent::InputEvent(TWindowId id, InputEventType type)
-    : Event(id, kEventTypeInput), _inputEventType(type)
-{
-}
-
-void InputEvent::setInputEventType(InputEventType type)
-{
-    _inputEventType = type;
-}
-
-InputEventType InputEvent::getInputEventType() const
-{
-    return _inputEventType;
-}
-
-InputEvent::~InputEvent()
-{
-}
-
-// ------------------------------------ WindowLocationChangedEvent
-
-WindowLocationChangedEvent::WindowLocationChangedEvent(const Asp_Event& aspEvent)
-: Event(aspEvent.winId, kEventTypeWindowLocationChanged), _x(aspEvent.field0), _y(aspEvent.field1)
-{
-}
-
-WindowLocationChangedEvent::WindowLocationChangedEvent()
-: Event(), _x(0.0), _y(0.0)
-{
-}
-
-WindowLocationChangedEvent::WindowLocationChangedEvent(TWindowId id, double x, double y)
-: Event(id, kEventTypeWindowLocationChanged), _x(x), _y(y)
-{
-}
-
-void WindowLocationChangedEvent::setNewWindowX(double x)
-{
-    _x = x;
-}
-
-void WindowLocationChangedEvent::setNewWindowY(double y)
-{
-    _y = y;
-}
-
-double WindowLocationChangedEvent::getNewWindowX() const
-{
-    return _x;
-}
-
-double WindowLocationChangedEvent::getNewWindowY() const
-{
-    return _y;
-}
-
-WindowLocationChangedEvent::~WindowLocationChangedEvent()
-{
-}
-
-// ------------------------------------ MouseEvent
-
-MouseEvent::MouseEvent()
-    : InputEvent(AspUndefinedWindowId, kInputEventTypeMouse),
-    _mouseEventType(kMouseEventTypeUndefined), _button(kMouseButtonUndefined), _x(0.0f), _y(0.0f), _absX(0.0f), _absY(0.0f)
-{
-}
-
-MouseEvent::MouseEvent(TWindowId id, MouseEventType type, MouseButton button, double x, double y, double absX, double absY)
-    : InputEvent(id, kInputEventTypeMouse), _mouseEventType(type), _button(button), _x(x), _y(y), _absX(absX), _absY(absY)
-{
-}
-
-MouseEvent::MouseEvent(const Asp_Event& aspEvent)
-    : InputEvent(AspUndefinedWindowId, kInputEventTypeMouse)
-{
-    setWindowId(aspEvent.winId);
-    setX(aspEvent.field0);
-    setY(aspEvent.field1);
-    if (aspEvent.field4 != AspMouseEventScroll) {
-        setAbsX(aspEvent.field2);
-        setAbsY(aspEvent.field3);
-    }
-    
-    if (aspEvent.field4 == AspMouseEventMove) {
-        setMouseEventType(kMouseEventTypeMove);
-        setMouseButton(kMouseButtonUndefined);
-    }
-    else if (aspEvent.field4 == AspMouseEventPress) {
-        setMouseEventType(kMouseEventTypePress);
-        setMouseButton(parseMouseButton(aspEvent.field5));
-    }
-    else if (aspEvent.field4 == AspMouseEventRelease) {
-        setMouseEventType(kMouseEventTypeRelease);
-        setMouseButton(parseMouseButton(aspEvent.field5));
-    }
-    else if (aspEvent.field4 == AspMouseEventDrag) {
-        setMouseEventType(kMouseEventTypeDrag);
-        setMouseButton(parseMouseButton(aspEvent.field5));
-    }
-    else if (aspEvent.field4 == AspMouseEventScroll) {
-        setMouseEventType(kMouseEventTypeScroll);
-        setScrollX(aspEvent.field2);
-        setScrollY(aspEvent.field3);
-    }
-}
-
-MouseButton MouseEvent::parseMouseButton(unsigned int aspMouseButton)
-{
-    if (aspMouseButton == AspMouseButtonRight) {
-        return kMouseButtonRight;
-    }
-    else if (aspMouseButton == AspMouseButtonMiddle) {
-        return kMouseButtonMiddle;
-    }
-    else if (aspMouseButton == AspMouseButtonLeft) {
-        return kMouseButtonLeft;
-    }
-    
-    return kMouseButtonUndefined;
-}
-
-void MouseEvent::setMouseEventType(MouseEventType type)
-{
-    _mouseEventType = type;
-}
-
-MouseEventType MouseEvent::getMouseEventType() const
-{
-    return _mouseEventType;
-}
-
-void MouseEvent::setMouseButton(MouseButton button)
-{
-    _button = button;
-}
-
-MouseButton MouseEvent::getMouseButton() const
-{
-    return _button;
-}
-
-void MouseEvent::setX(double x)
-{
-    _x = x;
-}
-
-double MouseEvent::getX() const
-{
-    return _x;
-}
-
-void MouseEvent::setY(double y)
-{
-    _y = y;
-}
-
-double MouseEvent::getY() const
-{
-    return _y;
-}
-
-void MouseEvent::setAbsX(double absX)
-{
-    _absX = absX;
-}
-
-double MouseEvent::getAbsX() const
-{
-    return _absX;
-}
-
-void MouseEvent::setAbsY(double absY)
-{
-    _absY = absY;
-}
-
-double MouseEvent::getAbsY() const
-{
-    return _absY;
-}
-
-void MouseEvent::setScrollX(int x)
-{
-    _scrollX = x;
-}
-
-int MouseEvent::getScrollX() const
-{
-    return _scrollX;
-}
-
-void MouseEvent::setScrollY(int y)
-{
-    _scrollY = y;
-}
-
-int MouseEvent::getScrollY() const
-{
-    return _scrollY;
-}
-
-MouseEvent::~MouseEvent()
-{
-}
-
-// ------------------------------------ KeyEvent
-
-KeyEvent::KeyEvent()
-{
-}
-
-KeyEvent::KeyEvent(const Asp_Event& aspEvent)
-: InputEvent(AspUndefinedWindowId, kInputEventTypeKey)
-{
-    setWindowId(aspEvent.winId);
-    setKey(aspEvent.field0);
-}
-
-KeyEvent::KeyEvent(const Asp_Event& aspEvent, std::string text)
-    : InputEvent(AspUndefinedWindowId, kInputEventTypeText)
-{
-    setWindowId(aspEvent.winId);
-    _text = text;
-}
-
-void KeyEvent::setKeyEventType(KeyEventType type)
-{
-    _keyEventType = type;
-}
-
-KeyEventType KeyEvent::getKeyEventType() const
-{
-    return _keyEventType;
-}
-
-void KeyEvent::setText(std::string text)
-{
-    _text = text;
-}
-
-std::string KeyEvent::getText() const
-{
-    return _text;
-}
-
-void KeyEvent::setKey(int key)
-{
-    _key = key;
-}
-
-int KeyEvent::getKey() const
-{
-    return _key;
-}
-
-KeyEvent::~KeyEvent()
-{    
-}
-
-// ------------------------------------ Connector
 
 /*
  * Initiates a socket connection with the server.
@@ -503,10 +198,10 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         req.type = AspRequestUpdateWindowSurface;
         req.clientId = _clientId;
         req.winId = id;
-        req.field1 = x;
-        req.field2 = y;
-        req.field3 = width;
-        req.field4 = height;
+        req.field0 = x;
+        req.field1 = y;
+        req.field2 = width;
+        req.field3 = height;
         req.dataSize = dataSize;
         
         // Send request
@@ -550,8 +245,8 @@ void Connector::resizeWindow(TWindowId id, unsigned char *data, unsigned long da
         req.type = AspRequestResizeWindow;
         req.clientId = _clientId;
         req.winId = id;
-        req.field1 = width;
-        req.field2 = height;
+        req.field0 = width;
+        req.field1 = height;
         req.dataSize = dataSize;
         
         // Send request
@@ -594,7 +289,7 @@ void Connector::changeWindowVisiblity(TWindowId id, bool visible)
         req.type = AspRequestSetWindowVisibility;
         req.clientId = _clientId;
         req.winId = id;
-        req.field1 = visible;
+        req.field0 = visible;
         
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
@@ -638,8 +333,8 @@ void Connector::moveWindow(TWindowId id, double x, double y)
         req.type = AspRequestMoveWindow;
         req.clientId = _clientId;
         req.winId = id;
-        req.field1 = x;
-        req.field2 = y;
+        req.field0 = x;
+        req.field1 = y;
         
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
@@ -688,14 +383,20 @@ std::shared_ptr<Event> Connector::waitEvent()
         zmq::message_t ackResponse(&ack, sizeof(int));
         _eventsSocket->send(ackResponse);
         
-        if (req.type == AspEventMouseInput) {
-            return std::make_shared<MouseEvent>(req);
+        if (req.type == AspEventTypeMouseMove) {
+            //return std::make_shared<MouseMoveEvent>();
         }
-        else if (req.type == AspEventKeyInput) {
-            return std::make_shared<KeyEvent>(req);
+        else if (req.type == AspEventTypeMouseButton) {
+            //return std::make_shared<MouseButtonEvent>();
         }
-        else if (req.type == AspEventTextInput) {
-            char *text = (char*)malloc(req.field5);
+        else if (req.type == AspEventTypeMouseScroll) {
+            
+        }
+        else if (req.type == AspEventTypeKey) {
+            
+        }
+        else if (req.type == AspEventTypeText) {
+            /*char *text = (char*)malloc(req.field5);
             receivedSize = _eventsSocket->recv(text, req.field5);
             if (receivedSize == 0) {
                 exit(1);
@@ -705,10 +406,7 @@ std::shared_ptr<Event> Connector::waitEvent()
             zmq::message_t ackResponse2(&ack, sizeof(int));
             _eventsSocket->send(ackResponse2);
             
-            return std::make_shared<KeyEvent>(req, text);
-        }
-        else if (req.type == AspEventWindowLocationChanged) {
-            return std::make_shared<WindowLocationChangedEvent>(req);
+            return std::make_shared<KeyEvent>(req, text);*/
         }
     }
     catch (zmq::error_t e) {

@@ -81,8 +81,8 @@ void Server::run()
         
         std::shared_ptr<Event> evt = _inputSource->pollEvent();
         if (evt != nullptr) {
-            EventType eventType = evt->getType();
-            if(eventType == kEventTypeQuit) {
+            uint8_t eventType = evt->getType();
+            if(eventType == AspEventTypeQuit) {
                 break;
             }
             else {

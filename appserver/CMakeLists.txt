@@ -11,9 +11,7 @@ set (SOURCES
     src/App.h
     src/App.cpp
     src/Compositor.h
-    src/Compositor.cpp
-    src/Geometry.h
-    src/Geometry.cpp    
+    src/Compositor.cpp   
     src/Server.h
     src/Server.cpp    
     src/WindowManager.h
@@ -24,7 +22,6 @@ set (SOURCES
     src/Window.cpp
     src/SDLWindow.h
     src/SDLWindow.cpp
-    src/Events.h
     src/EventSource.h
     src/SDLEventSource.h
     src/SDLEventSource.cpp

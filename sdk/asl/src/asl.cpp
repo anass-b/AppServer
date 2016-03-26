@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include <memory>
-#include <Asl/Connector.h>
-#include <Asl/CApi.h>
+#include <private/connector.h>
+#include <asl/asl.h>
 
 using namespace asl;
 
@@ -74,23 +74,37 @@ AslEvent aslWaitEvent()
 {
     AslEvent event;
     
+    // reset AslEvent
     event.type = -1;
     event.windowId = -1;
-    event.inputEvent.type = -1;    
+    event.inputEvent.type = -1;
+    
+    // reset AslInputEvent
+    event.inputEvent.type = -1;
+    
+    // reset AslMouseEvent
     event.inputEvent.mouseEvent.type = -1;
+    event.inputEvent.mouseEvent.button = -1;
     event.inputEvent.mouseEvent.x = -1;
     event.inputEvent.mouseEvent.y = -1;
     event.inputEvent.mouseEvent.absX = -1;
     event.inputEvent.mouseEvent.absY = -1;
     event.inputEvent.mouseEvent.scrollX = -1;
     event.inputEvent.mouseEvent.scrollY = -1;
-    event.inputEvent.mouseEvent.button = -1;
+    
+    // reset AslKeyEvent
     event.inputEvent.keyEvent.type = -1;
-    event.inputEvent.keyEvent.key = -1;
+    event.inputEvent.keyEvent.scancode = -1;
+    event.inputEvent.keyEvent.keycode = -1;
+    event.inputEvent.keyEvent.keymod = -1;
+    event.inputEvent.keyEvent.state = -1;
+    event.inputEvent.keyEvent.repeat = false;
+    
+    // reset AslTextEvent
     event.inputEvent.textEvent.text = nullptr;
     event.inputEvent.textEvent.textSize = 0;
     
-    std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
+    /*std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
 
     if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeInput) {
         std::shared_ptr<asl::InputEvent> aslInputEvent = std::dynamic_pointer_cast<asl::InputEvent>(aslEvent);
@@ -117,7 +131,7 @@ AslEvent aslWaitEvent()
                 
                 event.inputEvent.type = AspEventKeyInput;
                 event.inputEvent.keyEvent.type = AspKeyEventPress;
-                event.inputEvent.keyEvent.key = aslKeyEvent->getKey();
+                //event.inputEvent.keyEvent.key = aslKeyEvent->getKey();
             }
             else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeText) {
                 std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
@@ -136,7 +150,7 @@ AslEvent aslWaitEvent()
             event.windowLocationChangedEvent.newX = aslWindowLocationChangedEvent->getNewWindowX();
             event.windowLocationChangedEvent.newY = aslWindowLocationChangedEvent->getNewWindowY();
         }
-    }
+    }*/
     
     return event;
 }

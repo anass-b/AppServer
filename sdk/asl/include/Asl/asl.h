@@ -11,24 +11,32 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <asl/keycode.h> // This includes <asl/scancode.h>
+
 extern "C" {
     
     typedef struct
     {
-        int type;
-        int button;
+        int8_t type;
+        int8_t button;
         double x;
         double y;
         double absX;
         double absY;
-        int scrollX;
-        int scrollY;
+        int32_t scrollX;
+        int32_t scrollY;
     } AslMouseEvent;
 
     typedef struct
     {
-        int type;
-        int key;
+        int8_t type;
+        int32_t scancode;
+        int32_t keycode;
+        int32_t keymod;
+        int8_t state;
+        bool repeat;
     } AslKeyEvent;
     
     typedef struct
@@ -39,7 +47,7 @@ extern "C" {
         
     typedef struct
     {
-        int type;
+        int8_t type;
         AslKeyEvent keyEvent;
         AslTextEvent textEvent;
         AslMouseEvent mouseEvent;
@@ -54,7 +62,7 @@ extern "C" {
     typedef struct
     {
         long windowId;
-        int type;
+        int8_t type;
         AslInputEvent inputEvent;
         AslWindowLocationChangedEvent windowLocationChangedEvent;
     } AslEvent;

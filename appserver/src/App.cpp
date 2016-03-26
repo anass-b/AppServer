@@ -207,7 +207,7 @@ void App::updateWindow(Asp_Request req)
         zmq::message_t ackResponse2(&ack, sizeof(int));
         socket->send(ackResponse2);
         
-        window->updatePixels(data, req.dataSize, makeRect(req.field1, req.field2, req.field3, req.field4));
+        window->updatePixels(data, req.dataSize, makeRect(req.field0, req.field1, req.field2, req.field3));
     } catch (std::exception e) {
         std::cout << __func__ << ": " << e.what() << std::endl;
     }
@@ -243,7 +243,7 @@ void App::resizeWindow(Asp_Request req)
         zmq::message_t ackResponse2(&ack, sizeof(int));
         socket->send(ackResponse2);
         
-        window->setSize(makeSize(req.field1, req.field2));
+        window->setSize(makeSize(req.field0, req.field1));
         window->resize(data, req.dataSize);
     } catch (std::exception e) {
         std::cout << __func__ << ": " << e.what() << std::endl;
@@ -262,7 +262,7 @@ void App::setWindowVisibility(Asp_Request req)
         std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
-    window->setVisible(req.field1);
+    window->setVisible(req.field0);
 }
 
 /*
@@ -278,7 +278,7 @@ void App::moveWindow(Asp_Request req)
         std::cout << __func__ << ": " << "Invalide window ID" << std::endl;
     }
     
-    Point newLocation = makePoint(req.field1, req.field2);
+    Point newLocation = makePoint(req.field0, req.field1);
     window->setLocation(newLocation);
     window->move(newLocation);
 }
@@ -304,25 +304,18 @@ void App::destroyWindow(Asp_Request req)
     Server::getSingleton()->getCompositor().lock()->removeWindow(windowId);
 }
 
-void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY)
+void App::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_ptr<Window> window)
 {
     try {
+        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
+        
         Asp_Event req;
-        if (type == -1) {            
-            req.winId = windowId;
-            req.type = AspEventWindowLocationChanged;
-            req.field0 = x;
-            req.field1 = y;                        
-        }
-        else {
-            req.winId = windowId;
-            req.type = AspEventMouseInput;
-            req.field0 = x;
-            req.field1 = y;
-            req.field2 = absX;
-            req.field3 = absY;
-            req.field4 = type;                       
-        }
+        req.winId = window->getId();
+        req.type = AspEventTypeMouseMove;
+        req.field0 = locationInWindow.x;
+        req.field1 = locationInWindow.y;
+        req.field2 = evt->getX();
+        req.field3 = evt->getY();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -337,18 +330,20 @@ void App::sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, d
     }
 }
 
-void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY)
+void App::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::shared_ptr<Window> window)
 {
     try {
+        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
+        
         Asp_Event req;
-        req.winId = windowId;
-        req.type = AspEventMouseInput;
-        req.field0 = x;
-        req.field1 = y;
-        req.field2 = absX;
-        req.field3 = absY;
-        req.field4 = type;
-        req.field5 = button;
+        req.winId = window->getId();
+        req.type = AspEventTypeMouseButton;
+        req.field0 = locationInWindow.x;
+        req.field1 = locationInWindow.y;
+        req.field2 = evt->getX();
+        req.field3 = evt->getY();
+        req.field4 = evt->getButton();
+        req.field5 = evt->getState();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -363,17 +358,18 @@ void App::sendMouseButtonEvent(TWindowId windowId, int type, int button, double 
     }
 }
 
-void App::sendMouseWheelEvent(TWindowId windowId, double x, double y, int scrollX, int scrollY, bool flipped)
+void App::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::shared_ptr<Window> window)
 {
     try {
+        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
+        
         Asp_Event req;
-        req.winId = windowId;
-        req.type = AspEventMouseInput;
-        req.field0 = x;
-        req.field1 = y;
-        req.field2 = scrollX;
-        req.field3 = scrollY;
-        req.field4 = AspMouseEventScroll;
+        req.winId = window->getId();
+        req.type = AspEventTypeMouseScroll;
+        req.field0 = locationInWindow.x;
+        req.field1 = locationInWindow.y;
+        req.field2 = evt->getScrollX();
+        req.field3 = evt->getScrollY();
 
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -388,13 +384,13 @@ void App::sendMouseWheelEvent(TWindowId windowId, double x, double y, int scroll
     }
 }
 
-void App::sendTextEvent(TWindowId windowId, std::string text)
+void App::sendTextEvent(std::shared_ptr<TextEvent> evt, std::shared_ptr<Window> window)
 {
     try {
         Asp_Event req;
-        req.winId = windowId;
-        req.type = AspEventTextInput;
-        req.field5 = text.size();
+        req.winId = window->getId();
+        req.type = AspEventTypeText;
+        req.field5 = evt->getText().size();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -405,7 +401,7 @@ void App::sendTextEvent(TWindowId windowId, std::string text)
             return;
         }
         
-        zmq::message_t textRequest(text.c_str(), text.size() + 1);
+        zmq::message_t textRequest(evt->getText().c_str(), evt->getText().size());
         _eventSocket->send(textRequest);
         
         ack = 0;
@@ -419,13 +415,17 @@ void App::sendTextEvent(TWindowId windowId, std::string text)
     }
 }
 
-void App::sendKeyEvent(TWindowId windowId, int key)
+void App::sendKeyEvent(std::shared_ptr<KeyEvent> evt, std::shared_ptr<Window> window)
 {
     try {
         Asp_Event req;
-        req.winId = windowId;
-        req.type = AspEventKeyInput;
-        req.field0 = key;
+        req.winId = window->getId();
+        req.type = AspEventTypeKey;
+        req.field0 = evt->getKeycode();
+        req.field1 = evt->getScancode();
+        req.field2 = evt->getKeymod();
+        req.field3 = evt->getState();
+        req.field4 = evt->getRepeat();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);

@@ -1,9 +1,10 @@
-#ifndef ASL_PROTOCOL_H
-#define ASL_PROTOCOL_H
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
 /*
  * Request IDs (Sent by client, received by server)
  */
+#define AspRequestUndefined             0
 #define AspRequestRegister              1
 #define AspRequestUnregister            2
 #define AspRequestCreateWindow          3
@@ -21,55 +22,52 @@
 /*
  * Window Raster Type
  */
-#define AspWindowRasterRGBA 1
-#define AspWindowRasterARGB 2
+#define AspWindowRasterUndefined    0
+#define AspWindowRasterRGBA         1
+#define AspWindowRasterARGB         2
 
 /*
- * Event IDs (Sent by server, received by client)
+ * Event types
  */
-#define AspEventMouseInput              1
-#define AspEventKeyInput                2
-#define AspEventTextInput               3
-#define AspEventWindowLocationChanged   4
-#define AspEventWindowResizeCompleted   5
+#define AspEventTypeUndefined       0
+#define AspEventTypeMouseMove       1
+#define AspEventTypeMouseButton     2
+#define AspEventTypeMouseScroll     3
+#define AspEventTypeKey             4
+#define AspEventTypeText            5
+#define AspEventTypeQuit            6
 
 /*
  * Mouse buttons
  */
-#define AspMouseButtonRight     1
-#define AspMouseButtonLeft      2
-#define AspMouseButtonMiddle    3
+#define AspMouseButtonUndefined     0
+#define AspMouseButtonRight         1
+#define AspMouseButtonLeft          2
+#define AspMouseButtonMiddle        3
 
 /*
- * Mouse events
+ * Mouse button states
  */
-#define AspMouseEventPress      1
-#define AspMouseEventRelease    2
-#define AspMouseEventMove       3
-#define AspMouseEventDrag       4
-#define AspMouseEventScroll     5
+#define AspMouseButtonStateUndefined    0
+#define AspMouseButtonStatePressed      1
+#define AspMouseButtonStateReleased     2
 
 /*
- * Key events
+ * Key event states
  */
-#define AspKeyEventPress    1
-#define AspKeyEventRelease  2
-
-/*
- * Key Values
- */
-#define AspKeyScancodeReturn        1
-#define AspKeyScancodeBackspace     2
+#define AspKeyStateUndefined    0
+#define AspKeyStatePressed      1
+#define AspKeyStateReleased     2
 
 /*
  * Port values
  */
 #define AspReqListenerThreadPortValue 20000
 
-typedef unsigned long int TAppId;
+typedef uint32_t TAppId;
 typedef pid_t TProcId;
-typedef unsigned long int TWindowId;
-typedef unsigned long int TWindowZ;
+typedef uint32_t TWindowId;
+typedef uint32_t TWindowZ;
 
 struct Asp_SubscribeRequest
 {
@@ -80,26 +78,26 @@ struct Asp_SubscribeRequest
 struct Asp_Request
 {
     TAppId clientId;
-    unsigned int type;
+    uint8_t type;
     TWindowId winId;
     double field0;
     double field1;
     double field2;
     double field3;
-    double field4;
-    double field5;
-    unsigned long dataSize;
+    int8_t field4;
+    int8_t field5;
+    uint64_t dataSize;
 };
 
 struct Asp_Event {
     TWindowId winId;
-    unsigned int type;
+    uint8_t type;
     double field0;
     double field1;
     double field2;
     double field3;
-    double field4;
-    unsigned int field5;
+    uint8_t field4;
+    uint8_t field5;
 };
 
 typedef struct Asp_Event Asp_Event;

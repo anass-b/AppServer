@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserver_App_h
-#define appserver_App_h
+#ifndef APP_H
+#define APP_H
 
 #include <iostream>
 #include <memory>
@@ -20,6 +20,7 @@
 #include <pthread.h>
 #include <zmq.hpp>
 #include <Window.h>
+#include <Events.h>
 
 namespace appserver
 {
@@ -30,11 +31,11 @@ namespace appserver
         friend class Window;
         App(TProcId pid);
         virtual ~App();
-        void sendMouseMoveEvent(TWindowId windowId, int type, double x, double y, double absX, double absY);
-        void sendMouseButtonEvent(TWindowId windowId, int type, int button, double x, double y, double absX, double absY);
-        void sendMouseWheelEvent(TWindowId windowId, double x, double y, int scrollX, int scrollY, bool flipped);
-        void sendTextEvent(TWindowId windowId, std::string text);
-        void sendKeyEvent(TWindowId windowId, int key);
+        void sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_ptr<Window> window);
+        void sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::shared_ptr<Window> window);
+        void sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::shared_ptr<Window> window);
+        void sendTextEvent(std::shared_ptr<TextEvent> evt, std::shared_ptr<Window> window);
+        void sendKeyEvent(std::shared_ptr<KeyEvent> evt, std::shared_ptr<Window> window);
         TProcId getPid() const;
         TAppId getId() const;        
         std::weak_ptr<zmq::socket_t> getSocket() const;
