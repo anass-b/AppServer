@@ -143,8 +143,12 @@ void SDLWindow::resizeTexture()
 
 void SDLWindow::updateTexturePixels()
 {
-    Rect frame = getFrame();
-    SDL_UpdateTexture(_texture, NULL, _pixels, 4*frame.size.width);
+    SDL_Rect dirtyRect;
+    dirtyRect.x = _dirtyRect.location.x;
+    dirtyRect.y = _dirtyRect.location.y;
+    dirtyRect.w = _dirtyRect.size.width;
+    dirtyRect.h = _dirtyRect.size.height;
+    SDL_UpdateTexture(_texture, &dirtyRect, _pixels, 4*dirtyRect.w);
 }
 
 void SDLWindow::draw()
