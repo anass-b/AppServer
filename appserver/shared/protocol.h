@@ -98,6 +98,7 @@ struct Asp_Event {
     double field3;
     uint8_t field4;
     uint8_t field5;
+    uint32_t timestamp;
 };
 
 typedef struct Asp_Event Asp_Event;

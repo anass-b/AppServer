@@ -72,86 +72,80 @@ void aslDestroyWindow(long windowId)
 EXPORT
 AslEvent aslWaitEvent()
 {
-    AslEvent event;
+    AslEvent aslEvt;
     
     // reset AslEvent
-    event.type = -1;
-    event.windowId = -1;
-    event.inputEvent.type = -1;
+    aslEvt.type = -1;
+    aslEvt.windowId = -1;
+    aslEvt.type = -1;
     
     // reset AslInputEvent
-    event.inputEvent.type = -1;
+    aslEvt.type = -1;
     
     // reset AslMouseEvent
-    event.inputEvent.mouseEvent.type = -1;
-    event.inputEvent.mouseEvent.button = -1;
-    event.inputEvent.mouseEvent.x = -1;
-    event.inputEvent.mouseEvent.y = -1;
-    event.inputEvent.mouseEvent.absX = -1;
-    event.inputEvent.mouseEvent.absY = -1;
-    event.inputEvent.mouseEvent.scrollX = -1;
-    event.inputEvent.mouseEvent.scrollY = -1;
+    aslEvt.mouseEvent.buttonState = -1;
+    aslEvt.mouseEvent.button = -1;
+    aslEvt.mouseEvent.x = -1;
+    aslEvt.mouseEvent.y = -1;
+    aslEvt.mouseEvent.absX = -1;
+    aslEvt.mouseEvent.absY = -1;
+    aslEvt.mouseEvent.scrollX = -1;
+    aslEvt.mouseEvent.scrollY = -1;
     
     // reset AslKeyEvent
-    event.inputEvent.keyEvent.type = -1;
-    event.inputEvent.keyEvent.scancode = -1;
-    event.inputEvent.keyEvent.keycode = -1;
-    event.inputEvent.keyEvent.keymod = -1;
-    event.inputEvent.keyEvent.state = -1;
-    event.inputEvent.keyEvent.repeat = false;
+    aslEvt.keyEvent.scancode = -1;
+    aslEvt.keyEvent.keycode = -1;
+    aslEvt.keyEvent.keymod = -1;
+    aslEvt.keyEvent.state = -1;
+    aslEvt.keyEvent.repeat = false;
     
     // reset AslTextEvent
-    event.inputEvent.textEvent.text = nullptr;
-    event.inputEvent.textEvent.textSize = 0;
+    aslEvt.textEvent.text = nullptr;
+    aslEvt.textEvent.textSize = 0;
     
-    /*std::shared_ptr<asl::Event> aslEvent = gConnector->waitEvent();
+    std::shared_ptr<Event> evt = gConnector->waitEvent();
 
-    if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeInput) {
-        std::shared_ptr<asl::InputEvent> aslInputEvent = std::dynamic_pointer_cast<asl::InputEvent>(aslEvent);
-        if (aslInputEvent != nullptr) {
-            event.type = aslInputEvent->getEventType();
-            event.windowId = aslInputEvent->getWindowId();
-            
-            if (aslInputEvent->getInputEventType() == asl::kInputEventTypeMouse) {
-                std::shared_ptr<asl::MouseEvent> aslMouseEvent = std::dynamic_pointer_cast<asl::MouseEvent>(aslInputEvent);
-                
-                event.inputEvent.type = kInputEventTypeMouse;
-                
-                event.inputEvent.mouseEvent.type = aslMouseEvent->getMouseEventType();
-                event.inputEvent.mouseEvent.button = aslMouseEvent->getMouseButton();
-                event.inputEvent.mouseEvent.x = aslMouseEvent->getX();
-                event.inputEvent.mouseEvent.y = aslMouseEvent->getY();
-                event.inputEvent.mouseEvent.absX = aslMouseEvent->getAbsX();
-                event.inputEvent.mouseEvent.absY = aslMouseEvent->getAbsY();
-                event.inputEvent.mouseEvent.scrollX = aslMouseEvent->getScrollX();
-                event.inputEvent.mouseEvent.scrollY = aslMouseEvent->getScrollY();
-            }
-            else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeKey) {
-                std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
-                
-                event.inputEvent.type = AspEventKeyInput;
-                event.inputEvent.keyEvent.type = AspKeyEventPress;
-                //event.inputEvent.keyEvent.key = aslKeyEvent->getKey();
-            }
-            else if (aslInputEvent->getInputEventType() == asl::kInputEventTypeText) {
-                std::shared_ptr<asl::KeyEvent> aslKeyEvent = std::dynamic_pointer_cast<asl::KeyEvent>(aslInputEvent);
-                
-                event.inputEvent.type = AspEventTextInput;
-                event.inputEvent.textEvent.text = (char*)aslKeyEvent->getText().c_str();
-                event.inputEvent.textEvent.textSize = aslKeyEvent->getText().size() + 1;
-            }
-        }
+    aslEvt.type = evt->getType();
+
+    if (evt->getType() == AspEventTypeMouseButton) {
+        std::shared_ptr<MouseButtonEvent> mouseButtonEvent = std::dynamic_pointer_cast<MouseButtonEvent>(evt);
+        aslEvt.mouseEvent.buttonState = mouseButtonEvent->getState();
+        aslEvt.mouseEvent.button = mouseButtonEvent->getButton();
+        aslEvt.mouseEvent.x = mouseButtonEvent->getWindowX();
+        aslEvt.mouseEvent.y = mouseButtonEvent->getWindowY();
+        aslEvt.mouseEvent.absX = mouseButtonEvent->getX();
+        aslEvt.mouseEvent.absY = mouseButtonEvent->getY();
     }
-    else if (aslEvent != nullptr && aslEvent->getEventType() == asl::kEventTypeWindowLocationChanged) {
-        std::shared_ptr<asl::WindowLocationChangedEvent> aslWindowLocationChangedEvent = std::dynamic_pointer_cast<asl::WindowLocationChangedEvent>(aslEvent);
-        if (aslWindowLocationChangedEvent != nullptr) {
-            event.type = aslWindowLocationChangedEvent->getEventType();
-            event.windowId = aslEvent->getWindowId();
-            event.windowLocationChangedEvent.newX = aslWindowLocationChangedEvent->getNewWindowX();
-            event.windowLocationChangedEvent.newY = aslWindowLocationChangedEvent->getNewWindowY();
-        }
-    }*/
+    else if (evt->getType() == AspEventTypeMouseMove) {
+        std::shared_ptr<MouseMoveEvent> mouseMoveEvent = std::dynamic_pointer_cast<MouseMoveEvent>(evt);
+        aslEvt.mouseEvent.x = mouseMoveEvent->getWindowX();
+        aslEvt.mouseEvent.y = mouseMoveEvent->getWindowY();
+        aslEvt.mouseEvent.absX = mouseMoveEvent->getX();
+        aslEvt.mouseEvent.absY = mouseMoveEvent->getY();
+    }
+    else if (evt->getType() == AspEventTypeMouseScroll) {
+        std::shared_ptr<MouseScrollEvent> mouseScrollEvent = std::dynamic_pointer_cast<MouseScrollEvent>(evt);
+        aslEvt.mouseEvent.x = mouseScrollEvent->getWindowX();
+        aslEvt.mouseEvent.y = mouseScrollEvent->getWindowY();
+        aslEvt.mouseEvent.absX = mouseScrollEvent->getX();
+        aslEvt.mouseEvent.absY = mouseScrollEvent->getY();
+        aslEvt.mouseEvent.scrollX = mouseScrollEvent->getScrollX();
+        aslEvt.mouseEvent.scrollY = mouseScrollEvent->getScrollY();
+    }
+    else if (evt->getType() == AspEventTypeKey) {
+        std::shared_ptr<KeyEvent> keyEvent = std::dynamic_pointer_cast<KeyEvent>(evt);
+        aslEvt.keyEvent.keycode = keyEvent->getKeycode();
+        aslEvt.keyEvent.keymod = keyEvent->getKeymod();
+        aslEvt.keyEvent.scancode = keyEvent->getScancode();
+        aslEvt.keyEvent.repeat = keyEvent->getRepeat();
+        aslEvt.keyEvent.state = keyEvent->getState();
+    }
+    else if (evt->getType() == AspEventTypeText) {
+        std::shared_ptr<TextEvent> textEvent = std::dynamic_pointer_cast<TextEvent>(evt);
+        aslEvt.textEvent.text = (char*)textEvent->getText().c_str();
+        aslEvt.textEvent.textSize = textEvent->getText().size();
+    }
     
-    return event;
+    return aslEvt;
 }
 

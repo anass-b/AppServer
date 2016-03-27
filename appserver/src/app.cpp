@@ -306,16 +306,8 @@ void App::destroyWindow(Asp_Request req)
 
 void App::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_ptr<Window> window)
 {
-    try {
-        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
-        
-        Asp_Event req;
-        req.winId = window->getId();
-        req.type = AspEventTypeMouseMove;
-        req.field0 = locationInWindow.x;
-        req.field1 = locationInWindow.y;
-        req.field2 = evt->getX();
-        req.field3 = evt->getY();
+    try {                
+        Asp_Event req = evt->toProtocolEvent();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -332,18 +324,8 @@ void App::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_pt
 
 void App::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::shared_ptr<Window> window)
 {
-    try {
-        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
-        
-        Asp_Event req;
-        req.winId = window->getId();
-        req.type = AspEventTypeMouseButton;
-        req.field0 = locationInWindow.x;
-        req.field1 = locationInWindow.y;
-        req.field2 = evt->getX();
-        req.field3 = evt->getY();
-        req.field4 = evt->getButton();
-        req.field5 = evt->getState();
+    try {        
+        Asp_Event req = evt->toProtocolEvent();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -360,16 +342,8 @@ void App::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::share
 
 void App::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::shared_ptr<Window> window)
 {
-    try {
-        Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
-        
-        Asp_Event req;
-        req.winId = window->getId();
-        req.type = AspEventTypeMouseScroll;
-        req.field0 = locationInWindow.x;
-        req.field1 = locationInWindow.y;
-        req.field2 = evt->getScrollX();
-        req.field3 = evt->getScrollY();
+    try {        
+        Asp_Event req = evt->toProtocolEvent();
 
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -387,10 +361,7 @@ void App::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::share
 void App::sendTextEvent(std::shared_ptr<TextEvent> evt, std::shared_ptr<Window> window)
 {
     try {
-        Asp_Event req;
-        req.winId = window->getId();
-        req.type = AspEventTypeText;
-        req.field5 = evt->getText().size();
+        Asp_Event req = evt->toProtocolEvent();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
@@ -418,14 +389,7 @@ void App::sendTextEvent(std::shared_ptr<TextEvent> evt, std::shared_ptr<Window> 
 void App::sendKeyEvent(std::shared_ptr<KeyEvent> evt, std::shared_ptr<Window> window)
 {
     try {
-        Asp_Event req;
-        req.winId = window->getId();
-        req.type = AspEventTypeKey;
-        req.field0 = evt->getKeycode();
-        req.field1 = evt->getScancode();
-        req.field2 = evt->getKeymod();
-        req.field3 = evt->getState();
-        req.field4 = evt->getRepeat();
+        Asp_Event req = evt->toProtocolEvent();
         
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);

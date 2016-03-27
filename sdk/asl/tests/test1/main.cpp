@@ -21,36 +21,45 @@ int main(int argc, char *argv[])
     int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, cairo_image_surface_get_width(surface));
     unsigned long dataSize = stride * cairo_image_surface_get_height(surface);
 
-    unsigned long windowId = aslNewWindow(data, dataSize, 100, 100, 800, 600, AspWindowRasterARGB, true);
+    unsigned long windowId = aslNewWindow(data, dataSize, 100, 100, 800, 600, AslWindowRasterARGB, true);
 
-    /*AslEvent event;
+    AslEvent event;
     while (true) {        
         event = aslWaitEvent();
         
-        if (event.type == AspEventMouseInput) {       
-            if (event.inputEvent.mouseEvent.type == AspMouseEventPress) {
-                std::cout << "Mouse Press" << std::endl;
+        if (event.type == AslEventTypeMouseButton) {
+            if (event.mouseEvent.button == AslMouseButtonLeft) {
+                if (event.mouseEvent.buttonState == AslMouseButtonStatePressed) {
+                    std::cout << "Mouse Left Pressed" << std::endl;
+                }
+                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased)
+                {
+                    std::cout << "Mouse Left Released" << std::endl;
+                }
             }
-            else if (event.inputEvent.mouseEvent.type == AspMouseEventRelease) {
-                std::cout << "Mouse Release" << std::endl;
-            }
-            else if (event.inputEvent.mouseEvent.type == AspMouseEventMove) {
-                std::cout << "Mouse Move" << std::endl;
-            }
-            else if (event.inputEvent.mouseEvent.type == AspMouseEventDrag) {
-                std::cout << "Mouse Drag" << std::endl;
-            }
-            else if (event.inputEvent.mouseEvent.type == AspMouseEventScroll) {
-                std::cout << "Mouse Scroll (" << event.inputEvent.mouseEvent.scrollX << "," << event.inputEvent.mouseEvent.scrollY << ")" << std::endl;
+            else if (event.mouseEvent.button == AslMouseButtonRight) {
+                if (event.mouseEvent.buttonState == AslMouseButtonStatePressed) {
+                    std::cout << "Mouse Right Pressed" << std::endl;
+                }
+                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased)
+                {
+                    std::cout << "Mouse Right Released" << std::endl;
+                }
             }
         }
-        else if (event.type == AspEventTextInput) {
-            printf("%s", event.inputEvent.textEvent.text);
+        else if (event.type == AslEventTypeMouseMove) {
+            std::cout << "Mouse Move" << std::endl;
         }
-        else if (event.type == AspEventKeyInput) {
+        else if (event.type == AslEventTypeMouseScroll) {
+            std::cout << "Mouse Scroll (" << event.mouseEvent.scrollX << "," << event.mouseEvent.scrollY << ")" << std::endl;
+        }
+        else if (event.type == AslEventTypeText) {
+            printf("%s", event.textEvent.text);
+        }
+        else if (event.type == AslEventTypeKey) {
             std::cout << "Key" << std::endl;
         }
-    }*/
+    }
 
     return 0;
 }
