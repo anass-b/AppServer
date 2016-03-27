@@ -49,7 +49,7 @@ bool WindowManager::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     Point mouseLocation = makePoint(evt->getX(), evt->getY());
-    std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
+    std::shared_ptr<Window> window = _focusedWindow != nullptr ? _focusedWindow : compositor->findWindowInLocation(mouseLocation);
     if (window != nullptr) {
         std::shared_ptr<App> app = window->getApp().lock();
         Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
@@ -65,10 +65,25 @@ bool WindowManager::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt)
 bool WindowManager::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
-    Point mouseLocation = makePoint(evt->getX(), evt->getY());
-    std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
+    Point mouseLocation = makePoint(evt->getX(), evt->getY());    
+    std::shared_ptr<Window> window = nullptr;
+    if (evt->getState() == AspMouseButtonStateReleased && _focusedWindow != nullptr) {
+        window = _focusedWindow;
+    }
+    else {
+        window = compositor->findWindowInLocation(mouseLocation);
+    }
+
     if (window != nullptr) {
         compositor->bringWindowToFront(window);
+
+        if (evt->getState() == AspMouseButtonStatePressed) {
+            _focusedWindow = window;
+        }
+        if (evt->getState() == AspMouseButtonStateReleased) {
+            _focusedWindow = nullptr;
+        }
+
         std::shared_ptr<App> app = window->getApp().lock();
         Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
         evt->setWindowX(locationInWindow.x);

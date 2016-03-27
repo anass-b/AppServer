@@ -28,7 +28,9 @@ namespace appserver
         bool sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt);
         bool sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt);
         bool sendTextEvent(std::shared_ptr<TextEvent> evt);
-        bool sendKeyEvent(std::shared_ptr<KeyEvent> evt);    
+        bool sendKeyEvent(std::shared_ptr<KeyEvent> evt);
+    private:
+        std::shared_ptr<Window> _focusedWindow = nullptr;
     };
 }
 
