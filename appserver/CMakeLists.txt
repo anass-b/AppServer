@@ -35,7 +35,7 @@ if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS pthread rt)
 endif()
 
-target_link_libraries (appserver zmq ${EXTRA_LIBS} ${SDL2_LIBRARY})
+target_link_libraries (appserver zmq z ${EXTRA_LIBS} ${SDL2_LIBRARY})
 set_property(TARGET appserver PROPERTY CXX_STANDARD 11)
 
 

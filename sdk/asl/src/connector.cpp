@@ -10,6 +10,7 @@
 #include <private/connector.h>
 #include <sstream>
 #include <unistd.h>
+#include <zlib.h>
 
 #define OS_X 1
 #define EXPORT __attribute__((visibility("default")))
@@ -194,6 +195,13 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
 void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height)
 {
     try {
+        uLong compSize = compressBound(dataSize);
+        // Deflate
+        unsigned char* buffer = (unsigned char*)malloc(compSize);
+        compress2((Bytef *)buffer, &compSize, (Bytef *)data, dataSize, Z_BEST_SPEED);
+        //std::cout << "Original size: " << dataSize << std::endl;
+        //std::cout << "Compressed size: " << compSize << std::endl;
+
         Asp_Request req;
         req.type = AspRequestUpdateWindowSurface;
         req.clientId = _clientId;
@@ -201,8 +209,9 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         req.field0 = x;
         req.field1 = y;
         req.field2 = width;
-        req.field3 = height;
+        req.field3 = height;        
         req.dataSize = dataSize;
+        req.compressedSize = compSize;
         
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
@@ -216,16 +225,17 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         }
         
         // Send raster data
-        const void* castedData = (const void*)data;
-        zmq::message_t dataRequest(castedData, (size_t)dataSize);
-        _socket->send(dataRequest);
-        
+        zmq::message_t dataRequest(buffer, (size_t)compSize);
+        _socket->send(dataRequest);                
+
         // ACK
         ack = 0;
         receivedSize = _socket->recv(&ack, sizeof(int));
         if (receivedSize <= 0 || ack != 1) {
             return;
         }
+
+        free(buffer);
     }
     catch (std::exception e) {
         std::cout << __func__ << ": " << e.what() << std::endl;

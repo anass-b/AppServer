@@ -87,6 +87,7 @@ struct Asp_Request
     int8_t field4;
     int8_t field5;
     uint64_t dataSize;
+    uint64_t compressedSize;
 };
 
 struct Asp_Event {
