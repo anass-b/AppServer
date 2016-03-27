@@ -396,8 +396,9 @@ std::shared_ptr<Event> Connector::waitEvent()
             return std::make_shared<KeyEvent>(req);
         }
         else if (req.type == AspEventTypeText) {
-            char *text = (char*)malloc(req.field5);
-            receivedSize = _eventsSocket->recv(text, req.field5);
+            char *text = (char*)malloc(req.field0);
+            receivedSize = _eventsSocket->recv(text, req.field0 - 1);
+            text[(int)(req.field0 - 1)] = 0;
             if (receivedSize == 0) {
                 exit(1);
             }
@@ -406,8 +407,10 @@ std::shared_ptr<Event> Connector::waitEvent()
             zmq::message_t ackResponse2(&ack, sizeof(int));
             _eventsSocket->send(ackResponse2);
             
-            std::shared_ptr<TextEvent> textEvent = std::make_shared<TextEvent>();
+            std::shared_ptr<TextEvent> textEvent = std::make_shared<TextEvent>(req);
             textEvent->setText(text);
+
+            return textEvent;
         }
     }
     catch (zmq::error_t e) {

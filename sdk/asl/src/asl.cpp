@@ -142,7 +142,8 @@ AslEvent aslWaitEvent()
     }
     else if (evt->getType() == AspEventTypeText) {
         std::shared_ptr<TextEvent> textEvent = std::dynamic_pointer_cast<TextEvent>(evt);
-        aslEvt.textEvent.text = (char*)textEvent->getText().c_str();
+        aslEvt.textEvent.text = new char[textEvent->getText().size() + 1];
+        strcpy(aslEvt.textEvent.text, textEvent->getText().c_str());
         aslEvt.textEvent.textSize = textEvent->getText().size();
     }
     

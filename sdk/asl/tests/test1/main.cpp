@@ -54,10 +54,18 @@ int main(int argc, char *argv[])
             std::cout << "Mouse Scroll (" << event.mouseEvent.scrollX << "," << event.mouseEvent.scrollY << ")" << std::endl;
         }
         else if (event.type == AslEventTypeText) {
-            printf("%s", event.textEvent.text);
+            printf("%s\n", event.textEvent.text);
         }
         else if (event.type == AslEventTypeKey) {
-            std::cout << "Key" << std::endl;
+            if (event.keyEvent.scancode == ASL_SCANCODE_RETURN) {
+                std::cout << "Return Key" << std::endl;
+            }
+            else if (event.keyEvent.scancode == ASL_SCANCODE_BACKSPACE) {
+                std::cout << "Backspace Key" << std::endl;
+            }
+            else {
+                std::cout << "Key" << std::endl;
+            }
         }
     }
 

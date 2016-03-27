@@ -194,6 +194,7 @@ private:
 class TextEvent : public Event
 {
 public:
+    TextEvent(const Asp_Event &evt) : Event(evt) {}
     TextEvent() : Event(AspEventTypeText) {}
     virtual ~TextEvent() {}
     const std::string& getText() const { return _text; }
@@ -204,12 +205,12 @@ public:
         Asp_Event evt;
         evt.winId = getWindowId();
         evt.type = getType();
-        evt.field0 = 0;
+        evt.field0 = getText().size() + 1;
         evt.field1 = 0;
         evt.field2 = 0;
         evt.field3 = 0;
         evt.field4 = 0;
-        evt.field5 = getText().size();
+        evt.field5 = 0;
         evt.timestamp = getTimestamp();
 
         return evt;

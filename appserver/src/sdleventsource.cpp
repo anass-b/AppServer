@@ -65,7 +65,7 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
                 evt->setButton(AspMouseButtonMiddle);
             }
             else {
-                evt->setButton(0);
+                evt->setButton(AspMouseButtonUndefined);
             }
             
             return evt;
@@ -96,7 +96,7 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
                 evt->setState(AspKeyStateReleased);
             }
             else {
-                evt->setState(0);
+                evt->setState(AspKeyStateUndefined);
             }
             
             return evt;
