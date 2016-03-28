@@ -32,7 +32,10 @@ void App::startRequestListener()
     _context = std::make_shared<zmq::context_t>(1);
 
     // Requests socket
+    int reqSocketTimeout = 1500;
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+    _socket->setsockopt(ZMQ_SNDTIMEO, reqSocketTimeout);
+    _socket->setsockopt(ZMQ_RCVTIMEO, reqSocketTimeout);
     std::stringstream socketAddress;
     socketAddress << "tcp://*:";
     int socketPort = AspReqListenerThreadPortValue + _id;
@@ -40,12 +43,13 @@ void App::startRequestListener()
     _socket->bind(socketAddress.str());
 
     // Event socket
+    int eventSocketTimeout = 1500;
     _eventSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _eventSocket->setsockopt(ZMQ_SNDTIMEO, eventSocketTimeout);
+    _eventSocket->setsockopt(ZMQ_RCVTIMEO, eventSocketTimeout);
     std::stringstream eventSocketAddress;
-    eventSocketAddress << "tcp://";
-    eventSocketAddress << Server::getSingleton()->getAppsHost();
-    eventSocketAddress << ":";
-    int eventSocketPort = 10000 + _id;
+    eventSocketAddress << "tcp://" << Server::getSingleton()->getAppsHost() << ":";
+    int eventSocketPort = AspEventSocketPortValue + _id;
     eventSocketAddress << eventSocketPort;
     _eventSocket->connect(eventSocketAddress.str());
 

@@ -62,7 +62,8 @@
 /*
  * Port values
  */
-#define AspReqListenerThreadPortValue 20000
+#define AspEventSocketPortValue         10000
+#define AspReqListenerThreadPortValue   20000
 
 typedef uint32_t TAppId;
 typedef pid_t TProcId;

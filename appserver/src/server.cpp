@@ -21,6 +21,9 @@ Server::Server()
 {
     _context = std::make_shared<zmq::context_t>(1);
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+    int serverSocketTimeout = 3000;
+    _socket->setsockopt(ZMQ_SNDTIMEO, serverSocketTimeout);
+    _socket->setsockopt(ZMQ_RCVTIMEO, serverSocketTimeout);
     _socket->bind("tcp://*:9000");
 }
 
@@ -30,7 +33,7 @@ void* Server::requestListener(void *ptr)
     std::shared_ptr<zmq::socket_t> socket = server->getSocket().lock();
     for (;;) {
         try {
-            Asp_Request req;        
+            Asp_Request req;
             size_t receivedSize = socket->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
                 if (req.type == AspRequestRegister) {
@@ -74,14 +77,14 @@ void Server::run()
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
         throw std::runtime_error(strerror(errno));
     }
-    
+
     _compositor = std::make_shared<SDLCompositor>();
     _inputSource = std::make_shared<SDLEventSource>();
     _windowManager = std::make_shared<WindowManager>();
-    
+
     while (true) {
         _compositor->compose();
-        
+
         std::shared_ptr<Event> evt = _inputSource->pollEvent();
         if (evt != nullptr) {
             uint8_t eventType = evt->getType();
@@ -92,7 +95,7 @@ void Server::run()
                 _windowManager->sendEvent(evt);
             }
         }
-        
+
         Server::avoidBusyWait(10 * NANO_SECOND_MULTIPLIER);
     }
 }
@@ -108,18 +111,6 @@ void Server::avoidBusyWait(const long int nsec)
 void Server::addApp(std::shared_ptr<App> app)
 {
     _apps.push_back(app);
-}
-
-void Server::removeAppById(TAppId id)
-{
-    for (auto iter = _apps.begin(); iter != _apps.end(); ++iter) {
-        std::shared_ptr<App> a = *iter;
-        if (a->getId() == id) {
-            _compositor->removeWindows(id);
-            _apps.erase(iter);
-            return;
-        }
-    }
 }
 
 TAppId Server::removeAppByPid(TProcId pid)

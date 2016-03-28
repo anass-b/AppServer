@@ -96,7 +96,7 @@ void Connector::subscribe()
     std::cout << "Connect to appserver's request socket' on " << reqSocketAddress.str() << std::endl;
 
     // Events socket
-    int port = 10000 + _clientId;
+    int port = AspEventSocketPortValue + _clientId;
     _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
     std::stringstream address;
 

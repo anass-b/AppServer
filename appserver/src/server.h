@@ -31,7 +31,6 @@ namespace appserver
         virtual ~Server();
         void run();
         void addApp(std::shared_ptr<App> app);
-        void removeAppById(TAppId id);
         TAppId removeAppByPid(TProcId pid);
         std::weak_ptr<App> findApp(TAppId id) const;
         std::weak_ptr<Compositor> getCompositor() const;
