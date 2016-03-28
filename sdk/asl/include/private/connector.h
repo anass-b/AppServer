@@ -28,7 +28,7 @@ namespace asl
         void subscribe();
         void unsubscribe();
         TWindowId createWindow(void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
-        void updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height);
+        void updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression);
         void resizeWindow(TWindowId windowId, void *data, uint64_t dataSize, double width, double height);
         void changeWindowVisiblity(TWindowId windowId, bool visible);
         void bringWindowToFront(TWindowId windowId);

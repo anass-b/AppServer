@@ -96,7 +96,7 @@ typedef struct
 void* aslCreateContext();
 void aslSubscribe(void *context);
 uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
-void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height);
+void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression);
 void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height);
 void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible);
 void aslBringWindowToFront(void *context, uint32_t windowId);

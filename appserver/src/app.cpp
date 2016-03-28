@@ -173,40 +173,31 @@ void App::updateWindow(Asp_Request req)
         
         sendAck(socket);
 
-        unsigned char *compressedData = (unsigned char*)malloc(req.compressedSize);
-        size_t receivedSize = socket->recv(compressedData, req.compressedSize);
+        bool compression = req.field4;
+        unsigned char* data = nullptr;
+
+        uint64_t receivedDataSize = compression ? req.compressedSize : req.dataSize;
+        unsigned char *receivedData = new unsigned char[receivedDataSize];
+        size_t receivedSize = socket->recv(receivedData, receivedDataSize);
         if (receivedSize <= 0) return;
 
-        // Decompress using LZO
-        unsigned char* buffer = (unsigned char*)malloc(req.dataSize);
-        lzo_uint ucompSize = req.dataSize;
-        int r = lzo1x_decompress(compressedData, req.compressedSize, buffer, &ucompSize, NULL);
-        if (r != LZO_E_OK) {
-            exit(1);
+        if (compression) {
+            // Decompress received data
+            data = new unsigned char[req.dataSize];
+            lzo_uint ucompSize = req.dataSize;
+            int r = lzo1x_decompress(receivedData, req.compressedSize, data, &ucompSize, NULL);
+            if (r != LZO_E_OK || ucompSize != req.dataSize) {
+                return;
+            }
+            delete[] receivedData;
         }
-        else if (ucompSize != req.dataSize) {
-            std::cout << "sizes dont match" << std::endl;
-            exit(1);
+        else {
+            data = receivedData;
         }
-
-        // Decompress using zlib
-        /*unsigned char* buffer = (unsigned char*)malloc(req.dataSize);
-        uLong ucompSize = req.dataSize;
-        int res = uncompress((Bytef *)buffer, &ucompSize, (Bytef *)compressedData, req.compressedSize);
-        if (res != Z_OK) {
-            std::cout << "error" << std::endl;
-            exit(1);
-        }
-        else if (ucompSize != req.dataSize) {
-            std::cout << "sizes dont match" << std::endl;
-            exit(1);
-        }*/
-
-        free(compressedData);
         
         sendAck(socket);
         
-        window->updatePixels(buffer, ucompSize, makeRect(req.field0, req.field1, req.field2, req.field3));
+        window->updatePixels(data, req.dataSize, makeRect(req.field0, req.field1, req.field2, req.field3));
     } catch (std::exception e) {
         this->printException(e);
     }

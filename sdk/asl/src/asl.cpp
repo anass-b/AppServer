@@ -37,10 +37,10 @@ uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x,
 }
 
 EXPORT
-void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height)
+void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
 {
     Connector* connector = (Connector*)context;
-    connector->updateWindow(windowId, data, dataSize, x, y, width, height);
+    connector->updateWindow(windowId, data, dataSize, x, y, width, height, compression);
 }
 
 EXPORT

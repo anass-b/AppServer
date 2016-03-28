@@ -168,25 +168,21 @@ TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, doubl
  * field3   : Width
  * field4   : Height
  */
-void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height)
+void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
 {
     try {
-        //uLong compSize = compressBound(dataSize);
-        // zlib compression
-        //unsigned char* buffer = (unsigned char*)malloc(compSize);
-        //compress2((Bytef *)buffer, &compSize, (Bytef *)data, dataSize, Z_BEST_SPEED);
-
-        // LZO compression
-        unsigned char* buffer = (unsigned char*)malloc(dataSize);
-        lzo_uint compSize;
-        void* wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
-        int r = lzo1x_1_compress((unsigned char*)data, dataSize, buffer, &compSize, wrkmem);
-        if (r != LZO_E_OK || compSize >= dataSize) {
-            return;
+        unsigned char* compressedData = nullptr;
+        void* wrkmem = nullptr;
+        lzo_uint compressedSize = 0;
+        if (compression) {
+            // Compress data
+            compressedData = new unsigned char[dataSize];
+            wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
+            int r = lzo1x_1_compress((unsigned char*)data, dataSize, compressedData, &compressedSize, wrkmem);
+            if (r != LZO_E_OK || compressedSize >= dataSize) {
+                return;
+            }
         }
-
-        //std::cout << "Original size: " << dataSize << std::endl;
-        //std::cout << "Compressed size: " << compSize << std::endl;
 
         Asp_Request req;
         req.type = AspRequestUpdateWindowSurface;
@@ -195,9 +191,10 @@ void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, 
         req.field0 = x;
         req.field1 = y;
         req.field2 = width;
-        req.field3 = height;        
+        req.field3 = height;
+        req.field4 = compression;
         req.dataSize = dataSize;
-        req.compressedSize = compSize;
+        req.compressedSize = compression ? compressedSize : 0;
         
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
@@ -206,12 +203,21 @@ void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, 
         recvAck(_socket);
         
         // Send raster data
-        zmq::message_t dataRequest(buffer, (size_t)compSize);
-        _socket->send(dataRequest);                
+        if (compression) {
+            zmq::message_t dataRequest(compressedData, (size_t)compressedSize);
+            _socket->send(dataRequest);
+        }
+        else {
+            zmq::message_t dataRequest(data, (size_t)dataSize);
+            _socket->send(dataRequest);
+        }
 
         recvAck(_socket);
 
-        free(buffer);
+        if (compression) {
+            delete[] compressedData;
+            free(wrkmem);
+        }
     }
     catch (std::exception e) {
         this->printException(e);
