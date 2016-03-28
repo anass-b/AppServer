@@ -72,7 +72,6 @@ typedef uint32_t TWindowZ;
 struct Asp_SubscribeRequest
 {
     TProcId pid;
-    TAppId clientId;
 };
 
 struct Asp_Request

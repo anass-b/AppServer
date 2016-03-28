@@ -31,14 +31,6 @@ using namespace asl;
 Connector::Connector()
 {  
     _context = std::make_shared<zmq::context_t>(1);
-    
-    // Registration socket
-    _regSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _regSocket->connect("tcp://localhost:9000");
-
-    // Process Monitor socket
-    _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-    _processMonitorSocket->connect("tcp://localhost:9001");
 
     if (lzo_init() != LZO_E_OK) {
         exit(1);
@@ -53,45 +45,63 @@ void Connector::subscribe()
 {
     TProcId pid = getpid();
 
+    // Connect to process monitor's socket
+    _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    _processMonitorSocket->connect("tcp://localhost:9001");
+
+    // Send pid to process monitor
+    Asp_SubscribeRequest req;
+    req.pid = pid;
+    zmq::message_t processMonitorRequest(&req, sizeof(Asp_SubscribeRequest));
+    _processMonitorSocket->send(processMonitorRequest);
+
+    // Receive appserver address size from process monitor
+    size_t addrSize;
+    _processMonitorSocket->recv(&addrSize, sizeof(size_t));
+    if (addrSize <= 0 && addrSize > 15) exit(1);
+
+    sendAck(_processMonitorSocket);
+
+    // Receive the actual appserver addrss from process monitor (IPv4 or localhost)
+    char* addr = new char[addrSize + 1];
+    _processMonitorSocket->recv(addr, addrSize);
+    addr[addrSize] = 0;
+
+    _appServerAddr = addr;
+
+    // Connect to appserver's registration socket
+    _regSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    std::stringstream regSocketAddr;
+    regSocketAddr << "tcp://" << _appServerAddr << ":9000";
+    _regSocket->connect(regSocketAddr.str());
+
     // Subscribe to appserver
     Asp_Request subscribeRequest;
     subscribeRequest.type = AspRequestRegister;
     subscribeRequest.field0 = pid;
     zmq::message_t request(&subscribeRequest, sizeof(subscribeRequest));
     _regSocket->send(request);
-
     Asp_Event evt;
     size_t receivedSize = _regSocket->recv(&evt, sizeof(evt));
-    if (receivedSize > 0) {
-        _clientId = evt.field0;
+    if (receivedSize <= 0) exit(1);
+    _clientId = evt.field0;
 
-        // Notify the process monitor
-        Asp_SubscribeRequest req;
-        req.pid = pid;
-        req.clientId = _clientId;
-        zmq::message_t processMonitorRequest(&req, sizeof(req));
-        _processMonitorSocket->send(processMonitorRequest);
-        recvAck(_processMonitorSocket);
+    // Connect to appserver's request socket
+    _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
+    std::stringstream reqSocketAddress;
+    reqSocketAddress << "tcp://" << _appServerAddr << ":";
+    int reqSocketPort = AspReqListenerThreadPortValue + _clientId;
+    reqSocketAddress << reqSocketPort;
+    _socket->connect(reqSocketAddress.str());
+    std::cout << "Connect to appserver's request socket' on " << reqSocketAddress.str() << std::endl;
 
-        // Request socket
-        _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
-        std::stringstream reqSocketAddress;
-        reqSocketAddress << "tcp://localhost:";
-        int reqSocketPort = AspReqListenerThreadPortValue + _clientId;
-        reqSocketAddress << reqSocketPort;
-        _socket->connect(reqSocketAddress.str());
+    // Events socket
+    int port = 10000 + _clientId;
+    _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
+    std::stringstream address;
 
-        // Events socket
-        int port = 10000 + _clientId;
-        _eventsSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
-        std::stringstream address;
-        address << "tcp://*:";
-        address << port;
-        _eventsSocket->bind(address.str());
-    }
-    else {
-        exit(1);
-    }
+    address << "tcp://*:" << port;
+    _eventsSocket->bind(address.str());
 }
 
 /*

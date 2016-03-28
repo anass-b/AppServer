@@ -47,6 +47,7 @@ namespace asl
         std::shared_ptr<zmq::socket_t> _socket;
         std::shared_ptr<zmq::socket_t> _processMonitorSocket;
         std::shared_ptr<zmq::socket_t> _eventsSocket;
+        std::string _appServerAddr;
     };
 }
 

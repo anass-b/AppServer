@@ -33,8 +33,6 @@ void* Server::requestListener(void *ptr)
             Asp_Request req;        
             size_t receivedSize = socket->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
-                std::shared_ptr<zmq::socket_t> socket = Server::getSingleton()->getSocket().lock();
-
                 if (req.type == AspRequestRegister) {
                     std::shared_ptr<App> app = nullptr;
                     app = std::make_shared<App>(req.field0);
@@ -49,12 +47,10 @@ void* Server::requestListener(void *ptr)
                     server->addApp(app);
                 }
                 else if (req.type == AspRequestUnregister) {
-                    server->removeAppByPid(req.field0);
+                    TAppId appId = server->removeAppByPid(req.field0);
 
-                    // ACK
-                    int ack = 1;
-                    zmq::message_t ackResponse(&ack, sizeof(int));
-                    socket->send(ackResponse);
+                    zmq::message_t appIdMsg(&appId, sizeof(TAppId));
+                    socket->send(appIdMsg);
 
                     std::cout << "Removed app with pid " << req.field0 << std::endl;
                 }
@@ -126,16 +122,18 @@ void Server::removeAppById(TAppId id)
     }
 }
 
-void Server::removeAppByPid(TProcId pid)
+TAppId Server::removeAppByPid(TProcId pid)
 {
     for (auto iter = _apps.begin(); iter != _apps.end(); ++iter) {
         std::shared_ptr<App> a = *iter;
         if (a->getPid() == pid) {
-            _compositor->removeWindows(a->getId());
+            TAppId id = a->getId();
+            _compositor->removeWindows(id);
             _apps.erase(iter);
-            return;
+            return id;
         }
     }
+    return 0;
 }
 
 std::weak_ptr<App> Server::findApp(TAppId id) const
