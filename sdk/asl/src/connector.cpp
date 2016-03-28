@@ -11,6 +11,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <zlib.h>
+#include <minilzo/minilzo.h>
 
 #define OS_X 1
 #define EXPORT __attribute__((visibility("default")))
@@ -38,6 +39,10 @@ Connector::Connector()
     // Process Monitor socket
     _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
     _processMonitorSocket->connect("tcp://localhost:9001");
+
+    if (lzo_init() != LZO_E_OK) {
+        std::cout << "LZO initialization failed" << std::endl;
+    }
 }
 
 /*
@@ -195,10 +200,21 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
 void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height)
 {
     try {
-        uLong compSize = compressBound(dataSize);
-        // Deflate
-        unsigned char* buffer = (unsigned char*)malloc(compSize);
-        compress2((Bytef *)buffer, &compSize, (Bytef *)data, dataSize, Z_BEST_SPEED);
+        //uLong compSize = compressBound(dataSize);
+        // zlib compression
+        //unsigned char* buffer = (unsigned char*)malloc(compSize);
+        //compress2((Bytef *)buffer, &compSize, (Bytef *)data, dataSize, Z_BEST_SPEED);
+
+        // LZO compression
+        unsigned char* buffer = (unsigned char*)malloc(dataSize);
+        lzo_uint compSize;
+        void* wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
+        int r = lzo1x_1_compress(data, dataSize, buffer, &compSize, wrkmem);
+        if (r != LZO_E_OK || compSize >= dataSize) {
+            std::cout << "LZO compression failed" << std::endl;
+            return;
+        }
+
         //std::cout << "Original size: " << dataSize << std::endl;
         //std::cout << "Compressed size: " << compSize << std::endl;
 

@@ -1,4 +1,3 @@
-cmake_minimum_required (VERSION 3.2.2)
 project (appserver)
 
 # add SDL library
@@ -35,7 +34,7 @@ if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS pthread rt)
 endif()
 
-target_link_libraries (appserver zmq z ${EXTRA_LIBS} ${SDL2_LIBRARY})
+target_link_libraries (appserver zmq z minilzo ${EXTRA_LIBS} ${SDL2_LIBRARY})
 set_property(TARGET appserver PROPERTY CXX_STANDARD 11)
 
 

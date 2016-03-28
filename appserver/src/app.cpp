@@ -17,6 +17,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <zlib.h>
+#include <minilzo/minilzo.h>
 
 using namespace appserver;
 
@@ -203,8 +204,20 @@ void App::updateWindow(Asp_Request req)
         size_t receivedSize = socket->recv(compressedData, req.compressedSize);
         if (receivedSize <= 0) return;
 
-        // Inflate
+        // Decompress using LZO
         unsigned char* buffer = (unsigned char*)malloc(req.dataSize);
+        lzo_uint ucompSize = req.dataSize;
+        int r = lzo1x_decompress(compressedData, req.compressedSize, buffer, &ucompSize, NULL);
+        if (r != LZO_E_OK) {
+            exit(1);
+        }
+        else if (ucompSize != req.dataSize) {
+            std::cout << "sizes dont match" << std::endl;
+            exit(1);
+        }
+
+        // Decompress using zlib
+        /*unsigned char* buffer = (unsigned char*)malloc(req.dataSize);
         uLong ucompSize = req.dataSize;
         int res = uncompress((Bytef *)buffer, &ucompSize, (Bytef *)compressedData, req.compressedSize);
         if (res != Z_OK) {
@@ -214,7 +227,8 @@ void App::updateWindow(Asp_Request req)
         else if (ucompSize != req.dataSize) {
             std::cout << "sizes dont match" << std::endl;
             exit(1);
-        }
+        }*/
+
         free(compressedData);
         
         // ACK

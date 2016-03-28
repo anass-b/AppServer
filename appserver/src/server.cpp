@@ -11,6 +11,7 @@
 #include <server.h>
 #include <sdlcompositor.h>
 #include <sdleventsource.h>
+#include <minilzo/minilzo.h>
 
 using namespace appserver;
 
@@ -68,6 +69,12 @@ void* Server::requestListener(void *ptr)
 
 void Server::run()
 {
+    if (lzo_init() != LZO_E_OK)
+    {
+        printf("internal error - lzo_init() failed !!!\n");
+        printf("(this usually indicates a compiler bug - try recompiling\nwithout optimizations, and enable '-DLZO_DEBUG' for diagnostics)\n");
+    }
+
     if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
         throw std::runtime_error(strerror(errno));
     }

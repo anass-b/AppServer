@@ -10,10 +10,8 @@ link_directories ("/usr/local/lib")
 include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 include_directories ("${PROJECT_SOURCE_DIR}/vendor")
 
+add_subdirectory (vendor/minilzo)
 add_subdirectory (sdk)
 add_subdirectory (processmonitor)
 add_subdirectory (appserver)
-
-
-
 

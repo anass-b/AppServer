@@ -17,7 +17,7 @@ add_library (asl SHARED ${SOURCES} ${HEADERS})
 if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS rt)
 endif()
-target_link_libraries (asl zmq z ${EXTRA_LIBS})
+target_link_libraries (asl zmq z minilzo ${EXTRA_LIBS})
 
 set_property(TARGET asl PROPERTY CXX_STANDARD 11)
 
