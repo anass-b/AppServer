@@ -106,7 +106,7 @@ void Connector::subscribe()
  * return: ID of the created window
  */
 
-TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType)
+TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
 {
     try {
         Asp_Request createWindowReq;
@@ -168,7 +168,7 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
  * field3   : Width
  * field4   : Height
  */
-void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height)
+void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height)
 {
     try {
         //uLong compSize = compressBound(dataSize);
@@ -180,7 +180,7 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         unsigned char* buffer = (unsigned char*)malloc(dataSize);
         lzo_uint compSize;
         void* wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
-        int r = lzo1x_1_compress(data, dataSize, buffer, &compSize, wrkmem);
+        int r = lzo1x_1_compress((unsigned char*)data, dataSize, buffer, &compSize, wrkmem);
         if (r != LZO_E_OK || compSize >= dataSize) {
             return;
         }
@@ -191,7 +191,7 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         Asp_Request req;
         req.type = AspRequestUpdateWindowSurface;
         req.clientId = _clientId;
-        req.winId = id;
+        req.winId = windowId;
         req.field0 = x;
         req.field1 = y;
         req.field2 = width;
@@ -224,13 +224,13 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
  * field1   : Width
  * field2   : Height
  */
-void Connector::resizeWindow(TWindowId id, unsigned char *data, unsigned long dataSize, double width, double height)
+void Connector::resizeWindow(TWindowId windowId, void *data, uint64_t dataSize, double width, double height)
 {
     try {
         Asp_Request req;
         req.type = AspRequestResizeWindow;
         req.clientId = _clientId;
-        req.winId = id;
+        req.winId = windowId;
         req.field0 = width;
         req.field1 = height;
         req.dataSize = dataSize;

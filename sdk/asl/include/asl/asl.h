@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#ifndef appserverlib_appserver_h
-#define appserverlib_appserver_h
+#ifndef ASL_H
+#define ASL_H
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -93,16 +93,16 @@ typedef struct
     AslMouseEvent mouseEvent;
 } AslEvent;
 
-void aslInit();
-void aslSubscribe();
-long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType);
-void aslUpdateWindowSurface(long windowId, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height);
-void aslResizeWindow(long windowId, unsigned char *data, unsigned long dataSize, double width, double height);
-void aslChangeWindowVisibility(long windowId, bool visible);
-void aslBringWindowToFront(long windowId);
-void aslMoveWindow(long windowId, double x, double y);
-void aslDestroyWindow(long windowId);
-AslEvent aslWaitEvent();
+void* aslCreateContext();
+void aslSubscribe(void *context);
+uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
+void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height);
+void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height);
+void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible);
+void aslBringWindowToFront(void *context, uint32_t windowId);
+void aslMoveWindow(void *context, uint32_t windowId, double x, double y);
+void aslDestroyWindow(void *context, uint32_t windowId);
+AslEvent aslWaitEvent(void *context);
 
 }
 

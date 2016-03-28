@@ -13,65 +13,76 @@
 
 using namespace asl;
 
-std::shared_ptr<Connector> gConnector = nullptr;
+
 
 EXPORT
-void aslInit()
+void* aslCreateContext()
 {
-    gConnector = std::make_shared<Connector>();
+    Connector* connector = new Connector();
+    return connector;
 }
 
 EXPORT
-void aslSubscribe()
+void aslSubscribe(void *context)
 {
-    gConnector->subscribe();
+    Connector* connector = (Connector*)context;
+    connector->subscribe();
 }
 
 EXPORT
-long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType)
+uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
 {
-    return gConnector->newWindow(data, dataSize, x, y, width, height, rasterType);
+    Connector* connector = (Connector*)context;
+    return connector->createWindow(data, dataSize, x, y, width, height, rasterType);
 }
 
 EXPORT
-void aslUpdateWindowSurface(long windowId, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height)
+void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height)
 {
-    gConnector->updateWindowSurface(windowId, data, dataSize, x, y, width, height);
+    Connector* connector = (Connector*)context;
+    connector->updateWindow(windowId, data, dataSize, x, y, width, height);
 }
 
 EXPORT
-void aslResizeWindow(long windowId, unsigned char *data, unsigned long dataSize, double width, double height)
+void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height)
 {
-    gConnector->resizeWindow(windowId, data, dataSize, width, height);
+    Connector* connector = (Connector*)context;
+    connector->resizeWindow(windowId, data, dataSize, width, height);
 }
 
 EXPORT
-void aslChangeWindowVisibility(long windowId, bool visible)
+void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible)
 {
-    gConnector->changeWindowVisiblity(windowId, visible);
+    Connector* connector = (Connector*)context;
+    connector->changeWindowVisiblity(windowId, visible);
 }
 
 EXPORT
-void aslBringWindowToFront(long windowId)
+void aslBringWindowToFront(void *context, uint32_t windowId)
 {
-    gConnector->bringWindowToFront(windowId);
+    Connector* connector = (Connector*)context;
+    connector->bringWindowToFront(windowId);
 }
 
 EXPORT
-void aslMoveWindow(long windowId, double x, double y)
+void aslMoveWindow(void *context, uint32_t windowId, double x, double y)
 {
-    gConnector->moveWindow(windowId, x, y);
+    Connector* connector = (Connector*)context;
+    connector->moveWindow(windowId, x, y);
 }
 
 EXPORT
-void aslDestroyWindow(long windowId)
+void aslDestroyWindow(void *context, uint32_t windowId)
 {
-    gConnector->destroyWindow(windowId);
+    Connector* connector = (Connector*)context;
+    connector->destroyWindow(windowId);
 }
 
 EXPORT
-AslEvent aslWaitEvent()
+AslEvent aslWaitEvent(void *context)
 {
+    Connector* connector = (Connector*)context;
+
     AslEvent aslEvt;
     
     // reset AslEvent
@@ -103,7 +114,7 @@ AslEvent aslWaitEvent()
     aslEvt.textEvent.text = nullptr;
     aslEvt.textEvent.textSize = 0;
     
-    std::shared_ptr<Event> evt = gConnector->waitEvent();
+    std::shared_ptr<Event> evt = connector->waitEvent();
 
     aslEvt.type = evt->getType();
 

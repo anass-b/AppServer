@@ -27,12 +27,12 @@ namespace asl
         virtual ~Connector();
         void subscribe();
         void unsubscribe();
-        TWindowId newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType);
-        void updateWindowSurface(TWindowId id, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height);
-        void resizeWindow(TWindowId id, unsigned char *data, unsigned long dataSize, double width, double height);
-        void changeWindowVisiblity(TWindowId id, bool visible);
-        void bringWindowToFront(TWindowId id);
-        void moveWindow(TWindowId id, double x, double y);
+        TWindowId createWindow(void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
+        void updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height);
+        void resizeWindow(TWindowId windowId, void *data, uint64_t dataSize, double width, double height);
+        void changeWindowVisiblity(TWindowId windowId, bool visible);
+        void bringWindowToFront(TWindowId windowId);
+        void moveWindow(TWindowId windowId, double x, double y);
         void destroyWindow(TWindowId id);
         std::shared_ptr<Event> waitEvent();
     private:
