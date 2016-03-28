@@ -85,7 +85,6 @@ struct Asp_Request
     double field2;
     double field3;
     int8_t field4;
-    int8_t field5;
     uint64_t dataSize;
     uint64_t compressedSize;
 };

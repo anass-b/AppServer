@@ -58,10 +58,6 @@ namespace appserver
     protected:
         static int compareZAsc(const void* a, const void* b);
         static int compareZDsc(const void* a, const void* b);
-    public:
-        constexpr static const double kMaxWidth = 10000.0f;
-        constexpr static const double kMaxHeight = 10000.0f;
-        constexpr static const unsigned long int kMaxDataSize = 52428800; // 50 Mb
     private:
         std::weak_ptr<App> _app;
         TWindowId _id;

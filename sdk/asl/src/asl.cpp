@@ -28,9 +28,9 @@ void aslSubscribe()
 }
 
 EXPORT
-long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType, bool visible)
+long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType)
 {
-    return gConnector->newWindow(data, dataSize, x, y, width, height, rasterType, visible);
+    return gConnector->newWindow(data, dataSize, x, y, width, height, rasterType);
 }
 
 EXPORT

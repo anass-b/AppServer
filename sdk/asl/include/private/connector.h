@@ -27,14 +27,18 @@ namespace asl
         virtual ~Connector();
         void subscribe();
         void unsubscribe();
-        TWindowId newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType, bool visible);
+        TWindowId newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType);
         void updateWindowSurface(TWindowId id, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height);
         void resizeWindow(TWindowId id, unsigned char *data, unsigned long dataSize, double width, double height);
         void changeWindowVisiblity(TWindowId id, bool visible);
         void bringWindowToFront(TWindowId id);
         void moveWindow(TWindowId id, double x, double y);
         void destroyWindow(TWindowId id);
-        std::shared_ptr<Event> waitEvent();        
+        std::shared_ptr<Event> waitEvent();
+    private:
+        bool sendAck(std::shared_ptr<zmq::socket_t> socket);
+        bool recvAck(std::shared_ptr<zmq::socket_t> socket);
+        void printException(const std::exception &e) const;
     private:
         TAppId _clientId;
         std::vector<TWindowId> _windowIds;

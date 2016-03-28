@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, cairo_image_surface_get_width(surface));
     unsigned long dataSize = stride * cairo_image_surface_get_height(surface);
 
-    unsigned long windowId = aslNewWindow(data, dataSize, 100, 100, 800, 600, AslWindowRasterARGB, true);
+    unsigned long windowId = aslNewWindow(data, dataSize, 100, 100, 800, 600, AslWindowRasterARGB);
 
     AslEvent event;
     while (true) {        

@@ -95,7 +95,7 @@ typedef struct
 
 void aslInit();
 void aslSubscribe();
-long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType, bool visible);
+long aslNewWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType);
 void aslUpdateWindowSurface(long windowId, unsigned char *data, unsigned long dataSize, double x, double y, double width, double height);
 void aslResizeWindow(long windowId, unsigned char *data, unsigned long dataSize, double width, double height);
 void aslChangeWindowVisibility(long windowId, bool visible);

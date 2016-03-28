@@ -52,6 +52,9 @@ namespace appserver
     private:
         static void* requestListener(void* arg);
         void processMessage(Asp_Request msg);
+        void printException(const std::exception &e) const;
+        bool sendAck(std::shared_ptr<zmq::socket_t> socket);
+        bool recvAck(std::shared_ptr<zmq::socket_t> socket);
     private:
         TAppId _id;
         TProcId _pid;

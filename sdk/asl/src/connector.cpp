@@ -41,7 +41,7 @@ Connector::Connector()
     _processMonitorSocket->connect("tcp://localhost:9001");
 
     if (lzo_init() != LZO_E_OK) {
-        std::cout << "LZO initialization failed" << std::endl;
+        exit(1);
     }
 }
 
@@ -64,7 +64,6 @@ void Connector::subscribe()
     size_t receivedSize = _regSocket->recv(&evt, sizeof(evt));
     if (receivedSize > 0) {
         _clientId = evt.field0;
-        std::cout << "Received client ID: " << _clientId << std::endl;
 
         // Notify the process monitor
         Asp_SubscribeRequest req;
@@ -72,15 +71,7 @@ void Connector::subscribe()
         req.clientId = _clientId;
         zmq::message_t processMonitorRequest(&req, sizeof(req));
         _processMonitorSocket->send(processMonitorRequest);
-
-        // ACK
-        int ack = 0;
-        receivedSize = _processMonitorSocket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            exit(1);
-        }
-
-        std::cout << "Notified process manager" << std::endl;
+        recvAck(_processMonitorSocket);
 
         // Request socket
         _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
@@ -89,7 +80,6 @@ void Connector::subscribe()
         int reqSocketPort = AspReqListenerThreadPortValue + _clientId;
         reqSocketAddress << reqSocketPort;
         _socket->connect(reqSocketAddress.str());
-        std::cout << "Connected to request socket in port " << reqSocketPort << std::endl;
 
         // Events socket
         int port = 10000 + _clientId;
@@ -98,7 +88,6 @@ void Connector::subscribe()
         address << "tcp://*:";
         address << port;
         _eventsSocket->bind(address.str());
-        std::cout << "Events socket server started in port " << port << std::endl;
     }
     else {
         exit(1);
@@ -117,7 +106,7 @@ void Connector::subscribe()
  * return: ID of the created window
  */
 
-TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType, bool visible)
+TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, double x, double y, double width, double height, int rasterType)
 {
     try {
         Asp_Request createWindowReq;
@@ -127,28 +116,19 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
         createWindowReq.field1 = y;
         createWindowReq.field2 = width;
         createWindowReq.field3 = height;
-        createWindowReq.field4 = (bool)visible;
-        createWindowReq.field5 = (int)rasterType;
+        createWindowReq.field4 = (int)rasterType;
         createWindowReq.dataSize = dataSize;
         
         // Send request
         zmq::message_t request(&createWindowReq, sizeof(Asp_Request));
         _socket->send(request);
         
-        // ACK
-        int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            return -1;
-        }
-        std::cout << "newWindow: got ACK for newWindow" << std::endl;
+        recvAck(_socket);
         
         // Send raster data
         const void* castedData = (const void*)data;
         zmq::message_t dataRequest(castedData, (size_t)dataSize);
         _socket->send(dataRequest);
-        
-        std::cout << "newWindow: data sent" << std::endl;
         
         Asp_Event evt;
         evt.winId = 0;
@@ -167,23 +147,14 @@ TWindowId Connector::newWindow(unsigned char *data, unsigned long dataSize, doub
                     break;
                 }
             }
-            
-            if (foundExistingId) {
-                std::cout << __func__ << ": " << "Got the same window_id like previous time. Iterating again..." << std::endl;
-            }
-            else if (evt.winId == 0) {
-                std::cout << __func__ << ": " << "Window_id equals 0. Iterating again..." << std::endl;
-            }
         } while (foundExistingId || evt.winId == 0);
         
-        std::cout << "got window ID: " << evt.winId << std::endl;
         _windowIds.push_back(evt.winId);
         
         return evt.winId;
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
-        return -1;
+        this->printException(e);
     }
     return -1;
 }
@@ -211,7 +182,6 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         void* wrkmem = malloc(LZO1X_1_MEM_COMPRESS);
         int r = lzo1x_1_compress(data, dataSize, buffer, &compSize, wrkmem);
         if (r != LZO_E_OK || compSize >= dataSize) {
-            std::cout << "LZO compression failed" << std::endl;
             return;
         }
 
@@ -233,28 +203,18 @@ void Connector::updateWindowSurface(TWindowId id, unsigned char *data, unsigned 
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
         
-        // ACK
-        int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            return;
-        }
+        recvAck(_socket);
         
         // Send raster data
         zmq::message_t dataRequest(buffer, (size_t)compSize);
         _socket->send(dataRequest);                
 
-        // ACK
-        ack = 0;
-        receivedSize = _socket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            return;
-        }
+        recvAck(_socket);
 
         free(buffer);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -279,27 +239,17 @@ void Connector::resizeWindow(TWindowId id, unsigned char *data, unsigned long da
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
         
-        // ACK
-        int ack = 0;
-        size_t receivedSize = _socket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            return;
-        }
+        recvAck(_socket);
         
         // Send raster data
         const void* castedData = (const void*)data;
         zmq::message_t dataRequest(castedData, (size_t)dataSize);
         _socket->send(dataRequest);
         
-        // ACK
-        ack = 0;
-        receivedSize = _socket->recv(&ack, sizeof(int));
-        if (receivedSize <= 0 || ack != 1) {
-            return;
-        }
+        recvAck(_socket);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -322,7 +272,7 @@ void Connector::changeWindowVisiblity(TWindowId id, bool visible)
         _socket->send(request);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -342,7 +292,7 @@ void Connector::bringWindowToFront(TWindowId id)
         _socket->send(request);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -367,7 +317,7 @@ void Connector::moveWindow(TWindowId id, double x, double y)
         _socket->send(request);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -387,7 +337,7 @@ void Connector::destroyWindow(TWindowId id)
         _socket->send(request);
     }
     catch (std::exception e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
 }
 
@@ -405,9 +355,7 @@ std::shared_ptr<Event> Connector::waitEvent()
             exit(1);
         }
         
-        int ack = 1;
-        zmq::message_t ackResponse(&ack, sizeof(int));
-        _eventsSocket->send(ackResponse);
+        sendAck(_eventsSocket);
         
         if (req.type == AspEventTypeMouseMove) {
             return std::make_shared<MouseMoveEvent>(req);
@@ -429,9 +377,7 @@ std::shared_ptr<Event> Connector::waitEvent()
                 exit(1);
             }
             
-            ack = 1;
-            zmq::message_t ackResponse2(&ack, sizeof(int));
-            _eventsSocket->send(ackResponse2);
+            sendAck(_eventsSocket);
             
             std::shared_ptr<TextEvent> textEvent = std::make_shared<TextEvent>(req);
             textEvent->setText(text);
@@ -440,7 +386,7 @@ std::shared_ptr<Event> Connector::waitEvent()
         }
     }
     catch (zmq::error_t e) {
-        std::cout << __func__ << ": " << e.what() << std::endl;
+        this->printException(e);
     }
     
     return nullptr;
@@ -449,6 +395,28 @@ std::shared_ptr<Event> Connector::waitEvent()
 void Connector::unsubscribe()
 {    
     _socket->close();
+}
+
+bool Connector::sendAck(std::shared_ptr<zmq::socket_t> socket)
+{
+    int ack = 1;
+    zmq::message_t msg(&ack, sizeof(uint8_t));
+    return socket->send(msg);
+}
+
+bool Connector::recvAck(std::shared_ptr<zmq::socket_t> socket)
+{
+    int ack = 0;
+    size_t receivedSize = socket->recv(&ack, sizeof(uint8_t));
+    if (receivedSize <= 0 || ack != 1) {
+        return false;
+    }
+    return true;
+}
+
+void Connector::printException(const std::exception &e) const
+{
+    std::cout << e.what() << std::endl;
 }
 
 Connector::~Connector()
