@@ -415,14 +415,14 @@ void Connector::unsubscribe()
 
 bool Connector::sendAck(std::shared_ptr<zmq::socket_t> socket)
 {
-    int ack = 1;
+    uint8_t ack = 1;
     zmq::message_t msg(&ack, sizeof(uint8_t));
     return socket->send(msg);
 }
 
 bool Connector::recvAck(std::shared_ptr<zmq::socket_t> socket)
 {
-    int ack = 0;
+    uint8_t ack = 0;
     size_t receivedSize = socket->recv(&ack, sizeof(uint8_t));
     if (receivedSize <= 0 || ack != 1) {
         return false;
