@@ -30,7 +30,7 @@ using namespace asl;
  */
 Connector::Connector()
 {  
-    _context = std::make_shared<zmq::context_t>(1);
+    _context = std::make_shared<zmq::context_t>();
 
     if (lzo_init() != LZO_E_OK) {
         exit(1);

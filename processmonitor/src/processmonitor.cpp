@@ -55,7 +55,7 @@ bool recvAck(std::shared_ptr<zmq::socket_t> socket)
 
 void* processMonitor(void *ptr)
 {
-    std::shared_ptr<zmq::context_t> context = std::make_shared<zmq::context_t>(1);
+    std::shared_ptr<zmq::context_t> context = std::make_shared<zmq::context_t>();
     std::shared_ptr<zmq::socket_t> appServerSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
     std::stringstream appServerAddr;
     appServerAddr << "tcp://" << gAppServerAddress << ":9000";
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 {
     gAppServerAddress = argc > 1 ? argv[1] : "localhost";
 
-    std::shared_ptr<zmq::context_t> context = std::make_shared<zmq::context_t>(1);
+    std::shared_ptr<zmq::context_t> context = std::make_shared<zmq::context_t>();
     std::shared_ptr<zmq::socket_t> socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REP);
     socket->bind("tcp://*:9001");
 

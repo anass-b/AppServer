@@ -29,7 +29,7 @@ App::App(TProcId pid) : _id(++_counter), _pid(pid), _busy(false)
 
 void App::startRequestListener()
 {
-    _context = std::make_shared<zmq::context_t>(1);
+    _context = std::make_shared<zmq::context_t>();
 
     // Requests socket
     int reqSocketTimeout = 1500;
