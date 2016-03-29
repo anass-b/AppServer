@@ -18,9 +18,9 @@ SDLWindow::SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, in
     _glTexOperation(kSDLTexOpNone),
     _cachedFrame(frame),
     _pixels(nullptr),
-    _glOpBlocked(false),
-    _dataOpBlocked(false),
-    _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0))    
+    _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0)),
+    _texture(nullptr),
+    _renderer(nullptr)
 {
 }
 
@@ -31,24 +31,16 @@ void SDLWindow::move(Point location)
 
 void SDLWindow::create(void *pixels, size_t bytes)
 {
-    while (_dataOpBlocked);
-    _glOpBlocked = true;
-    
     if (_pixels != nullptr) {
         free(_pixels);
         _pixels = nullptr;
     }
     _pixels = pixels;
     _glTexOperation = kSDLTexOpCreate;
-    
-    _glOpBlocked = false;
 }
 
 void SDLWindow::resize(void *pixels, size_t bytes)
 {
-    while (_dataOpBlocked);
-    _glOpBlocked = true;
-    
     if (_pixels != nullptr) {
         free(_pixels);
         _pixels = nullptr;
@@ -56,15 +48,10 @@ void SDLWindow::resize(void *pixels, size_t bytes)
     _cachedFrame = getFrame();
     _pixels = pixels;
     _glTexOperation = kSDLTexOpResize;
-    
-    _glOpBlocked = false;
 }
 
 void SDLWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
-{
-    while (_dataOpBlocked);
-    _glOpBlocked = true;
-    
+{    
     if (_pixels != nullptr) {
         free(_pixels);
         _pixels = nullptr;
@@ -72,17 +59,11 @@ void SDLWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
     _pixels = pixels;
     _dirtyRect = dirtyRect;
     _glTexOperation = kSDLTexOpUpdatePixels;
-    
-    _glOpBlocked = false;
 }
 
 
 void SDLWindow::performOperationsAndDraw()
-{
-    
-    while (_glOpBlocked);
-    _dataOpBlocked = true;
-    
+{   
     switch (_glTexOperation) {
         case kSDLTexOpCreate:
             createTexture();
@@ -100,7 +81,6 @@ void SDLWindow::performOperationsAndDraw()
             break;
     }
     _glTexOperation = kSDLTexOpNone;
-    _dataOpBlocked = false;
     
     draw();
 }

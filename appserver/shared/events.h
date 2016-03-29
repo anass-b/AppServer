@@ -32,8 +32,6 @@ public:
         evt.type = getType();
         evt.field0 = 0;
         evt.field1 = 0;
-        evt.field3 = 0;
-        evt.field4 = 0;
         evt.field2 = 0;
         evt.field3 = 0;
         evt.field4 = 0;
@@ -145,8 +143,8 @@ public:
         return evt;
     }
 private:
-    uint8_t _button;
-    uint8_t _state;
+    uint8_t _button = 0;
+    uint8_t _state = 0;
 };
 
 class MouseScrollEvent : public MouseEvent
@@ -186,9 +184,9 @@ public:
         return evt;
     }
 private:
-    int32_t _scrollX;
-    int32_t _scrollY;
-    bool _flipped;
+    int32_t _scrollX = 0;
+    int32_t _scrollY = 0;
+    bool _flipped = false;
 };
 
 class TextEvent : public Event
@@ -259,11 +257,11 @@ public:
         return evt;
     }
 private:
-    int32_t _scancode;
-    int32_t _keycode;
-    int32_t _keymod;
-    int8_t _state;
-    bool _repeat;
+    int32_t _scancode = 0;
+    int32_t _keycode = 0;
+    int32_t _keymod = 0;
+    int8_t _state = 0;
+    bool _repeat = false;
 };
     
 }

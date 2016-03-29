@@ -25,7 +25,6 @@ namespace appserver
     {
     public:
         SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
-        SDLWindow(TWindowId id);
         virtual ~SDLWindow();
         
         virtual void performOperationsAndDraw();
@@ -50,8 +49,6 @@ namespace appserver
         SDLTexOperation _glTexOperation;
         Rect _cachedFrame;
         void* _pixels;
-        bool _glOpBlocked;
-        bool _dataOpBlocked;
         Rect _dirtyRect;
         SDL_Texture *_texture;
         SDL_Renderer *_renderer;

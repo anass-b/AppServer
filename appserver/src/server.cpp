@@ -37,8 +37,7 @@ void* Server::requestListener(void *ptr)
             size_t receivedSize = socket->recv(&req, sizeof(Asp_Request));
             if (receivedSize > 0) {
                 if (req.type == AspRequestRegister) {
-                    std::shared_ptr<App> app = nullptr;
-                    app = std::make_shared<App>(req.field0);
+                    std::shared_ptr<App> app = std::make_shared<App>(req.field0);
                     app->startRequestListener();
 
                     // Send the client ID back to the app

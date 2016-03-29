@@ -99,7 +99,7 @@ bool WindowManager::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt)
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
     Point mouseLocation = makePoint(evt->getX(), evt->getY());
     std::shared_ptr<Window> window = compositor->findWindowInLocation(mouseLocation);
-    if (window) {
+    if (window != nullptr) {
         std::shared_ptr<App> app = window->getApp().lock();
         Point locationInWindow = window->getLocationInWindow(makePoint(evt->getX(), evt->getY()));
         evt->setWindowX(locationInWindow.x);

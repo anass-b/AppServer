@@ -24,8 +24,8 @@ namespace appserver
         virtual void compose();
         SDL_Renderer* getRenderer() const;
     private:
-        SDL_Window *_window;
-        SDL_Renderer *_renderer;
+        SDL_Window *_window = nullptr;
+        SDL_Renderer *_renderer = nullptr;
     };
 }
 

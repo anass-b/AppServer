@@ -31,7 +31,7 @@ set (SOURCES
 add_executable(appserver ${SOURCES})
 
 if ("${CMAKE_SYSTEM}" MATCHES "Linux")
-    set (EXTRA_LIBS pthread rt)
+    set (EXTRA_LIBS pthread)
 endif()
 
 target_link_libraries (appserver zmq minilzo ${EXTRA_LIBS} ${SDL2_LIBRARY})

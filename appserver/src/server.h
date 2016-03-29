@@ -46,15 +46,15 @@ namespace appserver
         static void* processMonitor(void *ptr);
     private:
         std::vector<std::shared_ptr<App>> _apps;
-        std::shared_ptr<EventSource> _inputSource;
-        std::shared_ptr<Compositor> _compositor;
-        std::shared_ptr<WindowManager> _windowManager;
+        std::shared_ptr<EventSource> _inputSource = nullptr;
+        std::shared_ptr<Compositor> _compositor = nullptr;
+        std::shared_ptr<WindowManager> _windowManager = nullptr;
         static Server* _sharedInst;
         pthread_t _messageDispatcher;
         int _sock;
         std::string _appsHost;
-        std::shared_ptr<zmq::context_t> _context;
-        std::shared_ptr<zmq::socket_t> _socket;
+        std::shared_ptr<zmq::context_t> _context = nullptr;
+        std::shared_ptr<zmq::socket_t> _socket = nullptr;
     };
 }
 
