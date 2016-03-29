@@ -16,7 +16,6 @@
 #include <sstream>
 #include <string.h>
 #include <pthread.h>
-#include <zlib.h>
 #include <minilzo/minilzo.h>
 
 using namespace appserver;

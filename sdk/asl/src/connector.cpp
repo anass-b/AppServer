@@ -10,7 +10,6 @@
 #include <private/connector.h>
 #include <sstream>
 #include <unistd.h>
-#include <zlib.h>
 #include <minilzo/minilzo.h>
 
 #define OS_X 1
