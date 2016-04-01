@@ -21,7 +21,7 @@ Server::Server()
 {
     _context = std::make_shared<zmq::context_t>();
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
-    int serverSocketTimeout = 3000;
+    int serverSocketTimeout = 10000;
     _socket->setsockopt(ZMQ_SNDTIMEO, serverSocketTimeout);
     _socket->setsockopt(ZMQ_RCVTIMEO, serverSocketTimeout);
     _socket->bind("tcp://*:9000");

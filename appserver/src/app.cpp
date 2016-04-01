@@ -31,7 +31,7 @@ void App::startRequestListener()
     _context = std::make_shared<zmq::context_t>();
 
     // Requests socket
-    int reqSocketTimeout = 1500;
+    int reqSocketTimeout = 10000;
     _socket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REP);
     _socket->setsockopt(ZMQ_SNDTIMEO, reqSocketTimeout);
     _socket->setsockopt(ZMQ_RCVTIMEO, reqSocketTimeout);
@@ -42,7 +42,7 @@ void App::startRequestListener()
     _socket->bind(socketAddress.str());
 
     // Event socket
-    int eventSocketTimeout = 1500;
+    int eventSocketTimeout = 10000;
     _eventSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
     _eventSocket->setsockopt(ZMQ_SNDTIMEO, eventSocketTimeout);
     _eventSocket->setsockopt(ZMQ_RCVTIMEO, eventSocketTimeout);
