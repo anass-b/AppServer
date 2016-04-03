@@ -5,16 +5,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include <zmq.hpp>
-
 #include <protocol.h>
 #include <events.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 using namespace appserver;
 

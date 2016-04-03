@@ -98,10 +98,14 @@ void Server::run()
 
 void Server::avoidBusyWait(const long int nsec)
 {
+#ifdef _WIN32
+    Sleep(nsec / NANO_SECOND_MULTIPLIER);
+#else
     timespec tim;
     tim.tv_sec  = 0;
     tim.tv_nsec = nsec;
     nanosleep(&tim, NULL);
+#endif
 }
 
 void Server::addApp(std::shared_ptr<App> app)

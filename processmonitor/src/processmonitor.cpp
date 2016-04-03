@@ -19,10 +19,14 @@ std::string gAppServerAddress;
 const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
 void avoidBusyWait(const long nsec = INTERVAL_MS)
 {
+#ifdef _WIN32
+    Sleep(nsec / NANO_SECOND_MULTIPLIER);
+#else
     timespec tim;
     tim.tv_sec  = 0;
     tim.tv_nsec = nsec;
     nanosleep(&tim, NULL);
+#endif
 }
 
 void removePid(TProcId pid)
@@ -52,6 +56,13 @@ bool recvAck(std::shared_ptr<zmq::socket_t> socket)
     }
     return true;
 }
+
+#ifdef _WIN32
+bool kill(uint32_t pid, uint8_t unused)
+{
+    return false;
+}
+#endif
 
 void* processMonitor(void *ptr)
 {
