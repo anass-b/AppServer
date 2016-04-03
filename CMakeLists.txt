@@ -1,11 +1,14 @@
 cmake_minimum_required (VERSION 3.2.2)
 project (workspace)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+set(ZMQ_INCLUDE_DIR "" CACHE PATH "")
+set(ZMQ_LIBRARY "" CACHE FILEPATH "")
+
+include_directories (${ZMQ_INCLUDE_DIR})
 
 # add usr/local
-include_directories ("/usr/local/include")
-link_directories ("/usr/local/lib")
+#include_directories ("/usr/local/include")
+#link_directories ("/usr/local/lib")
 
 include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 include_directories ("${PROJECT_SOURCE_DIR}/vendor")
