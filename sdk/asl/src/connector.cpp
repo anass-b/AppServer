@@ -9,8 +9,15 @@
 
 #include <private/connector.h>
 #include <sstream>
-#include <unistd.h>
 #include <minilzo/minilzo.h>
+
+#ifdef _WIN32
+#include <process.h>
+#endif
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #define OS_X 1
 #define EXPORT __attribute__((visibility("default")))
@@ -42,7 +49,11 @@ Connector::Connector()
  */
 void Connector::subscribe()
 {
+#ifdef _WIN32
+    TProcId pid = _getpid();
+#else
     TProcId pid = getpid();
+#endif
 
     // Connect to process monitor's socket
     _processMonitorSocket = std::make_shared<zmq::socket_t>(*_context.get(), ZMQ_REQ);
