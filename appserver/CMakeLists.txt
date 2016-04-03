@@ -2,7 +2,9 @@ project (appserver)
 
 set(SDL2_INCLUDE_DIR "" CACHE PATH "")
 set(SDL2_LIBRARY "" CACHE FILEPATH "")
-set(SDL2MAIN_LIBRARY "" CACHE FILEPATH "")
+if (!APPLE)
+    set(SDL2MAIN_LIBRARY "" CACHE FILEPATH "")
+endif()
 
 include_directories (${SDL2_INCLUDE_DIR})
 include_directories ("${PROJECT_SOURCE_DIR}/src")
