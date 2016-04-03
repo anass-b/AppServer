@@ -14,7 +14,6 @@ set (HEADERS
     )
 add_library (asl SHARED ${SOURCES} ${HEADERS})
 
-
 target_link_libraries (asl zmq minilzo ${EXTRA_LIBS})
 
 set_property(TARGET asl PROPERTY CXX_STANDARD 11)
