@@ -13,72 +13,60 @@
 
 using namespace asl;
 
-
-
-EXPORT
 void* aslCreateContext()
 {
     Connector* connector = new Connector();
     return connector;
 }
 
-EXPORT
 void aslSubscribe(void *context)
 {
     Connector* connector = (Connector*)context;
     connector->subscribe();
 }
 
-EXPORT
 uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
 {
     Connector* connector = (Connector*)context;
     return connector->createWindow(data, dataSize, x, y, width, height, rasterType);
 }
 
-EXPORT
 void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
 {
     Connector* connector = (Connector*)context;
     connector->updateWindow(windowId, data, dataSize, x, y, width, height, compression);
 }
 
-EXPORT
 void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height)
 {
     Connector* connector = (Connector*)context;
     connector->resizeWindow(windowId, data, dataSize, width, height);
 }
 
-EXPORT
 void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible)
 {
     Connector* connector = (Connector*)context;
     connector->changeWindowVisiblity(windowId, visible);
 }
 
-EXPORT
 void aslBringWindowToFront(void *context, uint32_t windowId)
 {
     Connector* connector = (Connector*)context;
     connector->bringWindowToFront(windowId);
 }
 
-EXPORT
 void aslMoveWindow(void *context, uint32_t windowId, double x, double y)
 {
     Connector* connector = (Connector*)context;
     connector->moveWindow(windowId, x, y);
 }
 
-EXPORT
 void aslDestroyWindow(void *context, uint32_t windowId)
 {
     Connector* connector = (Connector*)context;
     connector->destroyWindow(windowId);
 }
 
-EXPORT
 AslEvent aslWaitEvent(void *context)
 {
     Connector* connector = (Connector*)context;

@@ -97,16 +97,16 @@ typedef struct
     AslMouseEvent mouseEvent;
 } AslEvent;
 
-void* aslCreateContext();
-void aslSubscribe(void *context);
-uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
-void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression);
-void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height);
-void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible);
-void aslBringWindowToFront(void *context, uint32_t windowId);
-void aslMoveWindow(void *context, uint32_t windowId, double x, double y);
-void aslDestroyWindow(void *context, uint32_t windowId);
-AslEvent aslWaitEvent(void *context);
+EXPORT void* aslCreateContext();
+EXPORT void aslSubscribe(void *context);
+EXPORT uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType);
+EXPORT void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression);
+EXPORT void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height);
+EXPORT void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible);
+EXPORT void aslBringWindowToFront(void *context, uint32_t windowId);
+EXPORT void aslMoveWindow(void *context, uint32_t windowId, double x, double y);
+EXPORT void aslDestroyWindow(void *context, uint32_t windowId);
+EXPORT AslEvent aslWaitEvent(void *context);
 
 }
 
