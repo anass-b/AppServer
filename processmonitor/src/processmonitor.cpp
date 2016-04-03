@@ -58,9 +58,14 @@ bool recvAck(std::shared_ptr<zmq::socket_t> socket)
 }
 
 #ifdef _WIN32
-bool kill(uint32_t pid, uint8_t unused)
+uint8_t kill(uint32_t pid, uint8_t unused)
 {
-    return false;
+    HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid);
+    DWORD status;
+    GetExitCodeProcess(hProc, &status);
+    if (status == STILL_ACTIVE)
+        return 0;
+    return -1;
 }
 #endif
 
