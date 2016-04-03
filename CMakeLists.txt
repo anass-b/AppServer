@@ -6,10 +6,6 @@ set(ZMQ_LIBRARY "" CACHE FILEPATH "")
 
 include_directories (${ZMQ_INCLUDE_DIR})
 
-# add usr/local
-#include_directories ("/usr/local/include")
-#link_directories ("/usr/local/lib")
-
 include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 include_directories ("${PROJECT_SOURCE_DIR}/vendor")
 
