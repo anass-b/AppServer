@@ -3,7 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
-#include <pthread.h>
+#include <thread>
 #include <signal.h>
 #include <protocol.h>
 
@@ -112,12 +112,10 @@ int main(int argc, char **argv)
     std::shared_ptr<zmq::socket_t> socket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REP);
     socket->bind("tcp://*:9001");
 
-    pthread_t thread;
-    if (pthread_create(&thread, NULL, processMonitor, NULL)) {
-        exit(1);
-    }
+    std::thread thread(processMonitor, nullptr);
     
-    while (true) {
+    bool run = true;
+    while (run) {
         try {
             Asp_SubscribeRequest subscribeReq;
             socket->recv(&subscribeReq, sizeof(Asp_SubscribeRequest));
@@ -145,6 +143,8 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
+
+    thread.join();
 
     return 0;
 }

@@ -17,6 +17,7 @@
 #include <eventsource.h>
 #include <protocol.h>
 #include <zmq.hpp>
+#include <thread>
 
 #define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
 
@@ -50,7 +51,7 @@ namespace appserver
         std::shared_ptr<Compositor> _compositor = nullptr;
         std::shared_ptr<WindowManager> _windowManager = nullptr;
         static Server* _sharedInst;
-        pthread_t _messageDispatcher;
+        std::shared_ptr<std::thread> _messageDispatcher;
         int _sock;
         std::string _appsHost;
         std::shared_ptr<zmq::context_t> _context = nullptr;

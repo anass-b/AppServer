@@ -12,15 +12,11 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <pthread.h>
 #include <zmq.hpp>
 #include <window.h>
 #include <events.h>
+#include <thread>
 
 namespace appserver
 {
@@ -60,7 +56,7 @@ namespace appserver
         TProcId _pid;
         static unsigned long _counter;
         bool _busy;
-        pthread_t _requestListener;
+        std::shared_ptr<std::thread> _requestListener;
         std::shared_ptr<zmq::context_t> _context;
         std::shared_ptr<zmq::socket_t> _eventSocket;
         std::shared_ptr<zmq::socket_t> _socket;

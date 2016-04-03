@@ -12,11 +12,12 @@
 #include <sdlcompositor.h>
 #include <geometry.h>
 #include <protocol.h>
-
 #include <sstream>
-#include <string.h>
-#include <pthread.h>
+#include <string>
 #include <minilzo/minilzo.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 using namespace appserver;
 
@@ -52,9 +53,8 @@ void App::startRequestListener()
     eventSocketAddress << eventSocketPort;
     _eventSocket->connect(eventSocketAddress.str());
 
-    if (pthread_create(&_requestListener, NULL, App::requestListener, this)) {
-        throw std::runtime_error(strerror(errno));
-    }
+    _requestListener = std::make_shared<std::thread>(App::requestListener, this);
+    _requestListener->detach();
 }
 
 void* App::requestListener(void* arg)
@@ -73,7 +73,6 @@ void* App::requestListener(void* arg)
     catch (zmq::error_t e) {
         app->printException(e);
     }
-
     return nullptr;
 }
 
@@ -394,6 +393,9 @@ std::weak_ptr<zmq::socket_t> App::getEventSocket() const
 
 App::~App()
 {
+    /*if (_requestListener->joinable()) {
+        _requestListener->join();
+    }*/
     Server::getSingleton()->getCompositor().lock()->removeWindows(_id);
 }
 

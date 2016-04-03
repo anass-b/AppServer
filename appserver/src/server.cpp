@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Anass Bouassaba. All rights reserved.
 //
 
-#include <pthread.h>
 #include <signal.h>
 #include <server.h>
 #include <sdlcompositor.h>
@@ -73,9 +72,7 @@ void Server::run()
         printf("(this usually indicates a compiler bug - try recompiling\nwithout optimizations, and enable '-DLZO_DEBUG' for diagnostics)\n");
     }
 
-    if (pthread_create(&_messageDispatcher, NULL, Server::requestListener, NULL)) {
-        throw std::runtime_error(strerror(errno));
-    }
+    _messageDispatcher = std::make_shared<std::thread>(Server::requestListener, nullptr);
 
     _compositor = std::make_shared<SDLCompositor>();
     _inputSource = std::make_shared<SDLEventSource>();

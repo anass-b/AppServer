@@ -66,7 +66,11 @@
 #define AspReqListenerThreadPortValue   20000
 
 typedef uint32_t TAppId;
+#ifdef _WIN32
+typedef uint32_t TProcId;
+#else
 typedef pid_t TProcId;
+#endif
 typedef uint32_t TWindowId;
 typedef uint32_t TWindowZ;
 

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <pthread.h>
 #include <asl/asl.h>
 #include <protocol.h>
 #include <unistd.h>
