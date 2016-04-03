@@ -1,7 +1,6 @@
 #include <iostream>
 #include <asl/asl.h>
 #include <protocol.h>
-#include <unistd.h>
 #include <cairo/cairo.h>
 
 int main(int argc, char *argv[])
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
     aslCreateWindow(ctx, data, dataSize, 100, 100, 800, 600, AslWindowRasterARGB);
 
     AslEvent event;
-    while (true) {        
+    while (true) {
         event = aslWaitEvent(ctx);
         
         if (event.type == AslEventTypeMouseButton) {
