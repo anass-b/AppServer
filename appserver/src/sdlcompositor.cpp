@@ -13,8 +13,8 @@ using namespace appserver;
  
 SDLCompositor::SDLCompositor()
 {
-    int width = 1920;
-    int height = 1080;
+    int width = 1280;
+    int height = 700;
     this->setSize(makeSize(width, height));
     
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
