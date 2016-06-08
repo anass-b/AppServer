@@ -1,7 +1,7 @@
 #include <iostream>
 #include <asl/asl.h>
 #include <protocol.h>
-#include <cairo.h>
+#include <cairo/cairo.h>
 
 int main(int argc, char *argv[])
 {
