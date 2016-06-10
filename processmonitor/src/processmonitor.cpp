@@ -7,15 +7,14 @@
 #include <signal.h>
 #include <protocol.h>
 
-struct App
-{
+struct App {
     TProcId pid;
 };
 
 std::vector<App> appList;
 std::string gAppServerAddress;
 
-#define NANO_SECOND_MULTIPLIER  1000000  // 1 millisecond = 1,000,000 Nanoseconds
+#define NANO_SECOND_MULTIPLIER 1000000 // 1 millisecond = 1,000,000 Nanoseconds
 const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
 void avoidBusyWait(const long nsec = INTERVAL_MS)
 {
@@ -23,7 +22,7 @@ void avoidBusyWait(const long nsec = INTERVAL_MS)
     Sleep(nsec / NANO_SECOND_MULTIPLIER);
 #else
     timespec tim;
-    tim.tv_sec  = 0;
+    tim.tv_sec = 0;
     tim.tv_nsec = nsec;
     nanosleep(&tim, NULL);
 #endif
@@ -69,7 +68,7 @@ uint8_t kill(uint32_t pid, uint8_t unused)
 }
 #endif
 
-void* processMonitor(void *ptr)
+void* processMonitor(void* ptr)
 {
     std::shared_ptr<zmq::context_t> context = std::make_shared<zmq::context_t>();
     std::shared_ptr<zmq::socket_t> appServerSocket = std::make_shared<zmq::socket_t>(*context.get(), ZMQ_REQ);
@@ -77,22 +76,22 @@ void* processMonitor(void *ptr)
     appServerAddr << "tcp://" << gAppServerAddress << ":9000";
     appServerSocket->connect(appServerAddr.str());
     std::cout << "Connected to appserver on " << appServerAddr.str() << std::endl;
-    
+
     while (true) {
         avoidBusyWait();
         for (int i = 0; i < appList.size(); i++) {
             App app = appList.at(i);
             if (kill(app.pid, 0) == -1) {
                 try {
-                    removePid(app.pid);                                        
-                    
+                    removePid(app.pid);
+
                     // Ask the appserver's to unregister the app
                     Asp_Request req1;
                     req1.type = AspRequestUnregister;
                     req1.field0 = app.pid;
                     zmq::message_t msg1(&req1, sizeof(Asp_Request));
                     appServerSocket->send(msg1);
-                    
+
                     TAppId appId = 0;
                     appServerSocket->recv(&appId, sizeof(TAppId));
 
@@ -120,7 +119,7 @@ void* processMonitor(void *ptr)
     return nullptr;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     gAppServerAddress = argc > 1 ? argv[1] : "localhost";
 
@@ -129,7 +128,7 @@ int main(int argc, char **argv)
     socket->bind("tcp://*:9001");
 
     std::thread thread(processMonitor, nullptr);
-    
+
     bool run = true;
     while (run) {
         try {
@@ -144,7 +143,7 @@ int main(int argc, char **argv)
             recvAck(socket);
 
             // Send the actuall appserver's address (localhost or an IPv4 address)
-            void *data = (void*)gAppServerAddress.c_str();
+            void* data = (void*)gAppServerAddress.c_str();
             zmq::message_t msg2(data, addressSize);
             socket->send(msg2);
 

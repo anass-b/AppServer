@@ -29,12 +29,12 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
         else if (sdlEvent.type == SDL_MOUSEMOTION) {
             _mousePosX = sdlEvent.motion.x;
             _mousePosY = sdlEvent.motion.y;
-            
+
             std::shared_ptr<MouseMoveEvent> evt = std::make_shared<MouseMoveEvent>();
             evt->setTimestamp(sdlEvent.motion.timestamp);
             evt->setX(sdlEvent.motion.x);
             evt->setY(sdlEvent.motion.y);
-            
+
             return evt;
         }
         else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP) {
@@ -67,7 +67,7 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
             else {
                 evt->setButton(AspMouseButtonUndefined);
             }
-            
+
             return evt;
         }
         else if (sdlEvent.type == SDL_MOUSEWHEEL) {
@@ -78,7 +78,7 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
             evt->setScrollX(sdlEvent.wheel.x);
             evt->setScrollY(sdlEvent.wheel.y);
             evt->setFlipped(false);
-            
+
             return evt;
         }
         else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP) {
@@ -88,7 +88,7 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
             evt->setKeymod(sdlEvent.key.keysym.mod);
             evt->setScancode(sdlEvent.key.keysym.scancode);
             evt->setRepeat(sdlEvent.key.repeat);
-            
+
             if (sdlEvent.key.state == SDL_PRESSED) {
                 evt->setState(AspKeyStatePressed);
             }
@@ -98,17 +98,16 @@ std::shared_ptr<Event> SDLEventSource::pollEvent()
             else {
                 evt->setState(AspKeyStateUndefined);
             }
-            
+
             return evt;
         }
         else if (sdlEvent.type == SDL_TEXTINPUT) {
             std::shared_ptr<TextEvent> evt = std::make_shared<TextEvent>();
             evt->setText(sdlEvent.text.text);
-            
+
             return evt;
         }
     }
 
     return nullptr;
 }
-

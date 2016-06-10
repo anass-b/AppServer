@@ -3,15 +3,15 @@
 #include <protocol.h>
 #include <cairo/cairo.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    void *ctx = aslCreateContext();
+    void* ctx = aslCreateContext();
     aslSubscribe(ctx);
 
     cairo_surface_t* surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 600);
     cairo_t* context = cairo_create(surface);
-    cairo_set_source_rgb (context, 1.0, 1.0, 0.0);
-    cairo_paint (context);
+    cairo_set_source_rgb(context, 1.0, 1.0, 0.0);
+    cairo_paint(context);
 
     cairo_surface_flush(surface);
     unsigned char* data = cairo_image_surface_get_data(surface);
@@ -24,14 +24,13 @@ int main(int argc, char *argv[])
     AslEvent event;
     while (true) {
         event = aslWaitEvent(ctx);
-        
+
         if (event.type == AslEventTypeMouseButton) {
             if (event.mouseEvent.button == AslMouseButtonLeft) {
                 if (event.mouseEvent.buttonState == AslMouseButtonStatePressed) {
                     std::cout << "Mouse Left Pressed" << std::endl;
                 }
-                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased)
-                {
+                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased) {
                     std::cout << "Mouse Left Released" << std::endl;
                 }
             }
@@ -39,8 +38,7 @@ int main(int argc, char *argv[])
                 if (event.mouseEvent.buttonState == AslMouseButtonStatePressed) {
                     std::cout << "Mouse Right Pressed" << std::endl;
                 }
-                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased)
-                {
+                else if (event.mouseEvent.buttonState == AslMouseButtonStateReleased) {
                     std::cout << "Mouse Right Released" << std::endl;
                 }
             }

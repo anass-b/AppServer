@@ -14,24 +14,24 @@
 #include <geometry.h>
 #include <events.h>
 
-namespace appserver
-{
-    class Window;
-    
-    class WindowManager
-    {
-    public:
-        WindowManager();
-        bool sendEvent(std::shared_ptr<Event> evt);
-    private:
-        bool sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt);
-        bool sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt);
-        bool sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt);
-        bool sendTextEvent(std::shared_ptr<TextEvent> evt);
-        bool sendKeyEvent(std::shared_ptr<KeyEvent> evt);
-    private:
-        std::shared_ptr<Window> _focusedWindow = nullptr;
-    };
+namespace appserver {
+class Window;
+
+class WindowManager {
+public:
+    WindowManager();
+    bool sendEvent(std::shared_ptr<Event> evt);
+
+private:
+    bool sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt);
+    bool sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt);
+    bool sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt);
+    bool sendTextEvent(std::shared_ptr<TextEvent> evt);
+    bool sendKeyEvent(std::shared_ptr<KeyEvent> evt);
+
+private:
+    std::shared_ptr<Window> _focusedWindow = nullptr;
+};
 }
 
 #endif

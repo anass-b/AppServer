@@ -14,19 +14,18 @@
 #include <compositor.h>
 #include <SDL.h>
 
-namespace appserver
-{
-    class SDLCompositor : public Compositor
-    {
-    public:
-        SDLCompositor();
-        virtual ~SDLCompositor();
-        virtual void compose();
-        SDL_Renderer* getRenderer() const;
-    private:
-        SDL_Window *_window = nullptr;
-        SDL_Renderer *_renderer = nullptr;
-    };
+namespace appserver {
+class SDLCompositor : public Compositor {
+public:
+    SDLCompositor();
+    virtual ~SDLCompositor();
+    virtual void compose();
+    SDL_Renderer* getRenderer() const;
+
+private:
+    SDL_Window* _window = nullptr;
+    SDL_Renderer* _renderer = nullptr;
+};
 }
 
 #endif

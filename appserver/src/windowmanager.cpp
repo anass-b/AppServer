@@ -21,7 +21,7 @@ WindowManager::WindowManager()
 bool WindowManager::sendEvent(std::shared_ptr<Event> evt)
 {
     uint8_t eventType = evt->getType();
-    
+
     if (eventType == AspEventTypeKey) {
         std::shared_ptr<KeyEvent> keyEvent = std::dynamic_pointer_cast<KeyEvent>(evt);
         return this->sendKeyEvent(keyEvent);
@@ -58,14 +58,14 @@ bool WindowManager::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt)
         app->sendMouseMoveEvent(evt, window);
         return true;
     }
-    
+
     return false;
 }
 
 bool WindowManager::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt)
 {
     std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
-    Point mouseLocation = makePoint(evt->getX(), evt->getY());    
+    Point mouseLocation = makePoint(evt->getX(), evt->getY());
     std::shared_ptr<Window> window = nullptr;
     if (evt->getState() == AspMouseButtonStateReleased && _focusedWindow != nullptr) {
         window = _focusedWindow;
@@ -90,7 +90,7 @@ bool WindowManager::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt)
         evt->setWindowY(locationInWindow.y);
         app->sendMouseButtonEvent(evt, window);
     }
-    
+
     return false;
 }
 
@@ -134,5 +134,3 @@ bool WindowManager::sendKeyEvent(std::shared_ptr<KeyEvent> evt)
     }
     return false;
 }
-
-

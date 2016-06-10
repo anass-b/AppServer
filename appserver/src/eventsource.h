@@ -13,15 +13,12 @@
 #include <memory>
 #include <events.h>
 
-namespace appserver
-{
+namespace appserver {
 
-class EventSource
-{
+class EventSource {
 public:
     virtual std::shared_ptr<Event> pollEvent() = 0;
 };
-
 }
 
 #endif

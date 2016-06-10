@@ -18,16 +18,18 @@ TWindowId Window::_idCounter = 100000;
 TWindowId Window::_zCounter = 0;
 
 Window::Window(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible)
-    : _app(app), _id(id), _frame(frame), _visible(visible), _z(Server::getSingleton()->getCompositor().lock()->getNewWindowZ()), _rasterType(rasterType)
+    : _app(app)
+    , _id(id)
+    , _frame(frame)
+    , _visible(visible)
+    , _z(Server::getSingleton()->getCompositor().lock()->getNewWindowZ())
+    , _rasterType(rasterType)
 {
 }
 
 bool Window::pointIsInsideTitleBar(Point p)
 {
-    if (p.x >= _frame.location.x &&
-        p.y >= _frame.location.y &&
-        p.x <= _frame.location.x + _frame.size.width &&
-        p.y <= _frame.location.y + 40) {
+    if (p.x >= _frame.location.x && p.y >= _frame.location.y && p.x <= _frame.location.x + _frame.size.width && p.y <= _frame.location.y + 40) {
         return true;
     }
     return false;
@@ -35,10 +37,7 @@ bool Window::pointIsInsideTitleBar(Point p)
 
 bool Window::pointIsInsideFrame(Point p)
 {
-    if (p.x >= _frame.location.x &&
-        p.y >= _frame.location.y &&
-        p.x <= _frame.location.x + _frame.size.width &&
-        p.y <= _frame.location.y + _frame.size.height) {
+    if (p.x >= _frame.location.x && p.y >= _frame.location.y && p.x <= _frame.location.x + _frame.size.width && p.y <= _frame.location.y + _frame.size.height) {
         return true;
     }
     return false;
@@ -51,10 +50,7 @@ Point Window::getLocationInWindow(Point locationInScreen)
 
 bool Window::pointInInsideResizeHotspot(Point p)
 {
-    if (p.x >= getWidth() - 40 &&
-        p.y >= getHeight() - 40 &&
-        p.x <= getWidth() &&
-        p.y <= getHeight()) {
+    if (p.x >= getWidth() - 40 && p.y >= getHeight() - 40 && p.x <= getWidth() && p.y <= getHeight()) {
         return true;
     }
     return false;
@@ -157,4 +153,3 @@ unsigned long int Window::getAppId() const
 Window::~Window()
 {
 }
-

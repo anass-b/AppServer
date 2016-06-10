@@ -19,68 +19,68 @@ void* aslCreateContext()
     return connector;
 }
 
-void aslSubscribe(void *context)
+void aslSubscribe(void* context)
 {
     Connector* connector = (Connector*)context;
     connector->subscribe();
 }
 
-uint32_t aslCreateWindow(void *context, void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
+uint32_t aslCreateWindow(void* context, void* data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
 {
     Connector* connector = (Connector*)context;
     return connector->createWindow(data, dataSize, x, y, width, height, rasterType);
 }
 
-void aslUpdateWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
+void aslUpdateWindow(void* context, uint32_t windowId, void* data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
 {
     Connector* connector = (Connector*)context;
     connector->updateWindow(windowId, data, dataSize, x, y, width, height, compression);
 }
 
-void aslResizeWindow(void *context, uint32_t windowId, void *data, uint64_t dataSize, double width, double height)
+void aslResizeWindow(void* context, uint32_t windowId, void* data, uint64_t dataSize, double width, double height)
 {
     Connector* connector = (Connector*)context;
     connector->resizeWindow(windowId, data, dataSize, width, height);
 }
 
-void aslChangeWindowVisibility(void *context, uint32_t windowId, bool visible)
+void aslChangeWindowVisibility(void* context, uint32_t windowId, bool visible)
 {
     Connector* connector = (Connector*)context;
     connector->changeWindowVisiblity(windowId, visible);
 }
 
-void aslBringWindowToFront(void *context, uint32_t windowId)
+void aslBringWindowToFront(void* context, uint32_t windowId)
 {
     Connector* connector = (Connector*)context;
     connector->bringWindowToFront(windowId);
 }
 
-void aslMoveWindow(void *context, uint32_t windowId, double x, double y)
+void aslMoveWindow(void* context, uint32_t windowId, double x, double y)
 {
     Connector* connector = (Connector*)context;
     connector->moveWindow(windowId, x, y);
 }
 
-void aslDestroyWindow(void *context, uint32_t windowId)
+void aslDestroyWindow(void* context, uint32_t windowId)
 {
     Connector* connector = (Connector*)context;
     connector->destroyWindow(windowId);
 }
 
-AslEvent aslWaitEvent(void *context)
+AslEvent aslWaitEvent(void* context)
 {
     Connector* connector = (Connector*)context;
 
     AslEvent aslEvt;
-    
+
     // reset AslEvent
     aslEvt.type = -1;
     aslEvt.windowId = -1;
     aslEvt.type = -1;
-    
+
     // reset AslInputEvent
     aslEvt.type = -1;
-    
+
     // reset AslMouseEvent
     aslEvt.mouseEvent.buttonState = -1;
     aslEvt.mouseEvent.button = -1;
@@ -90,18 +90,18 @@ AslEvent aslWaitEvent(void *context)
     aslEvt.mouseEvent.absY = -1;
     aslEvt.mouseEvent.scrollX = -1;
     aslEvt.mouseEvent.scrollY = -1;
-    
+
     // reset AslKeyEvent
     aslEvt.keyEvent.scancode = -1;
     aslEvt.keyEvent.keycode = -1;
     aslEvt.keyEvent.keymod = -1;
     aslEvt.keyEvent.state = -1;
     aslEvt.keyEvent.repeat = false;
-    
+
     // reset AslTextEvent
     aslEvt.textEvent.text = nullptr;
     aslEvt.textEvent.textSize = 0;
-    
+
     std::shared_ptr<Event> evt = connector->waitEvent();
 
     aslEvt.type = evt->getType();
@@ -145,7 +145,6 @@ AslEvent aslWaitEvent(void *context)
         strcpy(aslEvt.textEvent.text, textEvent->getText().c_str());
         aslEvt.textEvent.textSize = textEvent->getText().size();
     }
-    
+
     return aslEvt;
 }
-

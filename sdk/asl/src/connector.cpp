@@ -35,7 +35,7 @@ using namespace asl;
  * return: Negative number if it fails
  */
 Connector::Connector()
-{  
+{
     _context = std::make_shared<zmq::context_t>();
 
     if (lzo_init() != LZO_E_OK) {
@@ -68,7 +68,8 @@ void Connector::subscribe()
     // Receive appserver address size from process monitor
     size_t addrSize;
     _processMonitorSocket->recv(&addrSize, sizeof(size_t));
-    if (addrSize <= 0 && addrSize > 15) exit(1);
+    if (addrSize <= 0 && addrSize > 15)
+        exit(1);
 
     sendAck(_processMonitorSocket);
 
@@ -93,7 +94,8 @@ void Connector::subscribe()
     _regSocket->send(request);
     Asp_Event evt;
     size_t receivedSize = _regSocket->recv(&evt, sizeof(evt));
-    if (receivedSize <= 0) exit(1);
+    if (receivedSize <= 0)
+        exit(1);
     _clientId = evt.field0;
 
     // Connect to appserver's request socket
@@ -126,7 +128,7 @@ void Connector::subscribe()
  * return: ID of the created window
  */
 
-TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
+TWindowId Connector::createWindow(void* data, uint64_t dataSize, double x, double y, double width, double height, uint8_t rasterType)
 {
     try {
         Asp_Request createWindowReq;
@@ -138,27 +140,28 @@ TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, doubl
         createWindowReq.field3 = height;
         createWindowReq.field4 = (int)rasterType;
         createWindowReq.dataSize = dataSize;
-        
+
         // Send request
         zmq::message_t request(&createWindowReq, sizeof(Asp_Request));
         _socket->send(request);
-        
+
         recvAck(_socket);
-        
+
         // Send raster data
         const void* castedData = (const void*)data;
         zmq::message_t dataRequest(castedData, (size_t)dataSize);
         _socket->send(dataRequest);
-        
+
         Asp_Event evt;
         evt.winId = 0;
         unsigned int priority;
         bool foundExistingId = false;
-        
-        do  {
+
+        do {
             size_t receivedSize = _socket->recv(&evt, sizeof(evt));
-            if (receivedSize <= 0) return -1;
-            
+            if (receivedSize <= 0)
+                return -1;
+
             foundExistingId = false;
             for (int i = 0; i < _windowIds.size(); i++) {
                 TWindowId id = _windowIds.at(i);
@@ -168,9 +171,9 @@ TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, doubl
                 }
             }
         } while (foundExistingId || evt.winId == 0);
-        
+
         _windowIds.push_back(evt.winId);
-        
+
         return evt.winId;
     }
     catch (std::exception e) {
@@ -188,7 +191,7 @@ TWindowId Connector::createWindow(void *data, uint64_t dataSize, double x, doubl
  * field3   : Width
  * field4   : Height
  */
-void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
+void Connector::updateWindow(TWindowId windowId, void* data, uint64_t dataSize, double x, double y, double width, double height, bool compression)
 {
     try {
         unsigned char* compressedData = nullptr;
@@ -215,13 +218,13 @@ void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, 
         req.field4 = compression;
         req.dataSize = dataSize;
         req.compressedSize = compression ? compressedSize : 0;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
-        
+
         recvAck(_socket);
-        
+
         // Send raster data
         if (compression) {
             zmq::message_t dataRequest(compressedData, (size_t)compressedSize);
@@ -250,7 +253,7 @@ void Connector::updateWindow(TWindowId windowId, void *data, uint64_t dataSize, 
  * field1   : Width
  * field2   : Height
  */
-void Connector::resizeWindow(TWindowId windowId, void *data, uint64_t dataSize, double width, double height)
+void Connector::resizeWindow(TWindowId windowId, void* data, uint64_t dataSize, double width, double height)
 {
     try {
         Asp_Request req;
@@ -260,18 +263,18 @@ void Connector::resizeWindow(TWindowId windowId, void *data, uint64_t dataSize, 
         req.field0 = width;
         req.field1 = height;
         req.dataSize = dataSize;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
-        
+
         recvAck(_socket);
-        
+
         // Send raster data
         const void* castedData = (const void*)data;
         zmq::message_t dataRequest(castedData, (size_t)dataSize);
         _socket->send(dataRequest);
-        
+
         recvAck(_socket);
     }
     catch (std::exception e) {
@@ -292,7 +295,7 @@ void Connector::changeWindowVisiblity(TWindowId id, bool visible)
         req.clientId = _clientId;
         req.winId = id;
         req.field0 = visible;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
@@ -312,7 +315,7 @@ void Connector::bringWindowToFront(TWindowId id)
         req.type = AspRequestBringWindowToFront;
         req.clientId = _clientId;
         req.winId = id;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
@@ -337,7 +340,7 @@ void Connector::moveWindow(TWindowId id, double x, double y)
         req.winId = id;
         req.field0 = x;
         req.field1 = y;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
@@ -357,7 +360,7 @@ void Connector::destroyWindow(TWindowId id)
         req.type = AspRequestDestroyWindow;
         req.clientId = _clientId;
         req.winId = id;
-        
+
         // Send request
         zmq::message_t request(&req, sizeof(Asp_Request));
         _socket->send(request);
@@ -380,9 +383,9 @@ std::shared_ptr<Event> Connector::waitEvent()
         if (receivedSize == 0) {
             exit(1);
         }
-        
+
         sendAck(_eventsSocket);
-        
+
         if (req.type == AspEventTypeMouseMove) {
             return std::make_shared<MouseMoveEvent>(req);
         }
@@ -396,15 +399,15 @@ std::shared_ptr<Event> Connector::waitEvent()
             return std::make_shared<KeyEvent>(req);
         }
         else if (req.type == AspEventTypeText) {
-            char *text = (char*)malloc(req.field0);
+            char* text = (char*)malloc(req.field0);
             receivedSize = _eventsSocket->recv(text, req.field0 - 1);
             text[(int)(req.field0 - 1)] = 0;
             if (receivedSize == 0) {
                 exit(1);
             }
-            
+
             sendAck(_eventsSocket);
-            
+
             std::shared_ptr<TextEvent> textEvent = std::make_shared<TextEvent>(req);
             textEvent->setText(text);
 
@@ -414,12 +417,12 @@ std::shared_ptr<Event> Connector::waitEvent()
     catch (zmq::error_t e) {
         this->printException(e);
     }
-    
+
     return nullptr;
 }
 
 void Connector::unsubscribe()
-{    
+{
     _socket->close();
 }
 
@@ -440,7 +443,7 @@ bool Connector::recvAck(std::shared_ptr<zmq::socket_t> socket)
     return true;
 }
 
-void Connector::printException(const std::exception &e) const
+void Connector::printException(const std::exception& e) const
 {
     std::cout << e.what() << std::endl;
 }
@@ -448,4 +451,3 @@ void Connector::printException(const std::exception &e) const
 Connector::~Connector()
 {
 }
-

@@ -12,18 +12,17 @@
 #include <memory>
 #include <eventsource.h>
 
-namespace appserver
-{
-    class SDLEventSource : public EventSource
-    {
-    public:
-        SDLEventSource();
-        virtual std::shared_ptr<Event> pollEvent();
-    private:
-        double _mousePosX = 0;
-        double _mousePosY = 0;
-        bool _mouseHeld = false;
-    };
+namespace appserver {
+class SDLEventSource : public EventSource {
+public:
+    SDLEventSource();
+    virtual std::shared_ptr<Event> pollEvent();
+
+private:
+    double _mousePosX = 0;
+    double _mousePosY = 0;
+    bool _mouseHeld = false;
+};
 }
 
 #endif

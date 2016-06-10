@@ -11,7 +11,7 @@
 #include <algorithm>
 
 using namespace appserver;
- 
+
 Compositor::Compositor()
 {
 }
@@ -25,7 +25,8 @@ void Compositor::removeWindow(TWindowId id)
 {
     try {
         _windows.erase(findWindowPosition(id));
-    } catch (std::exception e) {
+    }
+    catch (std::exception e) {
         // TODO: Do something...
     }
 }
@@ -64,7 +65,7 @@ std::shared_ptr<Window> Compositor::findWindow(TWindowId id)
     return nullptr;
 }
 
-std::vector<std::shared_ptr<Window>>::iterator Compositor::findWindowPosition(TWindowId id)
+std::vector<std::shared_ptr<Window> >::iterator Compositor::findWindowPosition(TWindowId id)
 {
     for (auto iter = _windows.begin(); iter != _windows.end(); ++iter) {
         std::shared_ptr<Window> window = *iter;
@@ -73,20 +74,17 @@ std::vector<std::shared_ptr<Window>>::iterator Compositor::findWindowPosition(TW
         }
     }
     throw std::invalid_argument("Window not found");
-    
-    return std::vector<std::shared_ptr<Window>>::iterator();
+
+    return std::vector<std::shared_ptr<Window> >::iterator();
 }
 
 std::shared_ptr<Window> Compositor::findWindowInLocation(Point location)
 {
     unsigned long size = _windows.size();
-    for (int i = static_cast<int>(size) - 1; i >= 0 ; i--) {
+    for (int i = static_cast<int>(size) - 1; i >= 0; i--) {
         std::shared_ptr<Window> window = _windows.at(i);
         Rect windowFrame = window->getFrame();
-        if (location.x >= windowFrame.location.x &&
-            location.x <= windowFrame.location.x + windowFrame.size.width &&
-            location.y >= windowFrame.location.y &&
-            location.y <= windowFrame.location.y + windowFrame.size.height) {
+        if (location.x >= windowFrame.location.x && location.x <= windowFrame.location.x + windowFrame.size.width && location.y >= windowFrame.location.y && location.y <= windowFrame.location.y + windowFrame.size.height) {
             return window;
         }
     }
@@ -97,7 +95,7 @@ TWindowZ Compositor::computeMaxZ() const
 {
     TWindowZ zMax = 0;
     unsigned long size = _windows.size();
-    for (int i = static_cast<int>(size) - 1; i >= 0 ; i--) {
+    for (int i = static_cast<int>(size) - 1; i >= 0; i--) {
         std::shared_ptr<Window> window = _windows.at(i);
         TWindowZ z = window->getZ();
         if (z > zMax) {
@@ -115,13 +113,13 @@ TWindowZ Compositor::getNewWindowZ() const
 void Compositor::bringWindowToFront(std::shared_ptr<Window> w)
 {
     TWindowZ zMax = computeMaxZ();
-    
+
     if (w->getZ() == zMax) {
         return;
     }
-    
+
     w->setZ(zMax + 1);
-    
+
     sortWindowsByZOrder();
 }
 
@@ -143,7 +141,7 @@ Size Compositor::getSize() const
     return _size;
 }
 
-std::vector<std::shared_ptr<Window>>& Compositor::getWindows() const
+std::vector<std::shared_ptr<Window> >& Compositor::getWindows() const
 {
     return _windows;
 }
@@ -151,4 +149,3 @@ std::vector<std::shared_ptr<Window>>& Compositor::getWindows() const
 Compositor::~Compositor()
 {
 }
-

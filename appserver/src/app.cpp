@@ -23,8 +23,11 @@ using namespace appserver;
 
 unsigned long App::_counter = 1;
 
-App::App(TProcId pid) : _id(++_counter), _pid(pid), _busy(false)
-{    
+App::App(TProcId pid)
+    : _id(++_counter)
+    , _pid(pid)
+    , _busy(false)
+{
 }
 
 void App::startRequestListener()
@@ -103,11 +106,11 @@ void App::processMessage(Asp_Request req)
         else if (req.type == AspRequestUnregister) {
             _runRequestListener = false;
         }
-    } catch (std::exception e) {
+    }
+    catch (std::exception e) {
         this->printException(e);
     }
 }
-
 
 /*
  * Create a window
@@ -122,35 +125,36 @@ void App::newWindow(Asp_Request req)
 {
     try {
         std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
-        
+
         sendAck(socket);
 
-        unsigned char *data = (unsigned char*)malloc(req.dataSize);
+        unsigned char* data = (unsigned char*)malloc(req.dataSize);
         size_t receivedSize = socket->recv(data, req.dataSize);
-        if (receivedSize <= 0) return;
-        
+        if (receivedSize <= 0)
+            return;
+
         TWindowId id = Window::newWindowId();
-        
+
         Asp_Event evt;
         evt.winId = id;
-        zmq::message_t response(&evt, sizeof(Asp_Event));        
+        zmq::message_t response(&evt, sizeof(Asp_Event));
         socket->send(response);
 
         Rect windowFrame = makeRect(static_cast<double>(req.field0),
-                                    static_cast<double>(req.field1),
-                                    static_cast<double>(req.field2),
-                                    static_cast<double>(req.field3));
-        
+            static_cast<double>(req.field1),
+            static_cast<double>(req.field2),
+            static_cast<double>(req.field3));
+
         std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
         std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
-        
+
         std::shared_ptr<SDLWindow> newWindow = std::make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field4);
         newWindow->setRenderer(sdlCompositor->getRenderer());
         newWindow->create(data, req.dataSize);
-        
+
         compositor->addWindow(std::move(newWindow));
     }
-    catch (std::exception e) {        
+    catch (std::exception e) {
         this->printException(e);
     }
 }
@@ -169,19 +173,20 @@ void App::updateWindow(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
-    try {        
+
+    try {
         std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
-        
+
         sendAck(socket);
 
         bool compression = req.field4;
         unsigned char* data = nullptr;
 
         uint64_t receivedDataSize = compression ? req.compressedSize : req.dataSize;
-        unsigned char *receivedData = new unsigned char[receivedDataSize];
+        unsigned char* receivedData = new unsigned char[receivedDataSize];
         size_t receivedSize = socket->recv(receivedData, receivedDataSize);
-        if (receivedSize <= 0) return;
+        if (receivedSize <= 0)
+            return;
 
         if (compression) {
             // Decompress received data
@@ -196,11 +201,12 @@ void App::updateWindow(Asp_Request req)
         else {
             data = receivedData;
         }
-        
+
         sendAck(socket);
-        
+
         window->updatePixels(data, req.dataSize, makeRect(req.field0, req.field1, req.field2, req.field3));
-    } catch (std::exception e) {
+    }
+    catch (std::exception e) {
         this->printException(e);
     }
 }
@@ -217,21 +223,23 @@ void App::resizeWindow(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
+
     try {
         std::shared_ptr<zmq::socket_t> socket = this->getSocket().lock();
-        
+
         sendAck(socket);
 
-        unsigned char *data = (unsigned char*)malloc(req.dataSize);
+        unsigned char* data = (unsigned char*)malloc(req.dataSize);
         size_t receivedSize = socket->recv(data, req.dataSize);
-        if (receivedSize <= 0) return;
-        
+        if (receivedSize <= 0)
+            return;
+
         sendAck(socket);
-        
+
         window->setSize(makeSize(req.field0, req.field1));
         window->resize(data, req.dataSize);
-    } catch (std::exception e) {
+    }
+    catch (std::exception e) {
         this->printException(e);
     }
 }
@@ -247,7 +255,7 @@ void App::setWindowVisibility(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
+
     window->setVisible(req.field0);
 }
 
@@ -263,7 +271,7 @@ void App::moveWindow(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
+
     Point newLocation = makePoint(req.field0, req.field1);
     window->setLocation(newLocation);
     window->move(newLocation);
@@ -275,7 +283,7 @@ void App::bringWindowToFront(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
+
     Server::getSingleton()->getCompositor().lock()->bringWindowToFront(window);
 }
 
@@ -286,18 +294,18 @@ void App::destroyWindow(Asp_Request req)
     if (window == nullptr) {
         return;
     }
-    
+
     Server::getSingleton()->getCompositor().lock()->removeWindow(windowId);
 }
 
 void App::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_ptr<Window> window)
 {
-    try {                
+    try {
         Asp_Event req = evt->toProtocolEvent();
 
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
-            
+
         recvAck(_eventSocket);
     }
     catch (zmq::error_t e) {
@@ -307,12 +315,12 @@ void App::sendMouseMoveEvent(std::shared_ptr<MouseMoveEvent> evt, std::shared_pt
 
 void App::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::shared_ptr<Window> window)
 {
-    try {        
+    try {
         Asp_Event req = evt->toProtocolEvent();
-        
+
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
-        
+
         recvAck(_eventSocket);
     }
     catch (std::exception e) {
@@ -322,7 +330,7 @@ void App::sendMouseButtonEvent(std::shared_ptr<MouseButtonEvent> evt, std::share
 
 void App::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::shared_ptr<Window> window)
 {
-    try {        
+    try {
         Asp_Event req = evt->toProtocolEvent();
 
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
@@ -331,7 +339,7 @@ void App::sendMouseScrollEvent(std::shared_ptr<MouseScrollEvent> evt, std::share
         recvAck(_eventSocket);
     }
     catch (std::exception e) {
-       this->printException(e);
+        this->printException(e);
     }
 }
 
@@ -339,15 +347,15 @@ void App::sendTextEvent(std::shared_ptr<TextEvent> evt, std::shared_ptr<Window> 
 {
     try {
         Asp_Event req = evt->toProtocolEvent();
-        
+
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
-        
+
         recvAck(_eventSocket);
-        
+
         zmq::message_t textRequest(evt->getText().c_str(), evt->getText().size());
         _eventSocket->send(textRequest);
-        
+
         recvAck(_eventSocket);
     }
     catch (std::exception e) {
@@ -359,10 +367,10 @@ void App::sendKeyEvent(std::shared_ptr<KeyEvent> evt, std::shared_ptr<Window> wi
 {
     try {
         Asp_Event req = evt->toProtocolEvent();
-        
+
         zmq::message_t eventRequest(&req, sizeof(Asp_Event));
         _eventSocket->send(eventRequest);
-        
+
         recvAck(_eventSocket);
     }
     catch (std::exception e) {
@@ -385,7 +393,6 @@ std::weak_ptr<zmq::socket_t> App::getSocket() const
     return _socket;
 }
 
-
 std::weak_ptr<zmq::socket_t> App::getEventSocket() const
 {
     return _eventSocket;
@@ -399,7 +406,7 @@ App::~App()
     Server::getSingleton()->getCompositor().lock()->removeWindows(_id);
 }
 
-void App::printException(const std::exception &e) const
+void App::printException(const std::exception& e) const
 {
     std::cout << e.what() << std::endl;
 }

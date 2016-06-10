@@ -13,14 +13,14 @@
 
 using namespace appserver;
 
-SDLWindow::SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible):
-    Window(app, id, frame, rasterType, visible),
-    _glTexOperation(kSDLTexOpNone),
-    _cachedFrame(frame),
-    _pixels(nullptr),
-    _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0)),
-    _texture(nullptr),
-    _renderer(nullptr)
+SDLWindow::SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible)
+    : Window(app, id, frame, rasterType, visible)
+    , _glTexOperation(kSDLTexOpNone)
+    , _cachedFrame(frame)
+    , _pixels(nullptr)
+    , _dirtyRect(makeRect(0.0, 0.0, 0.0, 0.0))
+    , _texture(nullptr)
+    , _renderer(nullptr)
 {
 }
 
@@ -29,7 +29,7 @@ void SDLWindow::move(Point location)
     _cachedFrame.location = location;
 }
 
-void SDLWindow::create(void *pixels, size_t bytes)
+void SDLWindow::create(void* pixels, size_t bytes)
 {
     if (_pixels != nullptr) {
         free(_pixels);
@@ -39,7 +39,7 @@ void SDLWindow::create(void *pixels, size_t bytes)
     _glTexOperation = kSDLTexOpCreate;
 }
 
-void SDLWindow::resize(void *pixels, size_t bytes)
+void SDLWindow::resize(void* pixels, size_t bytes)
 {
     if (_pixels != nullptr) {
         free(_pixels);
@@ -50,8 +50,8 @@ void SDLWindow::resize(void *pixels, size_t bytes)
     _glTexOperation = kSDLTexOpResize;
 }
 
-void SDLWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
-{    
+void SDLWindow::updatePixels(void* pixels, size_t bytes, const Rect& dirtyRect)
+{
     if (_pixels != nullptr) {
         free(_pixels);
         _pixels = nullptr;
@@ -61,27 +61,26 @@ void SDLWindow::updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect)
     _glTexOperation = kSDLTexOpUpdatePixels;
 }
 
-
 void SDLWindow::performOperationsAndDraw()
-{   
+{
     switch (_glTexOperation) {
-        case kSDLTexOpCreate:
-            createTexture();
-            break;
-            
-        case kSDLTexOpUpdatePixels:
-            updateTexturePixels();
-            break;
-            
-        case kSDLTexOpResize:
-            resizeTexture();
-            break;
-            
-        default:
-            break;
+    case kSDLTexOpCreate:
+        createTexture();
+        break;
+
+    case kSDLTexOpUpdatePixels:
+        updateTexturePixels();
+        break;
+
+    case kSDLTexOpResize:
+        resizeTexture();
+        break;
+
+    default:
+        break;
     }
     _glTexOperation = kSDLTexOpNone;
-    
+
     draw();
 }
 
@@ -90,7 +89,7 @@ bool SDLWindow::operationsFinished()
     return true;
 }
 
-void SDLWindow::setRenderer(SDL_Renderer *renderer)
+void SDLWindow::setRenderer(SDL_Renderer* renderer)
 {
     _renderer = renderer;
 }
@@ -98,18 +97,18 @@ void SDLWindow::setRenderer(SDL_Renderer *renderer)
 void SDLWindow::createTexture()
 {
     Uint32 pixelFormat = SDL_PIXELFORMAT_ARGB8888;
-    
+
     if (getRasterType() == AspWindowRasterRGBA) {
         pixelFormat = SDL_PIXELFORMAT_RGBA8888;
     }
     else if (getRasterType() == AspWindowRasterARGB) {
         pixelFormat = SDL_PIXELFORMAT_ARGB8888;
     }
-    
+
     Rect frame = getCachedFrame();
     _texture = SDL_CreateTexture(_renderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, frame.size.width, frame.size.height);
     SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
-    SDL_UpdateTexture(_texture, NULL, _pixels, 4*frame.size.width);
+    SDL_UpdateTexture(_texture, NULL, _pixels, 4 * frame.size.width);
 }
 
 void SDLWindow::resizeTexture()
@@ -128,7 +127,7 @@ void SDLWindow::updateTexturePixels()
     dirtyRect.y = _dirtyRect.location.y;
     dirtyRect.w = _dirtyRect.size.width;
     dirtyRect.h = _dirtyRect.size.height;
-    SDL_UpdateTexture(_texture, &dirtyRect, _pixels, 4*dirtyRect.w);
+    SDL_UpdateTexture(_texture, &dirtyRect, _pixels, 4 * dirtyRect.w);
 }
 
 void SDLWindow::draw()
@@ -153,4 +152,3 @@ SDLWindow::~SDLWindow()
         SDL_DestroyTexture(_texture);
     }
 }
-

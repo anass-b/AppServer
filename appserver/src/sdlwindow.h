@@ -12,47 +12,45 @@
 #include <memory>
 #include <SDL.h>
 
-namespace appserver
-{
-    enum SDLTexOperation {
-        kSDLTexOpNone,
-        kSDLTexOpCreate,
-        kSDLTexOpUpdatePixels,
-        kSDLTexOpResize
-    };
-    
-    class SDLWindow : public Window
-    {
-    public:
-        SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
-        virtual ~SDLWindow();
-        
-        virtual void performOperationsAndDraw();
-        virtual bool operationsFinished();
-        
-        virtual void move(Point location);
-        virtual void create(void *pixels, size_t bytes);
-        virtual void resize(void *pixels, size_t bytes);
-        virtual void updatePixels(void *pixels, size_t bytes, const Rect& dirtyRect);
-        
-        void setRenderer(SDL_Renderer *renderer);
-        
-    private:
-        void draw();
-        void createTexture();
-        void resizeTexture();
-        void updateTexturePixels();
-        
-        Rect getCachedFrame() const;
-        
-    private:        
-        SDLTexOperation _glTexOperation;
-        Rect _cachedFrame;
-        void* _pixels;
-        Rect _dirtyRect;
-        SDL_Texture *_texture;
-        SDL_Renderer *_renderer;
-    };
+namespace appserver {
+enum SDLTexOperation {
+    kSDLTexOpNone,
+    kSDLTexOpCreate,
+    kSDLTexOpUpdatePixels,
+    kSDLTexOpResize
+};
+
+class SDLWindow : public Window {
+public:
+    SDLWindow(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
+    virtual ~SDLWindow();
+
+    virtual void performOperationsAndDraw();
+    virtual bool operationsFinished();
+
+    virtual void move(Point location);
+    virtual void create(void* pixels, size_t bytes);
+    virtual void resize(void* pixels, size_t bytes);
+    virtual void updatePixels(void* pixels, size_t bytes, const Rect& dirtyRect);
+
+    void setRenderer(SDL_Renderer* renderer);
+
+private:
+    void draw();
+    void createTexture();
+    void resizeTexture();
+    void updateTexturePixels();
+
+    Rect getCachedFrame() const;
+
+private:
+    SDLTexOperation _glTexOperation;
+    Rect _cachedFrame;
+    void* _pixels;
+    Rect _dirtyRect;
+    SDL_Texture* _texture;
+    SDL_Renderer* _renderer;
+};
 }
 
 #endif

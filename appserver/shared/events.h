@@ -5,12 +5,14 @@
 
 namespace appserver {
 
-class Event
-{
+class Event {
 public:
-    Event(uint8_t type) : _type(type) {}
+    Event(uint8_t type)
+        : _type(type)
+    {
+    }
 
-    Event(const Asp_Event &evt)
+    Event(const Asp_Event& evt)
     {
         setWindowId(evt.winId);
         setTimestamp(evt.timestamp);
@@ -37,28 +39,36 @@ public:
         evt.field4 = 0;
         evt.field5 = 0;
         evt.timestamp = getTimestamp();
-        
+
         return evt;
     }
+
 private:
     uint8_t _type = AspEventTypeUndefined;
     TWindowId _windowId = AspUndefinedWindowId;
     uint32_t _timestamp = 0;
 };
 
-class QuitEvent : public Event
-{
+class QuitEvent : public Event {
 public:
-    QuitEvent() : Event(AspEventTypeQuit) {}
+    QuitEvent()
+        : Event(AspEventTypeQuit)
+    {
+    }
     virtual ~QuitEvent() {}
 };
 
-class MouseEvent : public Event
-{
+class MouseEvent : public Event {
 public:
-    MouseEvent(const Asp_Event &evt): Event(evt) {}
-    MouseEvent(uint8_t type) : Event(type) {}
-    virtual ~MouseEvent()  {}
+    MouseEvent(const Asp_Event& evt)
+        : Event(evt)
+    {
+    }
+    MouseEvent(uint8_t type)
+        : Event(type)
+    {
+    }
+    virtual ~MouseEvent() {}
     double getX() const { return _x; }
     void setX(double x) { _x = x; }
     double getY() const { return _y; }
@@ -74,12 +84,15 @@ private:
     double _windowY = 0.0f;
 };
 
-class MouseMoveEvent : public MouseEvent
-{
+class MouseMoveEvent : public MouseEvent {
 public:
-    MouseMoveEvent() : MouseEvent(AspEventTypeMouseMove) {}
+    MouseMoveEvent()
+        : MouseEvent(AspEventTypeMouseMove)
+    {
+    }
 
-    MouseMoveEvent(const Asp_Event &evt): MouseEvent(evt)
+    MouseMoveEvent(const Asp_Event& evt)
+        : MouseEvent(evt)
     {
         setWindowX(evt.field0);
         setWindowY(evt.field1);
@@ -106,12 +119,15 @@ public:
     }
 };
 
-class MouseButtonEvent : public MouseEvent
-{
+class MouseButtonEvent : public MouseEvent {
 public:
-    MouseButtonEvent() : MouseEvent(AspEventTypeMouseButton) {}
+    MouseButtonEvent()
+        : MouseEvent(AspEventTypeMouseButton)
+    {
+    }
 
-    MouseButtonEvent(const Asp_Event &evt) : MouseEvent(evt)
+    MouseButtonEvent(const Asp_Event& evt)
+        : MouseEvent(evt)
     {
         setWindowX(evt.field0);
         setWindowY(evt.field1);
@@ -139,20 +155,24 @@ public:
         evt.field4 = getButton();
         evt.field5 = getState();
         evt.timestamp = getTimestamp();
-        
+
         return evt;
     }
+
 private:
     uint8_t _button = 0;
     uint8_t _state = 0;
 };
 
-class MouseScrollEvent : public MouseEvent
-{
+class MouseScrollEvent : public MouseEvent {
 public:
-    MouseScrollEvent() : MouseEvent(AspEventTypeMouseScroll) {}
+    MouseScrollEvent()
+        : MouseEvent(AspEventTypeMouseScroll)
+    {
+    }
 
-    MouseScrollEvent(const Asp_Event &evt) : MouseEvent(evt)
+    MouseScrollEvent(const Asp_Event& evt)
+        : MouseEvent(evt)
     {
         setWindowX(evt.field0);
         setWindowY(evt.field1);
@@ -183,17 +203,23 @@ public:
 
         return evt;
     }
+
 private:
     int32_t _scrollX = 0;
     int32_t _scrollY = 0;
     bool _flipped = false;
 };
 
-class TextEvent : public Event
-{
+class TextEvent : public Event {
 public:
-    TextEvent(const Asp_Event &evt) : Event(evt) {}
-    TextEvent() : Event(AspEventTypeText) {}
+    TextEvent(const Asp_Event& evt)
+        : Event(evt)
+    {
+    }
+    TextEvent()
+        : Event(AspEventTypeText)
+    {
+    }
     virtual ~TextEvent() {}
     const std::string& getText() const { return _text; }
     void setText(const std::string text) { _text = text; }
@@ -213,15 +239,19 @@ public:
 
         return evt;
     }
+
 private:
     std::string _text;
 };
 
-class KeyEvent : public Event
-{
+class KeyEvent : public Event {
 public:
-    KeyEvent() : Event(AspEventTypeKey) {}
-    KeyEvent(const Asp_Event &evt) : Event(evt)
+    KeyEvent()
+        : Event(AspEventTypeKey)
+    {
+    }
+    KeyEvent(const Asp_Event& evt)
+        : Event(evt)
     {
         setKeycode(evt.field0);
         setScancode(evt.field1);
@@ -256,6 +286,7 @@ public:
 
         return evt;
     }
+
 private:
     int32_t _scancode = 0;
     int32_t _keycode = 0;
@@ -263,7 +294,6 @@ private:
     int8_t _state = 0;
     bool _repeat = false;
 };
-    
 }
 
 #endif

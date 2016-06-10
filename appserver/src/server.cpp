@@ -26,7 +26,7 @@ Server::Server()
     _socket->bind("tcp://*:9000");
 }
 
-void* Server::requestListener(void *ptr)
+void* Server::requestListener(void* ptr)
 {
     Server* server = Server::getSingleton();
     std::shared_ptr<zmq::socket_t> socket = server->getSocket().lock();
@@ -66,8 +66,7 @@ void* Server::requestListener(void *ptr)
 
 void Server::run()
 {
-    if (lzo_init() != LZO_E_OK)
-    {
+    if (lzo_init() != LZO_E_OK) {
         printf("internal error - lzo_init() failed !!!\n");
         printf("(this usually indicates a compiler bug - try recompiling\nwithout optimizations, and enable '-DLZO_DEBUG' for diagnostics)\n");
     }
@@ -84,7 +83,7 @@ void Server::run()
         std::shared_ptr<Event> evt = _inputSource->pollEvent();
         if (evt != nullptr) {
             uint8_t eventType = evt->getType();
-            if(eventType == AspEventTypeQuit) {
+            if (eventType == AspEventTypeQuit) {
                 break;
             }
             else {
@@ -102,7 +101,7 @@ void Server::avoidBusyWait(const long int nsec)
     Sleep(nsec / NANO_SECOND_MULTIPLIER);
 #else
     timespec tim;
-    tim.tv_sec  = 0;
+    tim.tv_sec = 0;
     tim.tv_nsec = nsec;
     nanosleep(&tim, NULL);
 #endif
@@ -179,4 +178,3 @@ std::string Server::getAppsHost() const
 Server::~Server()
 {
 }
-

@@ -10,13 +10,13 @@
 #include <memory>
 
 using namespace appserver;
- 
+
 SDLCompositor::SDLCompositor()
 {
     int width = 1280;
     int height = 700;
     this->setSize(makeSize(width, height));
-    
+
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
         _window = SDL_CreateWindow("appserver", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
         _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -28,14 +28,14 @@ void SDLCompositor::compose()
 {
     SDL_SetRenderDrawColor(_renderer, 65, 105, 170, 255);
     SDL_RenderClear(_renderer);
-    
-    for (auto &it : _windows) {
+
+    for (auto& it : _windows) {
         std::shared_ptr<Window> w(it);
         if (w != nullptr) {
             w->performOperationsAndDraw();
         }
     }
-    
+
     SDL_RenderPresent(_renderer);
 }
 
@@ -48,4 +48,3 @@ SDLCompositor::~SDLCompositor()
 {
     SDL_Quit();
 }
-
