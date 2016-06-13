@@ -1,11 +1,6 @@
 project (appserver)
 
-set(SDL2_INCLUDE_DIR "" CACHE PATH "")
-set(SDL2_LIBRARY "" CACHE FILEPATH "")
-if (!APPLE)
-    set(SDL2MAIN_LIBRARY "" CACHE FILEPATH "")
-endif()
-
+include_directories (${ZMQ_INCLUDE_DIR})
 include_directories (${SDL2_INCLUDE_DIR})
 include_directories ("${PROJECT_SOURCE_DIR}/src")
 
@@ -37,7 +32,7 @@ if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS pthread)
 endif()
 
-target_link_libraries (appserver minilzo ${EXTRA_LIBS} ${ZMQ_LIBRARY} ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY})
+target_link_libraries (appserver minilzo ${EXTRA_LIBS} ${ZMQ_LIBRARY} ${SDL2_LIBRARY})
 set_property(TARGET appserver PROPERTY CXX_STANDARD 11)
 
 

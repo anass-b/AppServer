@@ -1,8 +1,5 @@
 project (asl-test1)
 
-set(CAIRO_INCLUDE_DIR "" CACHE PATH "")
-set(CAIRO_LIBRARY "" CACHE FILEPATH "")
-
 include_directories (${CAIRO_INCLUDE_DIR})
 
 add_executable (asl-test1 main.cpp)

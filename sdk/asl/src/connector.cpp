@@ -154,7 +154,6 @@ TWindowId Connector::createWindow(void* data, uint64_t dataSize, double x, doubl
 
         Asp_Event evt;
         evt.winId = 0;
-        unsigned int priority;
         bool foundExistingId = false;
 
         do {

@@ -6,3 +6,13 @@ build/
 sdk/asl/tests/cef/Debug/
 sdk/asl/tests/cef/Release/
 CMakeLists.txt.user
+
+# apps/webbrowser/
+apps/webbrowser/Debug/
+apps/webbrowser/Release/
+apps/webbrowser/Resources/
+apps/webbrowser/include/
+apps/webbrowser/libcef_dll/
+apps/webbrowser/macros.cmake
+apps/webbrowser/cef_paths.gypi
+apps/webbrowser/cef_paths2.gypi

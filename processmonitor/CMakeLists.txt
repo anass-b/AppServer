@@ -1,5 +1,7 @@
 project (processmonitor)
 
+include_directories (${ZMQ_INCLUDE_DIR})
+
 add_executable (processmonitor src/processmonitor.cpp)
 
 if ("${CMAKE_SYSTEM}" MATCHES "Linux")

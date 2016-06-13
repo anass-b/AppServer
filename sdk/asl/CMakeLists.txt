@@ -1,5 +1,6 @@
 project(asl)
 
+include_directories (${ZMQ_INCLUDE_DIR})
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
 set (SOURCES

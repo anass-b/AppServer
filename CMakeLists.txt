@@ -1,16 +1,27 @@
 cmake_minimum_required (VERSION 3.2.2)
 project (workspace)
 
+# ZeroMQ
 set(ZMQ_INCLUDE_DIR "" CACHE PATH "")
 set(ZMQ_LIBRARY "" CACHE FILEPATH "")
 
-include_directories (${ZMQ_INCLUDE_DIR})
+# cairo graphics
+set(CAIRO_INCLUDE_DIR "" CACHE PATH "")
+set(CAIRO_LIBRARY "" CACHE FILEPATH "")
 
-include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
+# SDL
+set(SDL2_INCLUDE_DIR "" CACHE PATH "")
+set(SDL2_LIBRARY "" CACHE FILEPATH "")
+
+SET(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+
 include_directories ("${PROJECT_SOURCE_DIR}/vendor")
+include_directories ("${PROJECT_SOURCE_DIR}/sdk/asl/include")
+include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 
-add_subdirectory (vendor/minilzo)
-add_subdirectory (sdk)
-add_subdirectory (processmonitor)
 add_subdirectory (appserver)
+add_subdirectory (processmonitor)
+add_subdirectory (sdk)
+add_subdirectory (apps/webbrowser)
+add_subdirectory (vendor/minilzo)
 
