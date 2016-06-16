@@ -27,6 +27,15 @@ Window::Window(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rast
 {
 }
 
+Window::Window(TWindowId id, const Rect& frame, int rasterType, bool visible)
+    : _id(id)
+    , _frame(frame)
+    , _visible(visible)
+    , _z(0)
+    , _rasterType(rasterType)
+{
+}
+
 bool Window::pointIsInsideTitleBar(Point p)
 {
     if (p.x >= _frame.location.x && p.y >= _frame.location.y && p.x <= _frame.location.x + _frame.size.width && p.y <= _frame.location.y + 40) {

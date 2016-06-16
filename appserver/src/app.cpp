@@ -18,6 +18,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
+#include <QPushButton>
 
 using namespace appserver;
 
@@ -140,19 +141,27 @@ void App::newWindow(Asp_Request req)
         zmq::message_t response(&evt, sizeof(Asp_Event));
         socket->send(response);
 
-        Rect windowFrame = makeRect(static_cast<double>(req.field0),
+        /*Rect* windowFrame = makeRect(static_cast<double>(req.field0),
             static_cast<double>(req.field1),
             static_cast<double>(req.field2),
-            static_cast<double>(req.field3));
+            static_cast<double>(req.field3));*/
 
-        std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
+        Rect* windowFrame = new Rect;
+        windowFrame->location.x = static_cast<double>(req.field0);
+        windowFrame->location.y = static_cast<double>(req.field1);
+        windowFrame->size.width = static_cast<double>(req.field2);
+        windowFrame->size.height = static_cast<double>(req.field3);
+
+        emit Server::getSingleton()->needToCreateWindow(id, windowFrame, (int)req.field4, true);
+
+        /*std::shared_ptr<Compositor> compositor = Server::getSingleton()->getCompositor().lock();
         std::shared_ptr<SDLCompositor> sdlCompositor = std::dynamic_pointer_cast<SDLCompositor>(compositor);
 
         std::shared_ptr<SDLWindow> newWindow = std::make_shared<SDLWindow>(shared_from_this(), id, windowFrame, (int)req.field4);
         newWindow->setRenderer(sdlCompositor->getRenderer());
         newWindow->create(data, req.dataSize);
 
-        compositor->addWindow(std::move(newWindow));
+        compositor->addWindow(std::move(newWindow));*/
     }
     catch (std::exception e) {
         this->printException(e);

@@ -18,17 +18,19 @@
 #include <protocol.h>
 #include <zmq.hpp>
 #include <thread>
+#include <QWidget>
 
 #define NANO_SECOND_MULTIPLIER 1000000 // 1 millisecond = 1,000,000 Nanoseconds
 
 namespace appserver {
 const long INTERVAL_MS = 5 * NANO_SECOND_MULTIPLIER;
 
-class Server {
+class Server : QWidget {
+    Q_OBJECT
 public:
     static Server* getSingleton();
     virtual ~Server();
-    void run();
+    void run(int argc, char** argv);
     void addApp(std::shared_ptr<App> app);
     TAppId removeAppByPid(TProcId pid);
     std::weak_ptr<App> findApp(TAppId id) const;
@@ -56,6 +58,15 @@ private:
     std::string _appsHost;
     std::shared_ptr<zmq::context_t> _context = nullptr;
     std::shared_ptr<zmq::socket_t> _socket = nullptr;
+
+signals:
+    void needToCreateWindow(quint32 id, Rect* frame, int rasterType, bool visible);
+    //void needToCreateWindow(TWindowId id, Rect* frame, int rasterType, bool visible);
+    //void needToCreateWindow();
+public slots:
+    void createWindow(quint32 id, Rect* frame, int rasterType, bool visible);
+    //void createWindow(TWindowId id, Rect* frame, int rasterType, bool visible);
+    //void createWindow();
 };
 }
 

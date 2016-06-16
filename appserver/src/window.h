@@ -21,6 +21,7 @@ class Compositor;
 class Window {
 public:
     Window(std::weak_ptr<App> app, TWindowId id, const Rect& frame, int rasterType, bool visible = true);
+    Window(TWindowId id, const Rect& frame, int rasterType, bool visible = true);
     virtual ~Window();
     TWindowId getId();
     static TWindowId newWindowId();

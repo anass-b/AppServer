@@ -1,5 +1,12 @@
 project (appserver)
 
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+# Find the QtWidgets library
+find_package(Qt5Widgets)
+find_package(Qt5Core)
+
 include_directories (${ZMQ_INCLUDE_DIR})
 include_directories (${SDL2_INCLUDE_DIR})
 include_directories ("${PROJECT_SOURCE_DIR}/src")
@@ -21,6 +28,8 @@ set (SOURCES
     src/window.cpp
     src/sdlwindow.h
     src/sdlwindow.cpp
+    src/qtwindow.h
+    src/qtwindow.cpp
     src/eventsource.h
     src/sdleventsource.h
     src/sdleventsource.cpp
@@ -32,7 +41,7 @@ if ("${CMAKE_SYSTEM}" MATCHES "Linux")
     set (EXTRA_LIBS pthread)
 endif()
 
-target_link_libraries (appserver minilzo ${EXTRA_LIBS} ${ZMQ_LIBRARY} ${SDL2_LIBRARY})
+target_link_libraries (appserver minilzo ${EXTRA_LIBS} ${ZMQ_LIBRARY} ${SDL2_LIBRARY} Qt5::Widgets)
 set_property(TARGET appserver PROPERTY CXX_STANDARD 11)
 
 
