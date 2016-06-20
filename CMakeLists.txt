@@ -22,6 +22,6 @@ include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 add_subdirectory (appserver)
 add_subdirectory (processmonitor)
 add_subdirectory (sdk)
-add_subdirectory (apps/webbrowser)
+#add_subdirectory (apps/webbrowser)
 add_subdirectory (vendor/minilzo)
 
