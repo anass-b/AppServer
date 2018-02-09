@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.2.2)
-project (workspace)
+project (NetworkDisplayServer)
 
 # ZeroMQ
 set(ZMQ_INCLUDE_DIR "" CACHE PATH "")
@@ -22,6 +22,5 @@ include_directories ("${PROJECT_SOURCE_DIR}/appserver/shared")
 add_subdirectory (appserver)
 add_subdirectory (processmonitor)
 add_subdirectory (sdk)
-#add_subdirectory (apps/webbrowser)
 add_subdirectory (vendor/minilzo)
 
