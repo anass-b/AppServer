@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.2.2)
-project (NetworkDisplayServer)
+project (AppServer)
 
 # ZeroMQ
 set(ZMQ_INCLUDE_DIR "" CACHE PATH "")
