@@ -1,2 +1,2 @@
 Apps:
-- WebBrowser: https://github.com/anass-b/CDD_WebBrowser
+- WebBrowser: https://anassb@bitbucket.org/anassb/appserver_apps_webbrowser.git
