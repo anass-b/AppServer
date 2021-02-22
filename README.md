@@ -1,4 +1,4 @@
-# AppServer - SDL2 and ZeroMQ based display server
+# AppServer - SDL2 and ZeroMQ based Display Server
 ## Build
 Install dependencies:
 ```
