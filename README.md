@@ -1,4 +1,4 @@
-# SDL2 and ZeroMQ based Display Server with Java and C++ client apps
+# ZeroMQ, SDL2 and Cairo based Display Server + Java and C++ client libraries + Chromium demo app
 ## Build
 Install dependencies:
 ```
