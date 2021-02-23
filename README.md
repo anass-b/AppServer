@@ -1,4 +1,4 @@
-# Compositing Display Server with Java and C++ client libraries and a Chromium demo app
+# Compositing Display Server with Java and C++ client libraries and a Chromium Demo App
 ## Build
 Install dependencies:
 ```
